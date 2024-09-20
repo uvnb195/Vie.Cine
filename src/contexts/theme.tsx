@@ -1,8 +1,6 @@
 import { Colors, PaletteType } from '@/constants/Colors';
-import React, { createContext, ReactNode, useContext, useEffect } from 'react';
-import { StyleProp, useColorScheme } from 'react-native';
-import * as SplashScreen from 'expo-splash-screen';
-import { useFonts } from 'expo-font';
+import React, { createContext, ReactNode, useContext } from 'react';
+import { useColorScheme } from 'react-native';
 
 const ThemeContext = createContext<PaletteType | null>(null)
 interface Props {
@@ -19,24 +17,7 @@ export const useCustomTheme = () => {
     return { colors: value, theme: theme }
 }
 
-SplashScreen.preventAutoHideAsync();
-
 const CustomThemeProvider = ({ children }: Props) => {
-    SplashScreen.hideAsync();
-    const [loaded] = useFonts({
-        'Roboto-Bold': require('../../assets/fonts/Roboto-Bold.ttf'),
-        'Roboto-Light': require('../../assets/fonts/Roboto-Light.ttf'),
-        'Roboto': require('../../assets/fonts/Roboto-Medium.ttf'),
-    });
-
-    useEffect(() => {
-        if (loaded) {
-        }
-    }, [loaded]);
-
-    if (!loaded) {
-        return null;
-    }
     const mode = useColorScheme()
     const value = Colors[mode!!]
     return (

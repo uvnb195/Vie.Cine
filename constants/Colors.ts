@@ -1,3 +1,6 @@
+import { hexToRGBA } from "@/hooks/hexToRGBA";
+import bottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet";
+
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
@@ -38,25 +41,69 @@ export const Colors = {
     text: {
       default: ColorPalette.black,
       light: ColorPalette.gray.dark,
-      dark: ColorPalette.orange[300]
+      dark: ColorPalette.orange[300],
+      highlight: ColorPalette.gray.dark,
+      disable: ColorPalette.gray.default
     },
-    background: '#fff',
+    smallButton: {
+      backgroundDefault: 'transparent',
+      backgroundDisable: ColorPalette.yellow[300],
+      textDisable: ColorPalette.gray.light,
+      textDefault: ColorPalette.black
+    },
+    sheetIndicator: ColorPalette.black,
+    background: {
+      default: ColorPalette.white,
+      highlight: ColorPalette.gray.light,
+      bottomSheet: ColorPalette.yellow[900],
+    },
+    border: {
+      default: ColorPalette.yellow[300],
+      disable: ColorPalette.gray.light
+    },
     tint: tintColorLight,
-    icon: '#687076',
+    icon: {
+      disable: ColorPalette.gray.light,
+      enable: ColorPalette.gray.dark,
+      highlight: ColorPalette.orange[500]
+    },
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    blurBackground: hexToRGBA(ColorPalette.black, 0.5),
   },
   dark: {
     text: {
       default: ColorPalette.white,
       light: ColorPalette.gray.default,
-      dark: ColorPalette.white
+      dark: ColorPalette.white,
+      highlight: ColorPalette.yellow[600],
+      disable: ColorPalette.gray.dark
     },
-    background: '#151718',
+    smallButton: {
+      backgroundDefault: 'transparent',
+      backgroundDisable: ColorPalette.yellow[300],
+      textDefault: ColorPalette.white,
+      textDisable: ColorPalette.gray.light
+    },
+    sheetIndicator: ColorPalette.white,
+    background: {
+      default: ColorPalette.black,
+      highlight: ColorPalette.yellow[100],
+      bottomSheet: ColorPalette.gray.dark
+    },
+    border: {
+      default: ColorPalette.yellow[300],
+      disable: ColorPalette.gray.dark
+    },
     tint: tintColorDark,
-    icon: '#9BA1A6',
+    icon: {
+      disable: ColorPalette.gray.dark,
+      enable: ColorPalette.gray.default,
+      highlight: ColorPalette.yellow[500]
+    },
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    blurBackground: hexToRGBA(ColorPalette.black, 0.5),
   },
 };
 
