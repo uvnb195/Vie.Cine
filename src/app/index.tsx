@@ -7,11 +7,12 @@ import DropdownMenu from '../components/input/DropdownMenu'
 import MainWrapper from '../components/MainWrapper'
 import { useCustomTheme } from '../contexts/theme'
 import PaymentPages from '../components/pages'
-import Step1 from '../components/pages/Step1'
+import Step1 from '../components/pages/payment-pages/Step1'
 import SmallButton from '../components/button/SmallButton'
 import ExpandInput from '../components/input/ExpandInput'
 import ExpandedInputScrollView from '../components/scroll/ExpandedInputScrollView'
 import { DROPDOWN_MENU_ITEM_HEIGHT } from '@/constants/Size'
+import ScrollCard from '../components/scroll/ScrollCard'
 
 const RootLayout = () => {
     const value = useCustomTheme()
@@ -66,8 +67,10 @@ const RootLayout = () => {
                         title='A1'
                     /> */}
 
-                    <ExpandedInputScrollView
-                        itemSize={DROPDOWN_MENU_ITEM_HEIGHT} />
+                    {/* <ExpandedInputScrollView
+                        itemSize={DROPDOWN_MENU_ITEM_HEIGHT} /> */}
+
+                    <ScrollCard height={150} />
 
                     {/* <DropdownMenu data={[1, 2, 3]} /> */}
 

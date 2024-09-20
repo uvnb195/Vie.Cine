@@ -1,7 +1,8 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import DropdownMenu from '../input/DropdownMenu'
+import DropdownMenu from '../../input/DropdownMenu'
 import { ScrollView } from 'react-native-gesture-handler'
+import ScrollCard from '../../scroll/ScrollCard'
 
 const Step1 = () => {
     const scrollRef = React.useRef<ScrollView>(null)
@@ -29,6 +30,10 @@ const Step1 = () => {
                 {/* <DropdownMenu enableSearch data={[1, 2, 3]} />
                 <DropdownMenu enableSearch data={[1, 2, 3]} />
                 <DropdownMenu enableSearch data={[1, 2, 3]} /> */}
+                <View className='w-full h-[150px]'>
+
+                    <ScrollCard height={150} />
+                </View>
             </ScrollView>
         </View>
     )

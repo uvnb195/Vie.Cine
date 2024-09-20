@@ -25,4 +25,16 @@ export const DROPDOWN_MENU_ITEM_HEIGHT = 40
 
 export const DROPDOWN_MENU_HEIGHT = 300
 
-export const BOTTOM_SHEET_SECTION_HEIGHT = 50 
+export const BOTTOM_SHEET_SECTION_HEIGHT = 50
+
+
+export const CREDIT_CARD_SIZE = {
+    default: {
+        width: 250,
+        height: 150
+    },
+    large: {
+        width: 250,
+        height: 150
+    },
+}

@@ -28,8 +28,6 @@ const CustomCarousel = ({
     const [listViewable, setListViewable] = useState([true, ...Array(data.length - 1).fill(false)])
     const [currenIndex, setCurrentIndex] = useState(0)
 
-    const ref = useRef<FlatList>(null)
-
     const updateViewableItems = (index: number, value: boolean) => {
         let newState = listViewable.slice()
         newState[index] = value
@@ -38,11 +36,9 @@ const CustomCarousel = ({
 
     const scrollX = useRef(new Animated.Value(0)).current
 
-    useEffect(() => {
-
-        console.log(listViewable)
-
-    }, [listViewable])
+    // useEffect(() => {
+    //     console.log(listViewable)
+    // }, [listViewable])
 
     const renderItem = (item: any, index: number) => {
 

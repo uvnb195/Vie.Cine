@@ -6,7 +6,7 @@ import { useCustomTheme } from '@/src/contexts/theme'
 import DropdownMenu from '../input/DropdownMenu'
 import { ScrollView } from 'react-native-gesture-handler'
 import PaymentPages from '../pages'
-import Step1 from '../pages/Step1'
+import Step1 from '../pages/payment-pages/Step1'
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
 
 export interface BottomSheetRef {
