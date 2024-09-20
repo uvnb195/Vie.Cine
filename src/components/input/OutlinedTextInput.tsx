@@ -14,7 +14,16 @@ interface Props {
     onBlur?: () => void
 }
 
-const CustomTextInput = ({ width, height, placeHolder, style, disabled, onSubmitEditing, maxLetters, upperCase, onBlur }: Props) => {
+const OutlinedTextInput = ({
+    width,
+    height,
+    placeHolder,
+    style,
+    disabled,
+    onSubmitEditing,
+    maxLetters,
+    upperCase,
+    onBlur }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
@@ -71,4 +80,4 @@ const CustomTextInput = ({ width, height, placeHolder, style, disabled, onSubmit
     )
 }
 
-export default CustomTextInput
+export default OutlinedTextInput

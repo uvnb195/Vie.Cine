@@ -38,6 +38,7 @@ const ColorPalette = {
 
 export const Colors = {
   light: {
+    searchIcon: ColorPalette.orange[900],
     text: {
       default: ColorPalette.black,
       light: ColorPalette.gray.dark,
@@ -58,7 +59,7 @@ export const Colors = {
       bottomSheet: ColorPalette.yellow[900],
     },
     border: {
-      default: ColorPalette.yellow[300],
+      default: ColorPalette.orange[300],
       disable: ColorPalette.gray.light
     },
     tint: tintColorLight,
@@ -72,6 +73,7 @@ export const Colors = {
     blurBackground: hexToRGBA(ColorPalette.black, 0.5),
   },
   dark: {
+    searchIcon: ColorPalette.yellow[100],
     text: {
       default: ColorPalette.white,
       light: ColorPalette.gray.default,

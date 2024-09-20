@@ -13,6 +13,8 @@ import ExpandInput from '../components/input/ExpandInput'
 import ExpandedInputScrollView from '../components/scroll/ExpandedInputScrollView'
 import { DROPDOWN_MENU_ITEM_HEIGHT } from '@/constants/Size'
 import ScrollCard from '../components/scroll/ScrollCard'
+import CustomInput from '../components/input/CustomInput'
+import SearchInput from '../components/input/SearchInput'
 
 const RootLayout = () => {
     const value = useCustomTheme()
@@ -70,7 +72,10 @@ const RootLayout = () => {
                     {/* <ExpandedInputScrollView
                         itemSize={DROPDOWN_MENU_ITEM_HEIGHT} /> */}
 
-                    <ScrollCard height={150} />
+                    <CustomInput
+                        placeHolder='asdsadsa'
+                        blockText={true} />
+                    <SearchInput />
 
                     {/* <DropdownMenu data={[1, 2, 3]} /> */}
 

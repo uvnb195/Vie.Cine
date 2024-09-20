@@ -2,7 +2,7 @@ import { useCustomTheme } from '@/src/contexts/theme'
 import React, { useEffect, useRef } from 'react'
 import { Animated, TouchableOpacity, ViewStyle, View } from 'react-native'
 import ThemeText from '../theme/ThemeText'
-import CustomTextInput from './TextInput'
+import OutlinedTextInput from './OutlinedTextInput'
 
 interface Props {
     title: string,
@@ -94,7 +94,7 @@ const ExpandInput = ({ title, style, width, height, disabled, onOpen, onFinished
                     ]}
                     onPress={handlePress}>
                     {isExpand === true
-                        ? <CustomTextInput width='100%'
+                        ? <OutlinedTextInput width='100%'
                             placeHolder=' '
                             onSubmitEditing={(text) => {
                                 onFinished && onFinished(text)
