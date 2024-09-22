@@ -56,7 +56,7 @@ const PaymentPages = ({
 
 
     return (
-        <View className='w-full h-full flex-col-reverse'>
+        <View className='w-full h-full flex-col-reverse z-50'>
             <View className='w-full h-20'>
                 <BottomSection
                     currentIndex={currentPage}

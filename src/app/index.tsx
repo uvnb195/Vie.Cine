@@ -15,6 +15,9 @@ import { DROPDOWN_MENU_ITEM_HEIGHT } from '@/constants/Size'
 import ScrollCard from '../components/scroll/ScrollCard'
 import CustomInput from '../components/input/CustomInput'
 import SearchInput from '../components/input/SearchInput'
+import ZoomView from '../components/scroll/ZoomView'
+import ThemeText from '../components/theme/ThemeText'
+import CinemaMapView from '../components/scroll/CinemaMapView'
 
 const RootLayout = () => {
     const value = useCustomTheme()
@@ -72,10 +75,14 @@ const RootLayout = () => {
                     {/* <ExpandedInputScrollView
                         itemSize={DROPDOWN_MENU_ITEM_HEIGHT} /> */}
 
+                    <View className='w-full h-[250px] '>
+                        <CinemaMapView />
+                    </View>
+                    {/* 
                     <CustomInput
                         placeHolder='asdsadsa'
                         blockText={true} />
-                    <SearchInput />
+                    <SearchInput /> */}
 
                     {/* <DropdownMenu data={[1, 2, 3]} /> */}
 

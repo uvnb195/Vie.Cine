@@ -23,7 +23,7 @@ const DropdownMenu = ({
     width = 200,
     height = 50,
     placeHolder,
-    padding,
+    padding = 8,
     disableSearch,
     handleExpand }: Props) => {
     const themeValue = useCustomTheme()
@@ -75,6 +75,7 @@ const DropdownMenu = ({
     const renderItems = () => (
         data.map((item, index) => (
             <Pressable
+                key={index}
                 onPress={() => { setSelected(index); setShow(false) }}
                 className='h-10 border-b justify-center px-2'
                 style={{
