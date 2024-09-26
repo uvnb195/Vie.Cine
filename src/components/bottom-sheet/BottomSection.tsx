@@ -26,11 +26,13 @@ const BottomSection = ({
         return Array.from({ length: totalPage }, (_, i) => (
             i == currentIndex ?
                 <View
+                    key={i}
                     className=' w-5 h-2 mx-1 rounded-full'
                     style={{
                         backgroundColor: colors.text.dark
                     }} />
                 : <View
+                    key={i}
                     className='bg-red-500 w-2 h-2 mx-1 rounded-full'
                     style={{
                         backgroundColor: colors.text.light
@@ -43,12 +45,10 @@ const BottomSection = ({
             {currentIndex != 0 && currentIndex != totalPage - 1
                 ? <CustomButton
                     title='Prev'
-                    disabled={disabled}
                     hasBorder={false}
                     onPress={handlePrev} />
                 : <CustomButton
                     hasBorder={false}
-                    disabled={disabled}
                     title='Cancel'
                     onPress={handleCancel} />}
             <View className='flex-grow justify-center items-center flex-row h-full '>
@@ -58,7 +58,6 @@ const BottomSection = ({
             {totalPage - 1 == currentIndex
                 ? <CustomButton
                     title='Finish'
-                    disabled={disabled}
                     onPress={handleNext} />
                 : <CustomButton
                     title='Next'

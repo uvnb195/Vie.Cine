@@ -1,5 +1,5 @@
 import { View, Text, DimensionValue, FlatList, Dimensions, Animated } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import ThemeText from '../theme/ThemeText'
 import SmallButton from '../button/SmallButton'
 import VerticalCard from '../card/VerticalCard'
@@ -8,6 +8,11 @@ import { CakeIcon, MapPinIcon, UserIcon } from 'react-native-heroicons/solid'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import HorizontalCard from '../card/HorizontalCard'
 import { useCustomTheme } from '@/src/contexts/theme'
+
+export interface ScrollListSectionRef {
+    expand: () => void,
+    collapse: () => void
+}
 
 interface Props {
     title?: string,
@@ -19,14 +24,15 @@ interface Props {
     itemFloatSpacing?: number
 }
 
-const ScrollListSection = ({
+const ScrollListSection = forwardRef<ScrollListSectionRef, Props>(({
     title,
     optionalButton,
     width,
     height = 400,
     data,
     itemFloatSpacing = 16,
-    padding }: Props) => {
+    padding },
+    ref) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
@@ -37,15 +43,22 @@ const ScrollListSection = ({
     const [listViewable, setListViewable] = useState([true, ...Array(data.length - 1).fill(false)])
     const [currenIndex, setCurrentIndex] = useState(0)
 
-    const ref = useRef<FlatList>(null)
-
     const updateViewableItems = (index: number, value: boolean) => {
         let newState = listViewable.slice()
         newState[index] = value
         setListViewable(newState)
     }
 
-    const scrollX = useRef(new Animated.Value(0)).current
+    const scrollX = useRef(new Animated.Value(0))
+
+    useImperativeHandle(ref, () => ({
+        expand: () => {
+            console.log('focus')
+        },
+        collapse: () => {
+            console.log('collapse')
+        }
+    }))
 
     useEffect(() => {
 
@@ -104,53 +117,40 @@ const ScrollListSection = ({
         )
     }
 
-    useEffect(() => {
-        console.log(scrollX)
-    }, [scrollX])
-
-
-
     return (
         <View style={{
             padding: padding || 0
         }} className='flex-1'>
             {/* title */}
             {title &&
-                <View className='my-4 items-center justify-between flex-row'>
+                <View className='mt-4 px-2 items-center justify-between flex-row'>
                     <ThemeText fontSize={16} fontWeight='bold' letterSpacing={3}>{title}</ThemeText>
                     <SmallButton title='See more'
                         onPress={() => { }} />
                 </View>}
 
-            <View className='flex-1' style={{
-                marginTop: itemFloatSpacing,
-                width: width,
-                height: height
-            }}>
-                <Animated.FlatList
-                    showsVerticalScrollIndicator={false}
-                    indicatorStyle={'white'}
-                    snapToInterval={HORIZONTALCARD_SIZE.height}
-                    decelerationRate={0}
-                    bounces={true}
-                    onScroll={Animated.event(
-                        [{
-                            nativeEvent: {
-                                contentOffset: {
-                                    y: scrollX
-                                }
+            <Animated.FlatList
+                showsVerticalScrollIndicator={false}
+                indicatorStyle={'white'}
+                snapToInterval={HORIZONTALCARD_SIZE.height}
+                decelerationRate={0}
+                bounces={true}
+                onScroll={Animated.event(
+                    [{
+                        nativeEvent: {
+                            contentOffset: {
+                                // y: scrollX
                             }
-                        }],
-                        { useNativeDriver: true }
-                    )}
-                    scrollEventThrottle={16}
-                    data={data}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => renderItem(item, index)} />
-            </View>
-
+                        }
+                    }],
+                    { useNativeDriver: true }
+                )}
+                scrollEventThrottle={16}
+                data={data}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => renderItem(item, index)} />
         </View>
     )
-}
+})
 
 export default ScrollListSection

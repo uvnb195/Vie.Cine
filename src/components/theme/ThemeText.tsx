@@ -5,7 +5,7 @@ import { useCustomTheme } from '@/src/contexts/theme'
 interface Props {
     fontWeight?: 'light' | 'regular' | 'bold',
     children: string | ReactNode,
-    fontSize?: 24 | 16 | 14 | 12 | 10 | 8,
+    fontSize?: 24 | 16 | 14 | 12 | 10 | 8 | number,
     color?: string,
     lineHeight?: number,
     letterSpacing?: number,
@@ -37,6 +37,7 @@ const ThemeText = ({
 
     return (
         <Text
+            className='overflow-hidden'
             style={[
                 fontStyle(),
                 {

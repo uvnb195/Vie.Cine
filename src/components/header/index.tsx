@@ -1,55 +1,61 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, TouchableOpacity } from 'react-native'
 import React, { ReactNode } from 'react'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { ChevronLeftIcon } from 'react-native-heroicons/outline'
+import { ArrowLeftIcon, ChevronLeftIcon, EllipsisHorizontalIcon } from 'react-native-heroicons/outline'
 import { Entypo } from '@expo/vector-icons/'
 import ThemeText from '../theme/ThemeText'
 
 interface Props {
-    leftIcon?: ReactNode,
-    rightIcon?: ReactNode,
+    leftIconShown?: boolean,
+    rightIconShown?: boolean,
     leftIconPress?: () => void,
     rightIconPress?: () => void,
     title?: string,
 }
 
 const Header = ({
-    leftIcon,
-    rightIcon,
+    leftIconShown = false,
+    rightIconShown = false,
     title,
     leftIconPress,
     rightIconPress }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     return (
-        <View className='flex-1 flex-row items-center justify-center'>
+        <View className='h-[60px] w-full flex-row items-center px-4'>
 
-            {/* icon button */}
-            {leftIcon &&
-                <Pressable
-                    className='h-full w-14 items-start justify-center absolute top-0 bottom-0 left-6'
-                    onPress={leftIconPress}>
-                    {leftIcon}
-                </Pressable>}
-            {rightIcon &&
-                <Pressable
-                    className='h-full w-14 items-end justify-center absolute top-0 bottom-0 right-6'
-                    onPress={rightIconPress}>
-                    {rightIcon}
-                </Pressable>}
+            {/* left button */}
+            <View className='w-[60px] h-[60px] items-center justify-center'>
+                {leftIconShown &&
+                    <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center'>
+                        <View className='w-8 h-8 items-center justify-center'>
+                            <ArrowLeftIcon
+                                color={colors.icon.highlight}
+                                size={24} />
+                        </View>
+                    </TouchableOpacity>}
+            </View>
 
-            {/* title */}
-            <View className='h-full w-full items-center justify-center'>
+
+            {/* text */}
+            <View className='flex-grow h-full items-center justify-center'>
                 <ThemeText
-                    letterSpacing={2}
-                    fontWeight='regular'
-                    fontSize={16}
                     numsOfLines={1}
-                    otherProps={{
-                        maxWidth: '70%'
-                    }}>
-                    {title}
-                </ThemeText>
+                    letterSpacing={4}
+                    color={colors.icon.highlight}
+                    fontWeight='bold'>{title}</ThemeText>
+            </View>
+
+            {/* right button */}
+            <View className='w-[60px] h-full items-center justify-center'>
+                {
+                    rightIconShown &&
+                    <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center'>
+                        <EllipsisHorizontalIcon
+                            color={colors.icon.highlight}
+                            size={32} />
+                    </TouchableOpacity>
+                }
             </View>
         </View>
     )

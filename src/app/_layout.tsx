@@ -1,6 +1,6 @@
 import * as SplashScreen from 'expo-splash-screen';
 
-import { Slot } from 'expo-router';
+import { Slot, Stack } from 'expo-router';
 import CustomThemeProvider from '../contexts/theme';
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
@@ -28,7 +28,11 @@ export default function RootLayout() {
 
   return (
     <CustomThemeProvider >
-      <Slot />
+      <Stack>
+        <Stack.Screen
+          name="(tabs)"
+          options={{ headerShown: false }} />
+      </Stack>
       <StatusBar backgroundColor='transparent' />
     </CustomThemeProvider>
   );

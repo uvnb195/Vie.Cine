@@ -5,6 +5,7 @@ import { useSharedValue } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useCustomTheme } from '../contexts/theme'
 import MainBackgroundImage from './MainBackgroundImage'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 interface Props {
     headerComponent?: ReactNode
@@ -29,33 +30,18 @@ const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }:
     // )
 
     return (
-        <MainBackgroundImage>
-            <SafeAreaView className='flex-1' style={style}>
-                {bottomSheetComponent}
-                {headerComponent
-                    && <View className='w-full h-14'>
-                        {headerComponent}
-                    </View>}
-                {children}
-            </SafeAreaView>
-            {/* <BottomSheet
-                ref={bottomSheetRef}
-                snapPoints={snapPoints}
-                enablePanDownToClose
-                // backdropComponent={() =>
-                // }
-                backgroundStyle={
-                    { backgroundColor: hexToRGBA(colors.background.bottomSheet, 0.5) }
-                }
-                handleIndicatorStyle={{ backgroundColor: colors.sheetIndicator }}
-                backdropComponent={(props) => (
-                    <BottomSheetBackdrop {...props} enableTouchThrough={true} pressBehavior='collapse' />
-                )}>
-                <BottomSheetView>
-                    <Text>Awesome 🎉</Text>
-                </BottomSheetView>
-            </BottomSheet> */}
-        </MainBackgroundImage>
+        <GestureHandlerRootView>
+            <MainBackgroundImage>
+                <SafeAreaView className='flex-1' style={style}>
+                    {bottomSheetComponent}
+                    {headerComponent
+                        && <View className='w-full h-14'>
+                            {headerComponent}
+                        </View>}
+                    {children}
+                </SafeAreaView>
+            </MainBackgroundImage>
+        </GestureHandlerRootView>
     )
 }
 

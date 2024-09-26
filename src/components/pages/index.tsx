@@ -9,15 +9,17 @@ interface Props {
     handlePrev?: (index: number) => void,
     handleFinish?: () => void,
     handleCancel?: () => void,
+    disabled?: boolean,
     children: React.ReactNode
 }
 
-const PaymentPages = ({
+const CustomPagerView = ({
     totalPages,
     handleNext,
     handlePrev,
     handleFinish,
     handleCancel,
+    disabled = false,
     children }: Props) => {
 
     // plus 1 for finish screen
@@ -25,7 +27,7 @@ const PaymentPages = ({
 
     const ref = useRef<PagerView>(null)
     const [currentPage, setCurrentPage] = React.useState(0)
-    const [disable, setDisable] = React.useState(false)
+    const [disable, setDisable] = React.useState(disabled)
 
     const handleNextPress = () => {
         if (currentPage === pages - 1) {
@@ -35,6 +37,7 @@ const PaymentPages = ({
         handleNext && handleNext(currentPage + 1)
         setDisable(true)
         setCurrentPage(currentPage + 1)
+        setTimeout(() => { setDisable(false) }, 300)
     }
 
     const handlePrevPress = () => {
@@ -45,12 +48,11 @@ const PaymentPages = ({
         handlePrev && handlePrev(currentPage - 1)
         setDisable(true)
         setCurrentPage(currentPage - 1)
+        setTimeout(() => { setDisable(false) }, 300)
     }
 
     useEffect(() => {
         ref.current?.setPage(currentPage)
-
-        setTimeout(() => { setDisable(false) }, 300)
     }, [currentPage])
 
 
@@ -60,7 +62,7 @@ const PaymentPages = ({
             <View className='w-full h-20'>
                 <BottomSection
                     currentIndex={currentPage}
-                    disabled={disable}
+                    disabled={disabled}
                     totalPage={pages}
                     handleNext={handleNextPress}
                     handlePrev={handlePrevPress}
@@ -80,4 +82,4 @@ const PaymentPages = ({
     )
 }
 
-export default PaymentPages
+export default CustomPagerView

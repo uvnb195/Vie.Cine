@@ -1,11 +1,4 @@
-export enum SeatType { VIP, SWEET_BOX, STANDARD, EMPTY }
-export enum SeatStatus { AVAILABLE, RESERVED, SELECTED, EMPTY }
-
-export interface SeatProps {
-    seatType: SeatType,
-    seatCode?: string,
-    status?: SeatStatus
-}
+import { SeatProps } from "@/src/redux/paymentSlice"
 
 export interface CinemaMapType {
     totalSeats: number,

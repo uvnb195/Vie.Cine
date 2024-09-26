@@ -1,11 +1,11 @@
-import { DROPDOWN_MENU_HEIGHT, DROPDOWN_MENU_ITEM_HEIGHT, STATUS_BAR_HEIGHT_ASSUME } from '@/constants/Size'
+import { DROPDOWN_MENU_HEIGHT, DROPDOWN_MENU_ITEM_HEIGHT } from '@/constants/Size'
 import { useCustomTheme } from '@/src/contexts/theme'
-import React, { useCallback, useEffect, useRef } from 'react'
-import { DimensionValue, Dimensions, KeyboardAvoidingView, Pressable, Animated as RNAnimted, TextInput, View } from 'react-native'
+import React, { useEffect } from 'react'
+import { DimensionValue, Dimensions, KeyboardAvoidingView, Pressable, TextInput, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { MagnifyingGlassIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import { ChevronDownIcon } from 'react-native-heroicons/solid'
-import Animated, { measure, useAnimatedRef, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
+import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
     height?: number,
     padding?: number,
     disableSearch?: boolean,
-    handleExpand?: () => void
+    onSelected?: (value: string) => void
 }
 
 const DropdownMenu = ({
@@ -25,10 +25,10 @@ const DropdownMenu = ({
     placeHolder,
     padding = 8,
     disableSearch,
-    handleExpand }: Props) => {
+    onSelected }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
-    const [selected, setSelected] = React.useState<number | null>(null)
+    const [selected, setSelected] = React.useState<number | null>(placeHolder && data.includes(placeHolder) ? data.indexOf(placeHolder) : null)
 
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
 
@@ -43,12 +43,7 @@ const DropdownMenu = ({
 
     const handleShow = () => {
         setShow(!show)
-        handleExpand && handleExpand()
     }
-
-    // const handleShow = useCallback(() => {
-    //     setShow(!show)
-    // }, [show]) 
 
     const animStyle = useDerivedValue(() => {
         if (show == true) {
@@ -70,18 +65,27 @@ const DropdownMenu = ({
         }, 300);
     }, [show])
 
-
+    useEffect(() => {
+        if (selected != null)
+            onSelected && onSelected(data[selected])
+    }, [selected])
 
     const renderItems = () => (
         data.map((item, index) => (
             <Pressable
                 key={index}
-                onPress={() => { setSelected(index); setShow(false) }}
-                className='h-10 border-b justify-center px-2'
+                onPress={() => {
+                    setSelected(index)
+                    console.log(data[index] === item, index)
+                    setShow(false)
+                }}
+                className='h-10 border-b justify-center px-2 overflow-hidden'
                 style={{
                     borderColor: colors.border.disable
                 }}>
-                <ThemeText numsOfLines={1} fontWeight='light'>{item}</ThemeText>
+                <ThemeText
+                    numsOfLines={1}
+                    fontWeight={(selected !== null && data[selected]) == item ? 'bold' : 'light'}>{item}</ThemeText>
             </Pressable>
         ))
     )
@@ -108,7 +112,7 @@ const DropdownMenu = ({
                 >
                     {/* content */}
                     <Animated.View
-                        className='flex-row h-[50px] items-center px-4 rounded-2 overflow-hidden self-start border justify-between'
+                        className='flex-row-reverse h-[50px] items-center px-4 rounded-2 overflow-hidden self-start border justify-between'
                         style={{
                             backgroundColor: show ? colors.background.bottomSheet : colors.background.default,
                             borderColor: disable
@@ -117,10 +121,6 @@ const DropdownMenu = ({
                             width: width,
                             height: height
                         }}>
-                        <ThemeText>
-                            {selected != null ? data[selected] : placeHolder}
-                        </ThemeText>
-
                         {/* drop down icon */}
                         {
                             show
@@ -129,7 +129,9 @@ const DropdownMenu = ({
                                 : <ChevronDownIcon className='w-6 h-6'
                                     color={colors.icon.enable} />
                         }
-
+                        <ThemeText numsOfLines={1}>
+                            {selected != null ? data[selected] : placeHolder}
+                        </ThemeText>
                     </Animated.View>
 
                 </Pressable>

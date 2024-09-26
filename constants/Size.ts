@@ -10,7 +10,8 @@ export const PADDING_VALUE = {
 export const CAROUSEL_ITEM_SIZE = {
     width: 200,
     height: 320,
-    padding: 24
+    padding: 24,
+    minimum: 100,
 }
 
 export const HORIZONTALCARD_SIZE = {

@@ -1,19 +1,19 @@
-import { View, Text, Image, ViewStyle, LayoutChangeEvent } from 'react-native'
-import React, { useCallback, useEffect } from 'react'
-import ZoomView from './ZoomView'
-import { CinemaMapType, SeatType } from '@/constants/Types'
-import ThemeText from '../theme/ThemeText'
-import { useCustomTheme } from '@/src/contexts/theme'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { styled } from 'nativewind'
 import { PADDING_VALUE } from '@/constants/Size'
+import { CinemaMapType } from '@/constants/Types'
+import { useCustomTheme } from '@/src/contexts/theme'
+import { SeatProps, SeatType, updateSeats } from '@/src/redux/paymentSlice'
+import { RootState } from '@/src/redux/store'
+import React, { memo, useCallback, useEffect } from 'react'
+import { View, ViewStyle } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { useDispatch, useSelector } from 'react-redux'
+import ThemeText from '../theme/ThemeText'
+import ZoomView from './ZoomView'
 
 interface Props {
     data?: CinemaMapType,
     style?: ViewStyle
 }
-
-
 
 const dummyData: CinemaMapType = {
     totalSeats: 133,
@@ -61,7 +61,7 @@ const dummyData: CinemaMapType = {
                 (index == 15 || index == 1 || index == 0) ?
                     { seatType: SeatType.EMPTY }
                     : {
-                        seatType: SeatType.VIP,
+                        seatType: SeatType.UNAVAILABLE,
                         seatCode: `F${15 - index + 1}`
                     }),
             Array.from({ length: 16 }, (_, index) =>
@@ -98,46 +98,89 @@ const dummyData: CinemaMapType = {
 const CinemaMapView = ({ data, style }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
+    const state = useSelector((state: RootState) => state.payment.seats)
+    const dispatch = useDispatch()
+
+    let oldState: SeatProps[] = []
 
     const [onLayoutContentSize, setOnLayoutContentSize] = React.useState({ width: 0, height: 0 })
 
-    const handleOnLayoutSize = useCallback((width: number, height: number) => {
-        setOnLayoutContentSize({
-            width,
-            height
-        })
-    }, [onLayoutContentSize])
+    const [selecteds, setSelecteds] = React.useState<SeatProps[]>([])
+    const [zoomViewState, setZoomViewState] = React.useState(false)
 
-    useEffect(() => {
-        console.log(onLayoutContentSize)
-    }, [onLayoutContentSize])
+    const handleSelected = (item: SeatProps) => {
+        if (selecteds.includes(item)) {
+            setSelecteds(selecteds.filter(value => value != item))
+        }
+        else setSelecteds([...selecteds, item])
+    }
 
+    const handleOnLayoutSize =
+        useCallback((width: number, height: number) => {
+            setOnLayoutContentSize({
+                width,
+                height
+            })
+        }, [onLayoutContentSize])
+
+    const handleUpdateSelectedSeats = () => {
+        dispatch(updateSeats(selecteds))
+        setSelecteds([])
+    }
 
     const renderSeats = () => {
-        const itemSize = onLayoutContentSize.width / dummyData.map.totalCols - PADDING_VALUE.sm
+        const itemSize = onLayoutContentSize.width / dummyData.map.totalCols - PADDING_VALUE.md
         let renderItems = []
+
+        const renderColor = (seatType: SeatType) => {
+            switch (seatType) {
+                case SeatType.STANDARD:
+                    return colors.zoomView.seats.standard
+                case SeatType.VIP:
+                    return colors.zoomView.seats.vip
+                case SeatType.SWEET_BOX:
+                    return colors.zoomView.seats['sweet-box']
+                case SeatType.EMPTY:
+                    return 'transparent'
+                case SeatType.UNAVAILABLE:
+                    return colors.zoomView.seats.unavailable
+            }
+        }
         for (let i = 0; i < dummyData.map.totalRows; i++) {
             for (let j = 0; j < dummyData.map.totalCols; j++) {
+                const item = dummyData.map.data[i][j]
                 renderItems.push(
-                    (dummyData.map.data[i][j].seatType != SeatType.EMPTY)
-                        ? <View className='h-6 rounded-2 bg-teal-500 items-center justify-center' key={`${i}${j}`}
+                    (item.seatType != SeatType.EMPTY)
+                        ? <TouchableOpacity
+                            disabled={item.seatType == SeatType.UNAVAILABLE}
+                            onPress={() => handleSelected(item)}
+                            className=' items-center justify-center border' key={`${i}${j}`}
                             style={{
-                                margin: PADDING_VALUE.sm / 2,
-                                width: itemSize
+                                margin: PADDING_VALUE.md / 2,
+                                width: itemSize,
+                                height: itemSize,
+                                borderRadius: itemSize / 10,
+                                backgroundColor: renderColor(item.seatType),
+                                borderColor: selecteds.includes(item) ? colors.text.default : 'transparent'
                             }} >
-                            <Text style={{ fontSize: itemSize / 2 }} numberOfLines={1}>{dummyData.map.data[i][j].seatCode}</Text>
-                            {/* <MaterialCommunityIcons
-                                style={{
-                                    color: colors.text.default,
+                            <ThemeText
+                                fontSize={item.seatType === SeatType.UNAVAILABLE ? itemSize / 2 : itemSize / 4}
+                                color={item.seatType === SeatType.UNAVAILABLE ? colors.text.light : colors.text.default}
+                                fontWeight='bold'
+                                lineHeight={itemSize / 2}
+                                otherProps={{
+                                    padding: 0,
+                                    margin: 0,
                                 }}
-                                name="sofa-single" size={24} color="black" />
-                            <Text className='text-sm'>{dummyData.map.data[i][j].seatCode}</Text> */}
-                        </View>
+                                numsOfLines={1}
+                                letterSpacing={0} >{item.seatType === SeatType.UNAVAILABLE ? "X" : item.seatCode}</ThemeText>
+                        </TouchableOpacity>
                         : <View
-                            className='h-6 rounded-2' key={`${i}${j}`}
+                            className='rounded-2' key={`${i}${j}`}
                             style={{
-                                margin: PADDING_VALUE.sm / 2,
-                                width: itemSize
+                                margin: PADDING_VALUE.md / 2,
+                                width: itemSize,
+                                height: itemSize,
                             }} />
                 )
             }
@@ -145,11 +188,13 @@ const CinemaMapView = ({ data, style }: Props) => {
         return renderItems
     }
 
-
     return (<ZoomView
+        accepted={selecteds.length > 0}
+        onHide={handleUpdateSelectedSeats}
         style={{
             flexDirection: 'column',
-            backgroundColor: colors.background.highlight
+            backgroundColor: colors.background.highlight,
+            ...style
         }}>
         {/* screen point */}
         <View
@@ -157,14 +202,20 @@ const CinemaMapView = ({ data, style }: Props) => {
             style={{
                 backgroundColor: colors.background.default
             }} >
-            <ThemeText numsOfLines={1} letterSpacing={4} fontWeight='bold' fontSize={16} otherProps={{
-                textAlign: 'center',
-            }}>SCREEN</ThemeText>
+            <ThemeText
+                numsOfLines={1}
+                letterSpacing={4}
+                fontWeight='bold'
+                fontSize={16}
+                otherProps={{
+                    textAlign: 'center',
+                }}>SCREEN</ThemeText>
         </View>
         {/* seats view */}
         <View className='flex-row flex-wrap'
             onLayout={e => {
-                if (e.nativeEvent.layout.width != onLayoutContentSize.width || e.nativeEvent.layout.height != onLayoutContentSize.height)
+                if (e.nativeEvent.layout.width != onLayoutContentSize.width
+                    || e.nativeEvent.layout.height != onLayoutContentSize.height)
                     handleOnLayoutSize(
                         e.nativeEvent.layout.width,
                         e.nativeEvent.layout.height)
@@ -176,4 +227,4 @@ const CinemaMapView = ({ data, style }: Props) => {
     )
 }
 
-export default CinemaMapView
+export default memo(CinemaMapView)

@@ -38,6 +38,20 @@ const ColorPalette = {
 
 export const Colors = {
   light: {
+    textHighLight: {
+      background: ColorPalette.yellow[500],
+      text: ColorPalette.white
+    },
+    zoomView: {
+      text: ColorPalette.white,
+      seats: {
+        standard: ColorPalette.yellow[900],
+        vip: ColorPalette.yellow[700],
+        'sweet-box': ColorPalette.orange[700],
+        selected: ColorPalette.yellow[500],
+        unavailable: ColorPalette.gray.default,
+      },
+    },
     searchIcon: ColorPalette.orange[900],
     text: {
       default: ColorPalette.black,
@@ -73,6 +87,20 @@ export const Colors = {
     blurBackground: hexToRGBA(ColorPalette.black, 0.5),
   },
   dark: {
+    textHighLight: {
+      background: ColorPalette.yellow[100],
+      text: ColorPalette.yellow[600]
+    },
+    zoomView: {
+      text: ColorPalette.white,
+      seats: {
+        standard: ColorPalette.yellow[200],
+        vip: ColorPalette.yellow[400],
+        'sweet-box': ColorPalette.orange[300],
+        selected: ColorPalette.yellow[500],
+        unavailable: ColorPalette.gray.dark,
+      }
+    },
     searchIcon: ColorPalette.yellow[100],
     text: {
       default: ColorPalette.white,

@@ -5,7 +5,7 @@ import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
 import DropdownMenu from '../input/DropdownMenu'
 import { ScrollView } from 'react-native-gesture-handler'
-import PaymentPages from '../pages'
+import CustomPagerView from '../pages'
 import Step1 from '../pages/payment-pages/Step1'
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
 
@@ -17,10 +17,10 @@ export interface BottomSheetRef {
 }
 
 interface Props {
-    children: ReactNode,
+    children?: ReactNode,
 }
 
-const CustomBottomSheetModal = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
+const ScheduleSheet = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
     const { height: screenHeight } = Dimensions.get('window')
     const snapPoints = useMemo(() => ['40%', '90%'], [])
     const pageSizes = useMemo(() => [40, 90, 60, 40], [])
@@ -83,7 +83,7 @@ const CustomBottomSheetModal = forwardRef<BottomSheetRef, Props>(({ children }, 
                     { maxHeight: screenHeight * 0.9 },
                     animation]}>
 
-                <PaymentPages
+                <CustomPagerView
                     totalPages={3}
                     handleFinish={() => {
                         sheetRef.current?.close()
@@ -103,15 +103,9 @@ const CustomBottomSheetModal = forwardRef<BottomSheetRef, Props>(({ children }, 
                     }}>
 
                     <View className='border-indigo-500' key="1">
-                        <Step1 />
+                        <Text>Other Bottom Sheet</Text>
                     </View>
-                    <View className='items-center justify-center' key="2">
-                        <Step1 />
-                    </View>
-                    <View className='items-center justify-center' key="3">
-                        <Step1 />
-                    </View>
-                </PaymentPages>
+                </CustomPagerView>
             </Animated.View>
             {/* <View className='w-full h-full p-4'>
                 <ScrollView>
@@ -134,4 +128,4 @@ const CustomBottomSheetModal = forwardRef<BottomSheetRef, Props>(({ children }, 
     )
 })
 
-export default CustomBottomSheetModal
+export default ScheduleSheet

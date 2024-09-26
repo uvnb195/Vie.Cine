@@ -8,24 +8,28 @@ interface Props {
     children: ReactNode,
     marginX?: number,
     marginY?: number,
+    color?: string,
+    backgroundColor?: string
 }
 
 const TextHighLight = ({
     children,
     marginX,
-    marginY }: Props) => {
+    marginY,
+    color,
+    backgroundColor }: Props) => {
     const themeValue = useCustomTheme()
     const { colors, theme } = themeValue
 
     return (
         <View className='rounded-full min-w-[40px] px-2 items-center justify-center'
-            style={[bgColor(colors.background.highlight),
+            style={[bgColor(backgroundColor || colors.textHighLight.background),
             {
                 marginHorizontal: marginX,
                 marginVertical: marginY
             }]}>
             <ThemeText fontSize={12}
-                color={colors.text.highlight}
+                color={color || colors.textHighLight.text}
                 fontWeight='bold'>
                 {children}
             </ThemeText>

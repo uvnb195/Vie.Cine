@@ -3,22 +3,27 @@ import { useCustomTheme } from '@/src/contexts/theme'
 import React from 'react'
 import { Dimensions, DimensionValue, Pressable, Text, View, ViewStyle } from 'react-native'
 import { Gesture, GestureDetector, TouchableOpacity } from 'react-native-gesture-handler'
-import { MagnifyingGlassIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, XMarkIcon } from 'react-native-heroicons/outline'
-import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import { CheckIcon, MagnifyingGlassIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, XMarkIcon } from 'react-native-heroicons/outline'
+import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
 
 interface Props {
     width?: DimensionValue,
     height?: DimensionValue,
     children: React.ReactNode,
-    style?: ViewStyle
+    style?: ViewStyle,
+    onHide?: () => void,
+    accepted?: boolean,
+
 }
 
 const ZoomView = ({
     width,
     height,
     children,
-    style
+    style,
+    onHide,
+    accepted
 }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
@@ -79,13 +84,40 @@ const ZoomView = ({
         ]
     }))
 
+    const closeAnimation = useDerivedValue(() => {
+        return toggle ? withSpring(1, { duration: 350 }) : withTiming(0.5)
+    }, [toggle])
+
+    const closeIconStyle = useAnimatedStyle(() => ({
+        transform: [
+            { scale: closeAnimation.value }
+        ]
+    }))
+
+    const doneScaleValue = useDerivedValue(() => {
+        return accepted ? withSpring(1, { duration: 350 }) : withTiming(1.5)
+    }, [accepted])
+
+    const doneOpacity = interpolate(
+        doneScaleValue.value,
+        [1, 1.5], [1, 0],
+        Extrapolation.CLAMP)
+
+    const doneIconStyle = useAnimatedStyle(() => ({
+        transform: [
+            { scale: doneScaleValue.value }
+        ],
+        opacity: doneOpacity
+    }))
+
     const composedGesture = Gesture.Simultaneous(panGesture, pinchGesture, doubleTapGesture)
 
     const handlePressIcon = () => {
         setToggle(!toggle)
-        scale.value = withSpring(1)
+        scale.value = toggle ? withSpring(1) : withSpring(2)
         translateY.value = withSpring(0)
         translateX.value = withSpring(0)
+        if (toggle) onHide && onHide()
     }
 
     return (
@@ -111,15 +143,15 @@ const ZoomView = ({
                         onPress={() => handlePressIcon()} >
                         {toggle ?
                             <XMarkIcon
-                                color={colors.background.default}
+                                color={colors.zoomView.text}
                                 size={40} />
                             : <MagnifyingGlassPlusIcon
-                                color={colors.background.default}
+                                color={colors.zoomView.text}
                                 size={40}
                             />
                         }
                         <ThemeText
-                            color={colors.background.default}>Click to show</ThemeText>
+                            color={colors.zoomView.text}>Click to show</ThemeText>
                     </TouchableOpacity>
                 </Animated.View>
                 :
@@ -132,9 +164,10 @@ const ZoomView = ({
                             marginTop: 5,
                             borderColor: colors.border.default,
                             backgroundColor: colors.blurBackground,
-                        }
+                        },
+                            closeIconStyle
                         ]}
-                    className='items-center justify-center border rounded-1 absolute z-[100]'
+                    className='items-center justify-center rounded-full absolute z-[100]'
                 >
                     <TouchableOpacity
                         className='items-center justify-center'
@@ -143,11 +176,15 @@ const ZoomView = ({
                             alignSelf: 'flex-start'
                         }} >
                         {toggle ?
-                            <XMarkIcon
-                                color={colors.background.default}
-                                size={40} />
+                            (accepted ? <CheckIcon
+                                color={colors.zoomView.text}
+                                size={24} />
+                                : <XMarkIcon
+                                    color={colors.zoomView.text}
+                                    size={40} />
+                            )
                             : <MagnifyingGlassPlusIcon
-                                color={colors.background.default}
+                                color={colors.zoomView.text}
                                 size={40}
                             />
                         }

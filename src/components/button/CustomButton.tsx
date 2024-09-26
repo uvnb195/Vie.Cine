@@ -31,13 +31,13 @@ const CustomButton = ({ title, icon,
             className='self-start items-center justify-center flex-row px-2 rounded-2 border'
             style={[
                 {
-                    width: width || 'auto', height,
+                    width: width, height,
                     borderColor: hasBorder
                         ? (disabled
                             ? colors.border.disable
                             : colors.border.default)
                         : ('transparent'),
-                    minWidth: 80
+                    minWidth: width && width < 80 ? width : 80
                 },
                 style
             ]}>
