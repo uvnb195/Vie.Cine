@@ -8,8 +8,9 @@ import { CakeIcon, MapPinIcon, UserIcon } from 'react-native-heroicons/solid'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import HorizontalCard from '../card/HorizontalCard'
 import { useCustomTheme } from '@/src/contexts/theme'
+import SectionTitle from '../button/SectionTitle'
 
-export interface ScrollListSectionRef {
+export interface ScrollExpandRef {
     expand: () => void,
     collapse: () => void
 }
@@ -24,7 +25,7 @@ interface Props {
     itemFloatSpacing?: number
 }
 
-const ScrollListSection = forwardRef<ScrollListSectionRef, Props>(({
+const ScrollExpandSection = forwardRef<ScrollExpandRef, Props>(({
     title,
     optionalButton,
     width,
@@ -104,7 +105,7 @@ const ScrollListSection = forwardRef<ScrollListSectionRef, Props>(({
                                 size={24} />
                         }
                     ]}
-                    sortTag={[
+                    shortTags={[
                         'Action',
                         'Adventure',
                         'Fantasy',
@@ -118,16 +119,10 @@ const ScrollListSection = forwardRef<ScrollListSectionRef, Props>(({
     }
 
     return (
-        <View style={{
-            padding: padding || 0
-        }} className='flex-1'>
+        <View className='flex-1'>
             {/* title */}
             {title &&
-                <View className='mt-4 px-2 items-center justify-between flex-row'>
-                    <ThemeText fontSize={16} fontWeight='bold' letterSpacing={3}>{title}</ThemeText>
-                    <SmallButton title='See more'
-                        onPress={() => { }} />
-                </View>}
+                <SectionTitle title='Up Coming' />}
 
             <Animated.FlatList
                 showsVerticalScrollIndicator={false}
@@ -153,4 +148,4 @@ const ScrollListSection = forwardRef<ScrollListSectionRef, Props>(({
     )
 })
 
-export default ScrollListSection
+export default ScrollExpandSection

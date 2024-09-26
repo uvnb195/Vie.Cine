@@ -6,19 +6,20 @@ import { hexToRGBA } from '@/hooks/hexToRGBA'
 import ThemeText from '../theme/ThemeText'
 import { bgColor } from '@/constants/Styles'
 import TextHighLight from './TextHighLight'
+import CardStat from './CardStat'
 
 export interface StatsType {
     content: string,
     icon: ReactNode,
 }
 
-interface Props {
+export interface CardProps {
     image: ImageSourcePropType,
     title: string,
     stats: StatsType[],
-    sortTag: string[],
+    shortTags: string[],
     className?: string,
-    style: ViewStyle,
+    style?: ViewStyle,
     hasBorder?: boolean
 }
 
@@ -27,25 +28,16 @@ const HorizontalCard = ({
     image,
     title,
     stats,
-    sortTag,
+    shortTags: sortTag,
     className,
     style,
-    hasBorder }: Props) => {
+    hasBorder }: CardProps) => {
     const themeValue = useCustomTheme()
-    const { colors, theme } = themeValue
-    const iconOpacity = theme === 'light' ? 'opacity-70' : 'opacity-50'
+    const { colors } = themeValue
 
     const renderStats = () => {
         return stats.map((stat, index) => (
-            <View key={index} className='flex-row items-center'>
-                <View className={clsx(iconOpacity, 'pr-1')}>
-                    {stat.icon}
-                </View>
-                <ThemeText fontSize={16} color={colors.text.light}
-                    numsOfLines={1}>
-                    {stat.content}
-                </ThemeText>
-            </View>
+            <CardStat key={index} stat={stat} />
         ))
     }
 

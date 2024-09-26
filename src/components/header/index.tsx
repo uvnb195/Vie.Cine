@@ -40,6 +40,9 @@ const Header = ({
             {/* text */}
             <View className='flex-grow h-full items-center justify-center'>
                 <ThemeText
+                    otherProps={{
+                        textAlign: 'center'
+                    }}
                     numsOfLines={1}
                     letterSpacing={4}
                     color={colors.icon.highlight}

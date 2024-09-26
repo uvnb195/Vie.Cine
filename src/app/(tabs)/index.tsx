@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import HomeHeader from '@/src/components/header/HomeHeader'
 import { CAROUSEL_ITEM_SIZE, HORIZONTALCARD_SIZE } from '@/constants/Size'
 import CustomCarousel, { CustomCarouselRef } from '@/src/components/scroll/CustomCarousel'
-import ScrollListSection from '@/src/components/scroll/ScrollListSection'
+import ScrollExpandSection from '@/src/components/scroll/ScrollExpandSection'
 import { getCurrentPositionAsync, requestForegroundPermissionsAsync, reverseGeocodeAsync } from 'expo-location'
 import { updateLocation } from '@/src/redux/paymentSlice'
 import { CakeIcon, MapPinIcon, UserIcon } from 'react-native-heroicons/solid'
@@ -139,7 +139,7 @@ const Tab = () => {
                                 size={24} />
                         }
                     ]}
-                    sortTag={[
+                    shortTags={[
                         'Action',
                         'Adventure',
                         'Fantasy',

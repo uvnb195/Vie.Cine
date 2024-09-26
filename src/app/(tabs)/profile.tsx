@@ -3,6 +3,7 @@ import React from 'react'
 import MainWrapper from '@/src/components/MainWrapper'
 import ThemeText from '@/src/components/theme/ThemeText'
 import Header from '@/src/components/header'
+import ScrollExpandSection from '@/src/components/scroll/ScrollExpandSection'
 
 const Tab = () => {
     return (
@@ -10,7 +11,7 @@ const Tab = () => {
             headerComponent={
                 <Header title='Profile' />
             }>
-            <ThemeText>Profile</ThemeText>
+            <ScrollExpandSection width={'100%'} data={[1, 2, 3]} />
         </MainWrapper>
     )
 }

@@ -37,7 +37,7 @@ const ThemeText = ({
 
     return (
         <Text
-            className='overflow-hidden'
+            className=' w-full'
             style={[
                 fontStyle(),
                 {
