@@ -1,11 +1,17 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import MainWrapper from '@/src/components/MainWrapper'
+import ThemeText from '@/src/components/theme/ThemeText'
+import Header from '@/src/components/header'
 
 const Tab = () => {
     return (
-        <View>
-            <Text>Profile</Text>
-        </View>
+        <MainWrapper
+            headerComponent={
+                <Header title='Profile' />
+            }>
+            <ThemeText>Profile</ThemeText>
+        </MainWrapper>
     )
 }
 

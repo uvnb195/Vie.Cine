@@ -2,17 +2,16 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import MainWrapper from '@/src/components/MainWrapper'
 import Header from '@/src/components/header'
+import ThemeText from '@/src/components/theme/ThemeText'
 
-const tickets = () => {
+const Tab = () => {
     return (
         <MainWrapper headerComponent={
             <Header title='Tickets History' />
         }>
-            <View>
-                <Text>Tickets</Text>
-            </View>
+            <ThemeText>Tickets</ThemeText>
         </MainWrapper>
     )
 }
 
-export default tickets
+export default Tab

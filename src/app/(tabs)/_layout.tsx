@@ -36,27 +36,31 @@ const _layout = () => {
         tabBarShowLabel: false,
         tabBarBackground: (() => <View className='h-full w-full' style={{ backgroundColor: colors.background.default }}></View>)
       }}>
-        <Tabs.Screen name='index' options={{
-          // title:'Home',
-          tabBarIcon: ({ focused }) => focused
-            ? <HomeIconSolid color={colors.icon.highlight} size={24} />
-            : <HomeIconOutline color={colors.icon.enable} size={24} />
-        }} />
-        <Tabs.Screen name='tickets' options={{
-          tabBarIcon: ({ focused }) => focused
-            ? <TicketIconSolid color={colors.icon.highlight} size={24} />
-            : <TicketIconOutline color={colors.icon.enable} size={24} />
-        }} />
-        <Tabs.Screen name='favorites' options={{
-          tabBarIcon: ({ focused }) => focused
-            ? <HeartIconSolid color={colors.icon.highlight} size={24} />
-            : <HeartIconOutline color={colors.icon.enable} size={24} />
-        }} />
-        <Tabs.Screen name='profile' options={{
-          tabBarIcon: ({ focused }) => focused
-            ? <UserIconSolid color={colors.icon.highlight} size={24} />
-            : <UserIconOutline color={colors.icon.enable} size={24} />
-        }} />
+        <Tabs.Screen name='index'
+          options={{
+            // title:'Home',
+            tabBarIcon: ({ focused }) => focused
+              ? <HomeIconSolid color={colors.icon.highlight} size={24} />
+              : <HomeIconOutline color={colors.icon.enable} size={24} />
+          }} />
+        <Tabs.Screen name='tickets'
+          options={{
+            tabBarIcon: ({ focused }) => focused
+              ? <TicketIconSolid color={colors.icon.highlight} size={24} />
+              : <TicketIconOutline color={colors.icon.enable} size={24} />
+          }} />
+        <Tabs.Screen name='favorites'
+          options={{
+            tabBarIcon: ({ focused }) => focused
+              ? <HeartIconSolid color={colors.icon.highlight} size={24} />
+              : <HeartIconOutline color={colors.icon.enable} size={24} />
+          }} />
+        <Tabs.Screen name='profile'
+          options={{
+            tabBarIcon: ({ focused }) => focused
+              ? <UserIconSolid color={colors.icon.highlight} size={24} />
+              : <UserIconOutline color={colors.icon.enable} size={24} />
+          }} />
       </Tabs>
     </Provider>
   )

@@ -1,13 +1,12 @@
-import { View, Text, DimensionValue, FlatList, Dimensions, Animated as RNAnimated } from 'react-native'
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import ThemeText from '../theme/ThemeText'
-import SmallButton from '../button/SmallButton'
-import VerticalCard from '../card/VerticalCard'
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
 import { useCustomTheme } from '@/src/contexts/theme'
-import Animated, { interpolate, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
-import MinimalCard from '../card/MinimalCard'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { Dimensions, DimensionValue, Animated as RNAnimated, View } from 'react-native'
+import Animated, { interpolate, useAnimatedStyle, useDerivedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated'
 import SectionTitle from '../button/SectionTitle'
+import MinimalCard from '../card/MinimalCard'
+import VerticalCard from '../card/VerticalCard'
+import { FlatList } from 'react-native-gesture-handler'
 
 export interface CustomCarouselRef {
     expand: () => void,
@@ -59,21 +58,16 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
     }))
 
     const minimalHeight = useDerivedValue(() => {
-        return isExpanded ? withTiming(0) : withTiming(CAROUSEL_ITEM_SIZE.minimum)
+        return isExpanded ? 0 : CAROUSEL_ITEM_SIZE.minimum + 32
     }, [isExpanded])
     const animationSmallList = useAnimatedStyle(() => ({
-        height: interpolate(
-            height.value,
-            [CAROUSEL_ITEM_SIZE.minimum + (title ? 32 : 0), CAROUSEL_ITEM_SIZE.height + (title ? 32 : 0)],
-            [CAROUSEL_ITEM_SIZE.minimum, 0])
+        height: withDelay(300, withTiming(minimalHeight.value)),
+        opacity: withDelay(300, withTiming(isExpanded ? 0 : 1))
     }))
 
-
-    useEffect(() => {
-        console.log(isExpanded)
-    }, [isExpanded])
-
-
+    const animationBigList = useAnimatedStyle(() => ({
+        opacity: withDelay(300, withTiming(isExpanded ? 1 : 0))
+    }))
 
     useImperativeHandle(ref, () => ({
         expand: () => {
@@ -134,7 +128,6 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
             <MinimalCard src={require('../../assets/images/image-2.png')} />)
     }
 
-
     return (
         <Animated.View
             style={[
@@ -148,7 +141,7 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
             {/* minimal list */}
             <Animated.View
                 style={animationSmallList}>
-                <Animated.FlatList
+                <FlatList
                     bounces={false}
                     snapToInterval={150 + 8}
                     decelerationRate={0}
@@ -163,30 +156,32 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
             </Animated.View>
 
             {/* carousel */}
-            <RNAnimated.FlatList
-                contentContainerStyle={{
-                    columnGap: 8,
-                    paddingHorizontal: 8
-                }}
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                snapToInterval={CAROUSEL_ITEM_SIZE.width}
-                decelerationRate={0}
-                bounces={false}
-                onScroll={RNAnimated.event(
-                    [{
-                        nativeEvent: {
-                            contentOffset: {
-                                x: scrollX
+            <Animated.View style={animationBigList}>
+                <RNAnimated.FlatList
+                    contentContainerStyle={{
+                        columnGap: 8,
+                        paddingHorizontal: 8
+                    }}
+                    showsHorizontalScrollIndicator={false}
+                    horizontal
+                    snapToInterval={CAROUSEL_ITEM_SIZE.width}
+                    decelerationRate={0}
+                    bounces={false}
+                    onScroll={RNAnimated.event(
+                        [{
+                            nativeEvent: {
+                                contentOffset: {
+                                    x: scrollX
+                                }
                             }
-                        }
-                    }],
-                    { useNativeDriver: true }
-                )}
-                scrollEventThrottle={16}
-                data={[false, ...data, false]}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => renderItem(item, index)} />
+                        }],
+                        { useNativeDriver: true }
+                    )}
+                    scrollEventThrottle={16}
+                    data={[false, ...data, false]}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => renderItem(item, index)} />
+            </Animated.View>
         </Animated.View>
     )
 })
