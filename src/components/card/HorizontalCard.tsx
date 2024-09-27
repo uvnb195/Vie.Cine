@@ -7,6 +7,7 @@ import ThemeText from '../theme/ThemeText'
 import { bgColor } from '@/constants/Styles'
 import TextHighLight from './TextHighLight'
 import CardStat from './CardStat'
+import { PaletteType } from '@/constants/Colors'
 
 export interface StatsType {
     content: string,
@@ -36,9 +37,9 @@ const HorizontalCard = ({
     const { colors } = themeValue
 
     const renderStats = () => {
-        return stats.map((stat, index) => (
+        return stats.map((stat, index) =>
             <CardStat key={index} stat={stat} />
-        ))
+        )
     }
 
     const renderSortTag = () => {

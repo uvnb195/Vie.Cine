@@ -90,19 +90,19 @@ const ScrollExpandSection = forwardRef<ScrollExpandRef, Props>(({
                             content: 'Keanu Charles Reeves',
                             icon: <UserIcon
                                 color={colors.text.default}
-                                size={24} />
+                                size={16} />
                         },
                         {
                             content: 'September 2, 1964',
                             icon: <CakeIcon
                                 color={colors.text.default}
-                                size={24} />
+                                size={16} />
                         },
                         {
-                            content: 'London, United Kingdom',
+                            content: 'London, America',
                             icon: <MapPinIcon
                                 color={colors.text.default}
-                                size={24} />
+                                size={12} />
                         }
                     ]}
                     shortTags={[

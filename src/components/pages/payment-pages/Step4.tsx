@@ -12,7 +12,7 @@ import ServiceCard from '../../card/ServiceCard'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { getService } from '@/src/api'
 import CreditCard from '../../card/CreditCard'
-import ScrollCard from '../../scroll/ScrollCard'
+import ScrollCreditCard from '../../scroll/ScrollCreditCard'
 
 const Step4 = () => {
     const { seats, time, totalAmount, address, services } = useSelector((state: RootState) => state.payment)
@@ -117,7 +117,7 @@ const Step4 = () => {
                     keyExtractor={(_, index) => index.toString()} />
             </View>
             <View className='w-full'>
-                <ScrollCard />
+                <ScrollCreditCard />
             </View>
         </PageWrapper>
     )

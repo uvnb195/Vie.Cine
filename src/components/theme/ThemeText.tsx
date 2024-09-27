@@ -37,7 +37,6 @@ const ThemeText = ({
 
     return (
         <Text
-            className=' w-full'
             style={[
                 fontStyle(),
                 {

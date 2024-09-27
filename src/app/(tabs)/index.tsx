@@ -1,29 +1,23 @@
-import { View, Text, Animated as RNAnimated } from 'react-native'
-import React, { useEffect, useRef } from 'react'
-import PaymentSheet, { BottomSheetRef } from '@/src/components/bottom-sheet/PaymentSheet'
-import ScheduleSheet from '@/src/components/bottom-sheet/ScheduleSheet'
-import MainWrapper from '@/src/components/MainWrapper'
-import { Provider, useDispatch, useSelector } from 'react-redux'
-import { RootState, store } from '@/src/redux/store'
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import HomeHeader from '@/src/components/header/HomeHeader'
 import { CAROUSEL_ITEM_SIZE, HORIZONTALCARD_SIZE } from '@/constants/Size'
-import CustomCarousel, { CustomCarouselRef } from '@/src/components/scroll/CustomCarousel'
-import ScrollExpandSection from '@/src/components/scroll/ScrollExpandSection'
-import { getCurrentPositionAsync, requestForegroundPermissionsAsync, reverseGeocodeAsync } from 'expo-location'
-import { updateLocation } from '@/src/redux/paymentSlice'
-import { CakeIcon, MapPinIcon, UserIcon } from 'react-native-heroicons/solid'
-import { useCustomTheme } from '@/src/contexts/theme'
-import ThemeText from '@/src/components/theme/ThemeText'
-import { FlatList, ScrollView } from 'react-native-gesture-handler'
-import HorizontalCard from '@/src/components/card/HorizontalCard'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
-import { styled } from 'nativewind'
-import Animated, { interpolate, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
-import MinimalCard from '@/src/components/card/MinimalCard'
-import SmallButton from '@/src/components/button/SmallButton'
+import { BottomSheetRef } from '@/src/components/bottom-sheet/PaymentSheet'
 import SectionTitle from '@/src/components/button/SectionTitle'
+import HorizontalCard from '@/src/components/card/HorizontalCard'
+import MinimalCard from '@/src/components/card/MinimalCard'
+import HomeHeader from '@/src/components/header/HomeHeader'
+import MainWrapper from '@/src/components/MainWrapper'
+import CustomCarousel, { CustomCarouselRef } from '@/src/components/scroll/CustomCarousel'
+import ThemeText from '@/src/components/theme/ThemeText'
+import { useCustomTheme } from '@/src/contexts/theme'
+import { updateLocation } from '@/src/redux/paymentSlice'
+import { RootState } from '@/src/redux/store'
+import { getCurrentPositionAsync, requestForegroundPermissionsAsync, reverseGeocodeAsync } from 'expo-location'
+import React, { useEffect, useRef } from 'react'
+import { Animated as RNAnimated, View } from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
+import { CakeIcon, MapPinIcon, UserIcon } from 'react-native-heroicons/solid'
+import Animated, { interpolate, useAnimatedStyle, useDerivedValue, withSpring, withTiming } from 'react-native-reanimated'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Tab = () => {
     const themeValue = useCustomTheme()
@@ -124,19 +118,19 @@ const Tab = () => {
                             content: 'Keanu Charles Reeves',
                             icon: <UserIcon
                                 color={colors.text.default}
-                                size={24} />
+                                size={16} />
                         },
                         {
                             content: 'September 2, 1964',
                             icon: <CakeIcon
                                 color={colors.text.default}
-                                size={24} />
+                                size={16} />
                         },
                         {
                             content: 'London, United Kingdom',
                             icon: <MapPinIcon
                                 color={colors.text.default}
-                                size={24} />
+                                size={16} />
                         }
                     ]}
                     shortTags={[

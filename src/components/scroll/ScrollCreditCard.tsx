@@ -10,7 +10,7 @@ interface Props {
     height?: number,
 }
 
-const ScrollCard = ({ width, height }: Props) => {
+const ScrollCreditCard = ({ width, height }: Props) => {
     const { width: screenWidth } = Dimensions.get('window')
 
     const themeValue = useCustomTheme()
@@ -111,4 +111,4 @@ const ScrollCard = ({ width, height }: Props) => {
     )
 }
 
-export default ScrollCard
+export default ScrollCreditCard
