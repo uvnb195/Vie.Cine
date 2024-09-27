@@ -64,6 +64,6 @@ const _layout = () => {
       </Tabs>
     </Provider>
   )
-};
+}
 
 export default _layout

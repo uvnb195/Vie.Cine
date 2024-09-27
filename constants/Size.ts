@@ -39,3 +39,7 @@ export const CREDIT_CARD_SIZE = {
         height: 150
     },
 }
+
+export const IMAGE_PICKER_SIZE = {
+    default: 200
+}
