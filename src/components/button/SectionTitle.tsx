@@ -15,7 +15,12 @@ const SectionTitle = ({ title, showButton, onPress, style }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     return (
-        <View className='items-center justify-between flex-row-reverse px-2 h-[32px] w-full' style={style}>
+        <View className='items-center justify-between flex-row-reverse h-[32px] w-full' style={[
+            {
+                paddingHorizontal: 8,
+                marginVertical: 8
+            },
+            style]}>
             {showButton &&
                 <View>
                     <SmallButton

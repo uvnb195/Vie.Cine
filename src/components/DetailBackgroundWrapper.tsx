@@ -39,8 +39,8 @@ const DetailBackgroundWrapper = ({ headerComponent, children, style, bottomSheet
                 blurRadius={2}>
                 <LinearGradient
                     colors={[
-                        hexToRGBA(colors.background.default, 0.8),
-                        hexToRGBA(colors.background.default, 0.2),
+                        colors.background.default,
+                        hexToRGBA(colors.background.default, 0.5),
                         colors.background.default,
                     ]}
                     locations={[0, 0.25, 1]}

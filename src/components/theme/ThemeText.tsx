@@ -38,13 +38,14 @@ const ThemeText = ({
 
     return (
         <Animated.Text
+            className={'max-w-max'}
             style={[
                 fontStyle(),
                 {
                     color: textColor,
                     fontSize: fontSize || 16,
                     lineHeight: lineHeight,
-                    letterSpacing: letterSpacing || 1.5,
+                    letterSpacing: letterSpacing || 1.5
                 },
                 { ...otherPropStyles }
             ]}

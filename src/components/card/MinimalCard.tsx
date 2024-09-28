@@ -5,10 +5,11 @@ import ThemeText from '../theme/ThemeText'
 
 interface Props {
     style?: ViewStyle,
-    src: ImageSourcePropType
+    src: ImageSourcePropType,
+    title: string,
 }
 
-const MinimalCard = ({ style, src }: Props) => {
+const MinimalCard = ({ style, src, title }: Props) => {
     return (
         <View className='w-full h-full'
             style={[
@@ -27,7 +28,7 @@ const MinimalCard = ({ style, src }: Props) => {
                     numsOfLines={2}
                     otherProps={{
                         flexGrow: 1
-                    }}>Venom Let There Be Carnage</ThemeText>
+                    }}>{title}</ThemeText>
             </View>
         </View>
     )

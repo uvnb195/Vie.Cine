@@ -214,7 +214,7 @@ const Tab = () => {
                     decelerationRate={0}
                     horizontal
                     data={[0, 1, 2, 3, 4, 5]}
-                    renderItem={() => <MinimalCard src={{ uri: 'https://iguov8nhvyobj.vcdn.cloud/media/wysiwyg/2020/072020/KICHI_VOUCHER_350x495.jpg' }} />} />
+                    renderItem={() => <MinimalCard title={'Hot Combo'} src={{ uri: 'https://iguov8nhvyobj.vcdn.cloud/media/wysiwyg/2020/072020/KICHI_VOUCHER_350x495.jpg' }} />} />
             </Animated.View>
         </MainWrapper>
         // <BottomSheetModalProvider>
