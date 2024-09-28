@@ -2,9 +2,9 @@ import { View, Text, ViewStyle } from 'react-native'
 import React from 'react'
 import SectionTitle from '../button/SectionTitle'
 import { FlatList } from 'react-native-gesture-handler'
-import HorizontalCard from '../card/HorizontalCard'
 import { CalendarIcon, ClockIcon, StarIcon } from 'react-native-heroicons/solid'
 import { useCustomTheme } from '@/src/contexts/theme'
+import HorizontalCard from '../card/HorizontalCard'
 
 interface Props {
     data: any,

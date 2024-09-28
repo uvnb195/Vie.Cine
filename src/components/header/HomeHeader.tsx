@@ -4,6 +4,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import ThemeText from '../theme/ThemeText'
+import { router, useLocalSearchParams } from 'expo-router'
 
 const HomeHeader = () => {
     const themeValue = useCustomTheme()
@@ -39,7 +40,10 @@ const HomeHeader = () => {
             </View>
 
             {/* right button */}
-            <TouchableOpacity className='w-[60px] h-full items-center justify-center'>
+            <TouchableOpacity className='w-[60px] h-full items-center justify-center'
+                onPress={() => {
+                    router.push({ pathname: "/details/[id]", params: { id: 'new Id' } })
+                }}>
                 <MagnifyingGlassIcon
                     color={colors.icon.highlight}
                     size={32} />

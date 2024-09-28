@@ -37,7 +37,8 @@ const Ticket = ({
                 resizeMethod='resize'
                 resizeMode='stretch'
                 source={backgroundSrc}
-                className='flex-1 items-center px-4'>
+                className='flex-1 items-center px-4'
+                blurRadius={1}>
                 <View className='w-full px-5'>
                     <ScrollView horizontal
                         showsHorizontalScrollIndicator={false}

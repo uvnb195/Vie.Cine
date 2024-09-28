@@ -4,17 +4,17 @@ import { View, ViewStyle } from 'react-native'
 import { useSharedValue } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useCustomTheme } from '../contexts/theme'
-import MainBackgroundImage from './MainBackgroundImage'
+import MainBackgroundImageView from './MainBackgroundImage'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-interface Props {
+export interface WrapperProps {
     headerComponent?: ReactNode
     children: ReactNode,
     style?: ViewStyle,
     bottomSheetComponent?: ReactNode
 }
 
-const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }: Props) => {
+const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }: WrapperProps) => {
     const index = useSharedValue(0)
 
     const bottomSheetRef = useRef<BottomSheet>(null)
@@ -31,7 +31,7 @@ const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }:
 
     return (
         <GestureHandlerRootView>
-            <MainBackgroundImage>
+            <MainBackgroundImageView>
                 <SafeAreaView className='flex-1' style={style}>
                     {bottomSheetComponent}
                     {headerComponent
@@ -40,7 +40,7 @@ const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }:
                         </View>}
                     {children}
                 </SafeAreaView>
-            </MainBackgroundImage>
+            </MainBackgroundImageView>
         </GestureHandlerRootView>
     )
 }

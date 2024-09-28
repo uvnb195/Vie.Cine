@@ -41,9 +41,9 @@ const ImagePicker = ({ style, defaultUri, onImageChange }: Props) => {
         })
             .catch(err => console.log(err))
             .then(result => {
-                console.log(result)
-                // if (result && !result.canceled)
-                //     setImage(result.assets[0].uri)
+                if (result && !result.canceled) {
+                    setImage(result.assets[0].uri)
+                }
             })
     }
 
@@ -72,13 +72,15 @@ const ImagePicker = ({ style, defaultUri, onImageChange }: Props) => {
                 },
                 style]}>
             <Pressable onPress={handlePress}
-                className='flex-1'>
-                <Image source={image != null
-                    ? { uri: image }
-                    : require('../../assets/images/default-avatar.png')}
-                    className='flex-1 z-10'
-                    resizeMode='contain'
-                    tintColor={colors.text.dark} />
+                className=' w-full h-full'>
+                <Image
+                    source={image != null
+                        ? { uri: image }
+                        : require('../../assets/images/default-avatar.png')}
+                    className='w-[200px] h-[200px] border-4 rounded-full'
+                    resizeMode={image == null ? 'contain' : 'cover'}
+                    tintColor={image == null
+                        ? colors.text.dark : undefined} />
                 <Animated.View
                     className=' absolute top-0 bottom-0 left-0 right-0 items-center justify-center'
                     style={[

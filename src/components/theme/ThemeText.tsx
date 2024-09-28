@@ -1,6 +1,7 @@
 import { View, Text, TextStyle, TextProps, StyleProp } from 'react-native'
 import React, { ReactNode } from 'react'
 import { useCustomTheme } from '@/src/contexts/theme'
+import Animated from 'react-native-reanimated'
 
 interface Props {
     fontWeight?: 'light' | 'regular' | 'bold',
@@ -36,7 +37,7 @@ const ThemeText = ({
     const otherPropStyles = otherProps || {}
 
     return (
-        <Text
+        <Animated.Text
             style={[
                 fontStyle(),
                 {
@@ -50,7 +51,7 @@ const ThemeText = ({
             numberOfLines={numsOfLines}
         >
             {children}
-        </Text>
+        </Animated.Text>
     )
 }
 

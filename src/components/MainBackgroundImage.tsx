@@ -7,7 +7,7 @@ interface Props {
     children: ReactNode
 }
 
-const MainBackgroundImage = ({ children }: Props) => {
+const MainBackgroundImageView = ({ children }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     const { theme } = themeValue
@@ -30,4 +30,4 @@ const MainBackgroundImage = ({ children }: Props) => {
     )
 }
 
-export default memo(MainBackgroundImage)
+export default memo(MainBackgroundImageView)

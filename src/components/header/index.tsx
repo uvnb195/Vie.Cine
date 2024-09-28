@@ -11,14 +11,16 @@ interface Props {
     leftIconPress?: () => void,
     rightIconPress?: () => void,
     title?: string,
+    hasBackground?: string,
 }
 
 const Header = ({
-    leftIconShown = false,
+    leftIconShown = true,
     rightIconShown = false,
     title,
     leftIconPress,
-    rightIconPress }: Props) => {
+    rightIconPress,
+    hasBackground }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     return (
@@ -27,7 +29,7 @@ const Header = ({
             {/* left button */}
             <View className='w-[60px] h-[60px] items-center justify-center'>
                 {leftIconShown &&
-                    <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center'>
+                    <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center' onPress={leftIconPress}>
                         <View className='w-8 h-8 items-center justify-center'>
                             <ArrowLeftIcon
                                 color={colors.icon.highlight}
@@ -53,7 +55,8 @@ const Header = ({
             <View className='w-[60px] h-full items-center justify-center'>
                 {
                     rightIconShown &&
-                    <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center'>
+                    <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center'
+                        onPress={rightIconPress}>
                         <EllipsisHorizontalIcon
                             color={colors.icon.highlight}
                             size={32} />

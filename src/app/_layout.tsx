@@ -5,6 +5,7 @@ import CustomThemeProvider from '../contexts/theme';
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,11 +29,8 @@ export default function RootLayout() {
 
   return (
     <CustomThemeProvider >
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{ headerShown: false }} />
-      </Stack>
+      {/* <Slot /> */}
+      <Stack initialRouteName='(tabs)' screenOptions={{ headerShown: false }} />
       <StatusBar backgroundColor='transparent' />
     </CustomThemeProvider>
   );

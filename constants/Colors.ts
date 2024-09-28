@@ -38,6 +38,7 @@ const ColorPalette = {
 
 export const Colors = {
   light: {
+    creditCardBackground: [ColorPalette.gray.default, ColorPalette.gray.light],
     textHighLight: {
       background: ColorPalette.yellow[500],
       text: ColorPalette.white
@@ -87,6 +88,7 @@ export const Colors = {
     blurBackground: hexToRGBA(ColorPalette.black, 0.5),
   },
   dark: {
+    creditCardBackground: [ColorPalette.yellow[100], ColorPalette.yellow[200]],
     textHighLight: {
       background: ColorPalette.yellow[100],
       text: ColorPalette.yellow[600]

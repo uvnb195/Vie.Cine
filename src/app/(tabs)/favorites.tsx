@@ -14,7 +14,7 @@ const Tab = ({
     return (
         <MainWrapper
             headerComponent={
-                <Header title='Favorites' />
+                <Header title='Favorites' leftIconShown={false} />
             }>
             <View className='flex-1'>
                 <CustomScroll

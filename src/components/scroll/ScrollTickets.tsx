@@ -2,10 +2,10 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import SectionTitle from '../button/SectionTitle'
 import { FlatList } from 'react-native-gesture-handler'
-import Ticket from '../card/Ticket'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { ClockIcon, MapPinIcon } from 'react-native-heroicons/solid'
+import Ticket from '../card/Ticket'
 
 interface Props {
     title?: string,

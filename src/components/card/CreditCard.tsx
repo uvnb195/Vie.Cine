@@ -4,6 +4,7 @@ import ThemeText from '../theme/ThemeText'
 import { PADDING_VALUE } from '@/constants/Size'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
+import { LinearGradient } from 'expo-linear-gradient'
 
 interface Props {
     width: number,
@@ -25,18 +26,21 @@ const CreditCard = ({
     isActived = false
 }: Props) => {
     const themeValue = useCustomTheme()
-    const { colors } = themeValue
+    const { colors, theme } = themeValue
 
     return (
-        <View className='w-full h-full rounded-[16px]'
+        <LinearGradient
+            colors={colors.creditCardBackground}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            className='w-full h-full rounded-[16px]'
             style={{
                 width: width,
                 height: height,
                 padding: PADDING_VALUE.md,
                 borderColor: colors.border.default,
-                borderWidth: isActived ? 1 : 0,
-                backgroundColor: colors.background.default,
-            }}>
+                borderWidth: isActived ? 1 : 0
+            }} >
             <View className='w-full flex-row-reverse items-center justify-between overflow-hidden'>
                 {/* content */}
 
@@ -72,7 +76,7 @@ const CreditCard = ({
                     fontWeight='bold'
                     fontSize={12}>{name.toUpperCase()}</ThemeText>
             </View>
-        </View>
+        </LinearGradient>
     )
 }
 

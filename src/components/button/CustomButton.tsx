@@ -2,6 +2,7 @@ import { View, Text, ViewStyle, Pressable, TouchableOpacity } from 'react-native
 import React from 'react'
 import ThemeText from '../theme/ThemeText'
 import { useCustomTheme } from '@/src/contexts/theme'
+import { hexToRGBA } from '@/hooks/hexToRGBA'
 
 interface Props {
     height?: number,
@@ -14,11 +15,11 @@ interface Props {
     hasBorder?: boolean
 }
 
-const CustomButton = ({ title, icon,
+const CustomButton = ({
+    title,
+    icon,
     disabled,
     onPress,
-    height = 40,
-    width,
     style,
     hasBorder = true
 }: Props) => {
@@ -31,13 +32,14 @@ const CustomButton = ({ title, icon,
             className='self-start items-center justify-center flex-row px-2 rounded-2 border'
             style={[
                 {
-                    width: width, height,
                     borderColor: hasBorder
                         ? (disabled
                             ? colors.border.disable
                             : colors.border.default)
                         : ('transparent'),
-                    minWidth: width && width < 80 ? width : 80
+                    minWidth: title ? 80 : undefined,
+                    minHeight: 40,
+                    backgroundColor: hexToRGBA(colors.background.default, 0.5)
                 },
                 style
             ]}>
