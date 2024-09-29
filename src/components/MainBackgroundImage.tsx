@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground } from 'react-native'
+import { View, Text, ImageBackground, Dimensions } from 'react-native'
 import React, { memo, ReactNode } from 'react'
 import { useCustomTheme } from '../contexts/theme'
 import { bgColor } from '../../constants/Styles'
@@ -11,22 +11,26 @@ const MainBackgroundImageView = ({ children }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     const { theme } = themeValue
+
+    const { height: windowHeight } = Dimensions.get('window')
+
+    const imageSoure = theme === 'light'
+        ? require(`../assets/images/background-image-light.png`)
+        : require(`../assets/images/background-image-dark.png`)
     return (
         <View className='flex-1'
             style={[bgColor(colors.background.default)]}>
-            {theme === 'light' ?
-                <ImageBackground className='flex-1 flex-col'
-                    source={require('../assets/images/background-image-light.png')}
-                    resizeMode='cover'>
-                    {children}
-                </ImageBackground>
-                : <ImageBackground className='flex-1 flex-col'
-                    source={require('../assets/images/background-image-dark.png')}
-                    resizeMode='cover'>
-                    {children}
-                </ImageBackground>
-            }
-        </View>
+            <ImageBackground
+                className='flex-col absolute top-0 left-0 z-0'
+                style={{
+                    height: windowHeight,
+                    width: '100%'
+                }}
+                source={imageSoure}
+                resizeMode='cover'>
+                {children}
+            </ImageBackground>
+        </View >
     )
 }
 

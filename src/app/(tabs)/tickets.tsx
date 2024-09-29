@@ -5,7 +5,7 @@ import React from 'react'
 
 const Tab = () => {
     return (
-        <MainWrapper headerComponent={
+        <MainWrapper HeaderComponent={
             <Header title='Tickets History' leftIconShown={false} />
         }>
             <ScrollTickets data={[1, 2, 3, 4, 5]} />

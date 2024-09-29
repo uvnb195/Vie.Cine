@@ -13,7 +13,8 @@ const HomeHeader = () => {
         <View className='h-[60px] w-full flex-row items-center px-4'>
 
             {/* left button */}
-            <TouchableOpacity className='w-[60px] h-full items-center justify-center'>
+            <TouchableOpacity className='w-[60px] h-full items-center justify-center'
+                onPress={() => router.push('/search')}>
                 <View className='w-8 h-8'>
                     <BellIcon
                         color={colors.icon.highlight}

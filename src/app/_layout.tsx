@@ -6,6 +6,8 @@ import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Provider } from 'react-redux';
+import { store } from '../redux/store';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,10 +30,14 @@ export default function RootLayout() {
   }
 
   return (
-    <CustomThemeProvider >
-      {/* <Slot /> */}
-      <Stack initialRouteName='(tabs)' screenOptions={{ headerShown: false }} />
-      <StatusBar backgroundColor='transparent' />
-    </CustomThemeProvider>
+    <Provider store={store}>
+      <GestureHandlerRootView>
+        <CustomThemeProvider >
+          {/* <Slot /> */}
+          <Stack initialRouteName='(tabs)' screenOptions={{ headerShown: false }} />
+          <StatusBar backgroundColor='transparent' />
+        </CustomThemeProvider>
+      </GestureHandlerRootView>
+    </Provider>
   );
 }

@@ -117,7 +117,7 @@ const ServiceCard = ({
                             }}
                             width={32}
                             height={32}
-                            icon={
+                            Icon={
                                 <MinusIcon
                                     size={24}
                                     color={count == 0 ? colors.text.light : colors.text.default} />} />
@@ -140,7 +140,7 @@ const ServiceCard = ({
                             }}
                             width={32}
                             height={32}
-                            icon={
+                            Icon={
                                 <PlusIcon
                                     size={24}
                                     color={data.remaining == count ? colors.text.light : colors.text.default} />} />

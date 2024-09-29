@@ -13,7 +13,7 @@ const Tab = ({
 }: Props) => {
     return (
         <MainWrapper
-            headerComponent={
+            HeaderComponent={
                 <Header title='Favorites' leftIconShown={false} />
             }>
             <View className='flex-1'>

@@ -23,7 +23,7 @@ const Tab = () => {
 
     return (
         <MainWrapper
-            headerComponent={
+            HeaderComponent={
                 <Header title='Profile' leftIconShown={false} />
             }>
             {/* <ScrollExpandSection width={'100%'} data={[1, 2, 3]} /> */}
@@ -85,9 +85,9 @@ const Tab = () => {
                 {/* buttons */}
                 <View className='w-full px-4 mt-8 flex-row justify-evenly'>
                     <CustomButton title='Settings'
-                        icon={<Cog8ToothIcon color={colors.text.default} />} />
+                        Icon={<Cog8ToothIcon color={colors.text.default} />} />
                     <CustomButton title='Log Out'
-                        icon={<ArrowLeftStartOnRectangleIcon
+                        Icon={<ArrowLeftStartOnRectangleIcon
                             color={colors.text.default} />} />
                 </View>
             </ScrollView>

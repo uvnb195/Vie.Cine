@@ -1,6 +1,6 @@
 import BottomSheet from '@gorhom/bottom-sheet'
 import React, { ReactNode, useRef } from 'react'
-import { View, ViewStyle } from 'react-native'
+import { Text, View, ViewStyle } from 'react-native'
 import { useSharedValue } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useCustomTheme } from '../contexts/theme'
@@ -8,13 +8,13 @@ import MainBackgroundImageView from './MainBackgroundImage'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 export interface WrapperProps {
-    headerComponent?: ReactNode
+    HeaderComponent?: ReactNode
     children: ReactNode,
     style?: ViewStyle,
-    bottomSheetComponent?: ReactNode
+    BottomSheetComponent?: ReactNode
 }
 
-const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }: WrapperProps) => {
+const MainWrapper = ({ HeaderComponent: headerComponent, children, style, BottomSheetComponent: bottomSheetComponent }: WrapperProps) => {
     const index = useSharedValue(0)
 
     const bottomSheetRef = useRef<BottomSheet>(null)
@@ -30,18 +30,16 @@ const MainWrapper = ({ headerComponent, children, style, bottomSheetComponent }:
     // )
 
     return (
-        <GestureHandlerRootView>
-            <MainBackgroundImageView>
-                <SafeAreaView className='flex-1' style={style}>
-                    {bottomSheetComponent}
-                    {headerComponent
-                        && <View className='w-full h-14'>
-                            {headerComponent}
-                        </View>}
-                    {children}
-                </SafeAreaView>
-            </MainBackgroundImageView>
-        </GestureHandlerRootView>
+        <MainBackgroundImageView>
+            <SafeAreaView className='flex-1' style={style}>
+                {bottomSheetComponent}
+                {headerComponent
+                    && <View className='w-full h-[60px]'>
+                        {headerComponent}
+                    </View>}
+                {children}
+            </SafeAreaView>
+        </MainBackgroundImageView>
     )
 }
 

@@ -1,20 +1,14 @@
-import { View, Text, Dimensions } from 'react-native'
-import React, { forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
-import DropdownMenu from '../input/DropdownMenu'
-import { ScrollView } from 'react-native-gesture-handler'
-import CustomPagerView from '../pages'
-import Step1 from '../pages/payment-pages/Step1'
-import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
-
-export interface BottomSheetRef {
-    closeSheet: () => void
-    expandSheet: () => void
-    collapseSheet: () => void
-    openSheet: () => void
-}
+import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet'
+import React, { forwardRef, ReactNode, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
+import { Dimensions, View, ViewToken } from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import ScheduleCard from '../card/ScheduleCard'
+import CustomSearchOutLine from '../input/CustomSearchOutLine'
+import LocationTag from '../LocationTag'
+import { BottomSheetRef } from './PaymentSheet'
 
 interface Props {
     children?: ReactNode,
@@ -22,27 +16,21 @@ interface Props {
 
 const ScheduleSheet = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
     const { height: screenHeight } = Dimensions.get('window')
-    const snapPoints = useMemo(() => ['40%', '90%'], [])
-    const pageSizes = useMemo(() => [40, 90, 60, 40], [])
-
-    const [currentSize, setCurrentSize] = React.useState(pageSizes[0])
-
-    useEffect(() => {
-        console.log(currentSize)
-    }, [currentSize])
-
-    const animStyle = useDerivedValue(() => {
-        return withTiming(Math.floor(currentSize * screenHeight / 100))
-    }, [currentSize])
-
-    const animation = useAnimatedStyle(() => ({
-        height: animStyle.value
-    }))
+    const snapPoints = useMemo(() => ['60%', '90%'], [])
 
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
     const sheetRef = useRef<BottomSheetModal>(null)
+
+    const contentSize = useSharedValue(screenHeight * 0.6)
+
+    const contentScale = useAnimatedStyle(() => ({
+        height: withTiming(contentSize.value),
+        width: '100%'
+    }))
+
+    const viewableItems = useSharedValue<ViewToken[]>([])
 
     useImperativeHandle(ref, () => ({
         closeSheet: () => {
@@ -59,71 +47,64 @@ const ScheduleSheet = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
         }
     }), [])
 
+    const renderItem = ((item: any) => {
+        const isVisible = Boolean(viewableItems.value.filter((viewableItem) => viewableItem.item === item).find((viewableItem) => viewableItem.isViewable))
+
+        // const animation = useAnimatedStyle(() => ({
+        //     opacity: withTiming(isVisible ? 1 : 0, {
+        //         duration: 500
+        //     })
+        // }))
+
+        return (
+            <ScheduleCard
+                viewableItems={viewableItems}
+                id={item} />
+        )
+    })
+
 
     return (
         <BottomSheetModal
-            contentHeight={200}
+            contentHeight={400}
             enableDismissOnClose={true}
             ref={sheetRef}
             snapPoints={snapPoints}
-            onChange={(index) => {
-                setCurrentSize(index == 0 ? 40 : 90)
-            }}
-            enablePanDownToClose={false}
+            enablePanDownToClose={true}
             backgroundStyle={
-                { backgroundColor: hexToRGBA(colors.background.bottomSheet, 0.5) }
+                { backgroundColor: hexToRGBA(colors.background.bottomSheet, 0.9) }
             }
+            onChange={(index) => {
+                contentSize.value = screenHeight * (index === 0 ? 0.6 : 0.9)
+            }}
             handleIndicatorStyle={{ backgroundColor: colors.sheetIndicator }}
             backdropComponent={(props) => (
-                <BottomSheetBackdrop {...props} enableTouchThrough={true} pressBehavior='collapse' />
-            )}>
-            {/* content */}
-            <Animated.View className='w-full'
-                style={[
-                    { maxHeight: screenHeight * 0.9 },
-                    animation]}>
-
-                <CustomPagerView
-                    totalPages={3}
-                    handleFinish={() => {
-                        sheetRef.current?.close()
+                <BottomSheetBackdrop {...props}
+                    enableTouchThrough={true} pressBehavior='collapse' />
+            )}
+        >
+            <Animated.View className={''} style={contentScale}>
+                <LocationTag style={{ paddingHorizontal: 8 }} />
+                {/* search */}
+                <View className='w-full h-[50px]'>
+                    <CustomSearchOutLine
+                        placeHolder='Search for a schedule'
+                        style={{ height: 50, fontSize: 16, paddingHorizontal: 16 }} />
+                </View>
+                <FlatList
+                    decelerationRate={'fast'}
+                    contentContainerStyle={{
+                        paddingBottom: 24
                     }}
-                    handleCancel={() => {
-                        console.log('clicked')
-                        sheetRef.current?.close()
+                    data={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]}
+                    renderItem={({ item, index }) =>
+                        renderItem(item)
+                    }
+                    onViewableItemsChanged={({ viewableItems: vItems }) => {
+                        viewableItems.value = vItems
                     }}
-                    handleNext={(index) => {
-                        setCurrentSize(pageSizes[index])
-                        sheetRef.current?.snapToPosition(screenHeight * pageSizes[index] / 100)
-                    }}
-
-                    handlePrev={(index) => {
-                        setCurrentSize(pageSizes[index])
-                        sheetRef.current?.snapToPosition(screenHeight * pageSizes[index] / 100)
-                    }}>
-
-                    <View className='border-indigo-500' key="1">
-                        <Text>Other Bottom Sheet</Text>
-                    </View>
-                </CustomPagerView>
+                />
             </Animated.View>
-            {/* <View className='w-full h-full p-4'>
-                <ScrollView>
-                    <DropdownMenu data={[1, 2, 3]}
-                        padding={4}
-                        placeHolder='City/Province' />
-                    <DropdownMenu data={[1, 2, 3]}
-                        padding={4}
-                        placeHolder='City/Province' />
-                    <DropdownMenu data={[1, 2, 3]}
-                        padding={4}
-                        placeHolder='City/Province' />
-                    <DropdownMenu data={[1, 2, 3]}
-                        padding={4}
-                        placeHolder='City/Province' />
-                </ScrollView>
-            </View> */}
-
         </BottomSheetModal>
     )
 })

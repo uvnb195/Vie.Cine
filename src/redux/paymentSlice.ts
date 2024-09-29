@@ -62,11 +62,14 @@ export const paymentSlice = createSlice({
         // update only city and district of address
         updateLocation: (
             state,
-            action: PayloadAction<{ city: string, district: string }>) => {
+            action: PayloadAction<{
+                city: string,
+                district: string
+            }>) => {
             state.address = {
                 ...state.address,
-                city: action.payload.city,
-                district: action.payload.district
+                city: action.payload.city || "",
+                district: action.payload.district || ""
             }
             console.log(state)
         },

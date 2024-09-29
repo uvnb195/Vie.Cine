@@ -8,7 +8,7 @@ interface Props {
     height?: number,
     width?: number,
     title?: string,
-    icon?: React.ReactNode,
+    Icon?: React.ReactNode,
     disabled?: boolean,
     onPress?: () => void,
     style?: ViewStyle,
@@ -17,7 +17,7 @@ interface Props {
 
 const CustomButton = ({
     title,
-    icon,
+    Icon,
     disabled,
     onPress,
     style,
@@ -53,11 +53,11 @@ const CustomButton = ({
                         disabled
                             ? colors.text.disable
                             : colors.text.dark}>{title}</ThemeText>}
-            {icon && <View className='pl-2'
+            {Icon && <View className='pl-2'
                 style={{
                     paddingLeft: title ? 8 : 0
                 }}>
-                {icon}
+                {Icon}
             </View>}
         </TouchableOpacity>
     )

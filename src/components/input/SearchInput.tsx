@@ -1,29 +1,32 @@
-import { View, Text, TextInput, Pressable } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, TextInput, Pressable, ViewStyle } from 'react-native'
+import React, { useEffect, useRef } from 'react'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { MagnifyingGlassIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import { EyeIcon } from 'react-native-heroicons/solid'
 import Animated, { useAnimatedStyle, useDerivedValue, withSequence, withTiming } from 'react-native-reanimated'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import CustomButton from '../button/CustomButton'
 
 interface Props {
-    height?: number,
-    width?: number,
+    style?: ViewStyle,
     placeHolder?: string,
     disabled?: boolean,
     leftIcon?: React.ReactNode,
-    keyboardType?: 'default' | 'number-pad' | 'email-address'
+    keyboardType?: 'default' | 'number-pad' | 'email-address',
+    onTextChange?: (text: string) => void
 }
 
 const SearchInput = ({
-    height = 50,
-    width,
+    style,
     placeHolder = "Search ...",
     disabled,
-    keyboardType = 'default' }: Props) => {
+    keyboardType = 'default',
+    onTextChange }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
     const [input, setInput] = React.useState('')
+    const ref = useRef<TextInput | null>(null)
 
     const animationValue = useDerivedValue(() => {
         if (input.length === 0) {
@@ -41,24 +44,53 @@ const SearchInput = ({
         transform: [{ scale: animationValue.value }]
     }))
 
-    return (
-        <View className='w-full flex-row items-center rounded-2 border overflow-hidden'
-            style={{
-                width: width,
-                height: height,
-                borderColor: disabled
-                    ? colors.border.disable
-                    : colors.border.default
-            }}>
+    const handleTextChange = (text: string) => {
+        setInput(text)
+        onTextChange && onTextChange(text)
+    }
 
+    const handleClearText = () => {
+        setInput("")
+        ref.current?.focus()
+    }
+
+    return (
+        <View className='w-full flex-row-reverse items-center rounded-2 border overflow-hidden'
+            style={[
+                {
+                    height: 50,
+                    borderColor: colors.border.default
+                },
+                style
+            ]}>
+            {/* icon */}
+            <Animated.View
+                style={
+                    [
+                        animation
+                    ]}
+                className='items-center justify-center rounded-1 w-[50px] h-full'
+            >
+                {input.length === 0
+                    ?
+                    <View className='w-full h-full items-center justify-center m-0 p-2'>
+                        <MagnifyingGlassIcon color={colors.icon.highlight} size={24} />
+                    </View>
+
+                    :
+                    <TouchableOpacity
+                        onPress={handleClearText}>
+                        <CustomButton Icon={
+                            <XMarkIcon color={colors.icon.highlight} size={24} />} />
+                    </TouchableOpacity>}
+            </Animated.View>
 
             {/* input */}
-            <View className='h-full flex-auto'>
+            <View className='h-full flex-1 '>
                 <TextInput
+                    ref={ref}
                     value={input}
-                    onChangeText={(text) => {
-                        setInput(text)
-                    }}
+                    onChangeText={handleTextChange}
                     numberOfLines={1}
                     selectionColor={colors.text.light}
                     placeholder={placeHolder}
@@ -66,42 +98,10 @@ const SearchInput = ({
                     className='px-2 text-base'
                     keyboardType={keyboardType}
                     style={{
-                        height: height,
+                        height: '100%',
                         color: colors.text.default
                     }} />
             </View>
-
-            {/* icon */}
-            <Animated.View style={
-                [{
-                    width: height - 10,
-                    height: height - 10,
-                    marginRight: 5,
-                    borderColor: input.length === 0
-                        ? 'transparent'
-                        : (disabled
-                            ? colors.border.disable
-                            : colors.border.default),
-                    backgroundColor: input.length === 0
-                        ? 'transparent'
-                        : colors.searchIcon
-                },
-                    animation
-                ]}
-                className='items-center justify-center border rounded-1'
-            >
-                {input.length === 0
-                    ?
-                    <MagnifyingGlassIcon color={colors.icon.highlight} size={24} />
-                    :
-                    <Pressable
-                        onPress={() => {
-                            setInput("")
-                        }}>
-                        <XMarkIcon color={colors.icon.highlight}
-                            size={24} />
-                    </Pressable>}
-            </Animated.View>
         </View>
     )
 }

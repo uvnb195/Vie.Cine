@@ -117,7 +117,7 @@ export const Colors = {
       textDefault: ColorPalette.white,
       textDisable: ColorPalette.gray.light
     },
-    sheetIndicator: ColorPalette.white,
+    sheetIndicator: ColorPalette.yellow[900],
     background: {
       default: ColorPalette.black,
       highlight: ColorPalette.yellow[100],
