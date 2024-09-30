@@ -12,7 +12,7 @@ interface Props {
     placeHolderColor?: string,
     disabled?: boolean,
     textAlgin?: TextStyle['textAlign'],
-    leftIcon?: React.ReactNode,
+    LeftIcon?: React.ReactNode,
     keyboardType?: 'default' | 'number-pad' | 'email-address' | 'numeric',
     blockText?: boolean
 }
@@ -25,7 +25,7 @@ const CustomInput = ({
     placeHolderColor,
     disabled,
     textAlgin = 'left',
-    leftIcon,
+    LeftIcon: leftIcon,
     keyboardType = 'default',
     blockText = false }: Props) => {
     const themeValue = useCustomTheme()

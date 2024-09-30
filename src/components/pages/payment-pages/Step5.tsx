@@ -22,7 +22,7 @@ const Step5 = () => {
             }}>Enter PASSWORD/PIN to confirm.</ThemeText>
             <CustomInput
                 blockText
-                leftIcon={<KeyIcon color={colors.icon.highlight} />}
+                LeftIcon={<KeyIcon color={colors.icon.highlight} />}
                 placeHolder={''} />
         </PageWrapper>
     )

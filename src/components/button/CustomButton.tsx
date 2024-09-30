@@ -18,7 +18,7 @@ interface Props {
 const CustomButton = ({
     title,
     Icon,
-    disabled,
+    disabled = false,
     onPress,
     style,
     hasBorder = true
@@ -38,8 +38,10 @@ const CustomButton = ({
                             : colors.border.default)
                         : ('transparent'),
                     minWidth: title ? 80 : undefined,
-                    minHeight: 40,
-                    backgroundColor: hexToRGBA(colors.background.default, 0.5)
+                    minHeight: 50,
+                    backgroundColor: disabled ?
+                        'transparent'
+                        : hexToRGBA(colors.background.bottomSheet, 0.5)
                 },
                 style
             ]}>

@@ -3,6 +3,10 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      //add this line for getReactNativePersistence error
+      "@firebase/auth": [
+        "./node_modules/@firebase/auth/dist/index.rn.d.ts"
+      ],
       "@/*": [
         "./*"
       ]

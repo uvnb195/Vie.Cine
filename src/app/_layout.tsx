@@ -34,7 +34,7 @@ export default function RootLayout() {
       <GestureHandlerRootView>
         <CustomThemeProvider >
           {/* <Slot /> */}
-          <Stack initialRouteName='(tabs)' screenOptions={{ headerShown: false }} />
+          <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }} />
           <StatusBar backgroundColor='transparent' />
         </CustomThemeProvider>
       </GestureHandlerRootView>
