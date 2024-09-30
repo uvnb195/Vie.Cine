@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { Animated, View, ViewStyle } from 'react-native'
 import { MapPinIcon } from 'react-native-heroicons/solid'
 import { useDispatch, useSelector } from 'react-redux'
-import { requestDeviceLocation } from '../api/permissions'
+import { getDeviceLocation } from '../api/permissions'
 import { useCustomTheme } from '../contexts/theme'
 import { updateLocation } from '../redux/paymentSlice'
 import { RootState } from '../redux/store'
@@ -34,7 +34,7 @@ const LocationTag = ({ style }: Props) => {
 
     useEffect(() => {
         (async () => {
-            const result = await requestDeviceLocation()
+            const result = await getDeviceLocation()
             if (result.status == 'success') {
                 dispatch(updateLocation(result.data!!))
             }

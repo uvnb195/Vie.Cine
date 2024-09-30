@@ -71,7 +71,7 @@ const DetailScreen = () => {
         videoHeight.value = 200
     }
 
-    const handleOpenSheduleSheet = () => {
+    const handleOpenScheduleSheet = () => {
         setToggleBottomSheet(false)
         timeoutRef.current = setTimeout(() => {
             bottomSheetRef.current?.openSheet()
@@ -141,7 +141,7 @@ const DetailScreen = () => {
                                 <View className='flex-row'>
                                     {/* schedule */}
                                     <TouchableOpacity
-                                        onPress={handleOpenSheduleSheet}>
+                                        onPress={handleOpenScheduleSheet}>
                                         <View
                                             className='self-start items-center justify-center flex-row px-2 rounded-2 border'
                                             style={[
