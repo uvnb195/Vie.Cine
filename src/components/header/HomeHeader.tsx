@@ -1,54 +1,88 @@
-import { View, Text } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
 import React from 'react'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
+import { BellIcon, MagnifyingGlassIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import ThemeText from '../theme/ThemeText'
 import { router, useLocalSearchParams } from 'expo-router'
+import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
+import CustomInput from '../input/CustomInput'
 
-const HomeHeader = () => {
+interface Props {
+    onLeftPress?: () => void,
+    onRightPress?: () => void,
+    initialState?: boolean
+}
+
+const HomeHeader = ({ onLeftPress, onRightPress, initialState }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
+
+    const [toggleSearchBox, setToggleSearchBox] = React.useState(initialState || false)
+    const [searchValue, setSearchValue] = React.useState('')
+    const searchBox = useDerivedValue(() => toggleSearchBox ? 60 : 0)
+    const searchBoxAnimation = useAnimatedStyle(() => ({
+        height: withTiming(searchBox.value, { duration: 500 }),
+        overflow: 'hidden'
+    }))
+    const searchRef = React.useRef<TextInput>(null)
     return (
-        <View className='h-[60px] w-full flex-row items-center px-4'>
+        <View>
+            <View className=' w-full flex-row items-center px-4  justify-between'>
 
-            {/* left button */}
-            <TouchableOpacity className='w-[60px] h-full items-center justify-center'
-                onPress={() => router.push('/search')}>
-                <View className='w-8 h-8'>
-                    <BellIcon
+                {/* left button */}
+                <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center '
+                    onPress={onLeftPress}>
+                    <View className='w-8 h-8 items-center justify-center'>
+                        <BellIcon
+                            color={colors.icon.enable}
+                            size={24} />
+
+                        {/* status */}
+                        <View className='w-2 h-2 bg-red-500 rounded-full absolute top-1 right-2 border'
+                            style={{
+                                borderColor: colors.background.default
+                            }}></View>
+                    </View>
+                </TouchableOpacity>
+
+                {/* text */}
+                <View className='items-center justify-center'>
+                    <ThemeText
+                        otherProps={{
+                            textAlign: 'center'
+                        }}
+                        numsOfLines={1}
+                        letterSpacing={4}
                         color={colors.icon.highlight}
-                        size={32} />
-
-                    {/* status */}
-                    <View className='w-2 h-2 bg-red-500 rounded-full absolute top-1 right-1 border'
-                        style={{
-                            borderColor: colors.background.default
-                        }}></View>
+                        fontWeight='bold'>VIE.CINE</ThemeText>
                 </View>
-            </TouchableOpacity>
 
-            {/* text */}
-            <View className='flex-1 h-full items-center justify-center'>
-                <ThemeText
-                    otherProps={{
-                        textAlign: 'center'
-                    }}
-                    numsOfLines={1}
-                    letterSpacing={4}
-                    color={colors.icon.highlight}
-                    fontWeight='bold'>VIE.CINE</ThemeText>
+                {/* right button */}
+                <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center'
+                    onPress={() => {
+                        setToggleSearchBox(!toggleSearchBox)
+                    }}>
+                    <MagnifyingGlassIcon color={toggleSearchBox ? colors.icon.highlight : colors.icon.enable} size={24} />
+                </TouchableOpacity>
             </View>
+            <Animated.View className='w-full px-4'
+                style={searchBoxAnimation}>
 
-            {/* right button */}
-            <TouchableOpacity className='w-[60px] h-full items-center justify-center'
-                onPress={() => {
-                    router.push({ pathname: "/details/[id]", params: { id: 'new Id' } })
-                }}>
-                <MagnifyingGlassIcon
-                    color={colors.icon.highlight}
-                    size={32} />
-            </TouchableOpacity>
+                <CustomInput
+                    ref={searchRef}
+                    placeHolder={'Search'}
+                    onValueChange={setSearchValue}
+                    onSubmitEditing={() => {
+                        setToggleSearchBox(false)
+                        router.push({
+                            pathname: '/routes/search',
+                            params: {
+                                keyword: searchValue
+                            }
+                        })
+                    }} />
+            </Animated.View>
         </View>
     )
 }

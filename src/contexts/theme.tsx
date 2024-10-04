@@ -6,9 +6,6 @@ const ThemeContext = createContext<PaletteType | null>(null)
 interface Props {
     children: ReactNode
 }
-
-
-
 export const useCustomTheme = () => {
 
     const value = useContext(ThemeContext)

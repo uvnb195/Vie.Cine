@@ -10,7 +10,7 @@ import CustomSearchOutLine from '../input/CustomSearchOutLine'
 import LocationTag from '../LocationTag'
 import { BottomSheetRef } from './PaymentSheet'
 import MapView, { Marker } from 'react-native-maps'
-import { requestLocationPermission } from '@/src/api/permissions'
+import { requestLocationPermission } from '@/hooks/permissions'
 
 interface Props {
     children?: ReactNode,

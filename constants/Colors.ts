@@ -38,9 +38,10 @@ const ColorPalette = {
 
 export const Colors = {
   light: {
+    error: ColorPalette.orange[600],
     creditCardBackground: [ColorPalette.gray.default, ColorPalette.gray.light],
     textHighLight: {
-      background: ColorPalette.yellow[500],
+      background: ColorPalette.yellow[100],
       text: ColorPalette.white
     },
     zoomView: {
@@ -88,10 +89,11 @@ export const Colors = {
     blurBackground: hexToRGBA(ColorPalette.black, 0.5),
   },
   dark: {
+    error: ColorPalette.orange[400],
     creditCardBackground: [ColorPalette.yellow[100], ColorPalette.yellow[200]],
     textHighLight: {
       background: ColorPalette.yellow[100],
-      text: ColorPalette.yellow[600]
+      text: ColorPalette.white
     },
     zoomView: {
       text: ColorPalette.white,

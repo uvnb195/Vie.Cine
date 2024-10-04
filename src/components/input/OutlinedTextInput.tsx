@@ -5,6 +5,7 @@ import { useCustomTheme } from '@/src/contexts/theme'
 interface Props {
     width?: DimensionValue,
     height?: DimensionValue,
+    fontSize?: number,
     placeHolder?: string,
     style?: ViewStyle,
     disabled?: boolean,
@@ -17,6 +18,7 @@ interface Props {
 const OutlinedTextInput = ({
     width,
     height,
+    fontSize,
     placeHolder,
     style,
     disabled,
@@ -38,10 +40,10 @@ const OutlinedTextInput = ({
     return (
 
         <KeyboardAvoidingView behavior='padding'>
-            <View className='flex-1 p-2 overflow-hidden'
+            <View className='w-full flex-row items-center rounded-2 overflow-hidden'
                 style={[{
-                    width: width || '100%',
-                    height: height || '100%',
+                    width: width,
+                    height: height,
                 },
                     style]}>
                 <TextInput
@@ -58,7 +60,8 @@ const OutlinedTextInput = ({
                         width: '100%',
                         fontFamily: 'Roboto',
                         letterSpacing: 1,
-                        color: colors.text.default
+                        color: colors.text.default,
+                        fontSize: fontSize || 16,
                     }}
                     value={input}
                     autoCapitalize={upperCase ? 'characters' : 'none'}

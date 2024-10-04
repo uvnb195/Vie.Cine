@@ -2,8 +2,8 @@ import DetailBackgroundWrapper from '@/src/components/DetailBackgroundWrapper'
 import Header from '@/src/components/header'
 import SearchInput from '@/src/components/input/SearchInput'
 import MainWrapper from '@/src/components/MainWrapper'
-import { router } from 'expo-router'
-import React, { useState } from 'react'
+import { router, useLocalSearchParams } from 'expo-router'
+import React, { useEffect, useState } from 'react'
 import { Image, Text, View } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import WebView from 'react-native-webview'
@@ -13,6 +13,7 @@ const SearchScreen = () => {
         movies: [],
         people: [],
     })
+    const { keyword } = useLocalSearchParams()
 
     const handleSearch = (text: string) => {
         setSearch({
@@ -27,11 +28,16 @@ const SearchScreen = () => {
         { latitude: 6.841776681, longitude: 79.869319 },
         { latitude: 6.84076664, longitude: 79.871323 },
     ];
+    useEffect(() => {
+        console.log(keyword)
+    }, [])
 
     return (
         <MainWrapper
             HeaderComponent={<Header
-                leftIconPress={() => router.dismiss()} />}>
+                title={keyword.toString()}
+                initialState={false}
+                backIconPress={() => router.dismiss()} />}>
             <View className='flex-1 px-4'>
                 <SearchInput onTextChange={handleSearch} />
 

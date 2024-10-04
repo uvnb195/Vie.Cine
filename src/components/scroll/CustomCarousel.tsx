@@ -1,35 +1,36 @@
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
 import { useCustomTheme } from '@/src/contexts/theme'
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { Dimensions, DimensionValue, Animated as RNAnimated, View } from 'react-native'
+import { Dimensions, DimensionValue, Animated as RNAnimated, TouchableOpacity, View, ViewStyle } from 'react-native'
 import Animated, { interpolate, useAnimatedStyle, useDerivedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated'
 import SectionTitle from '../button/SectionTitle'
 import MinimalCard from '../card/MinimalCard'
 import VerticalCard from '../card/VerticalCard'
 import { FlatList } from 'react-native-gesture-handler'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/src/redux/store'
+import { MovieType } from '@/constants/types'
+import { router } from 'expo-router'
+import { setLoading } from '@/src/redux/publicSlice'
 
 export interface CustomCarouselRef {
     expand: () => void,
     collapse: () => void
 }
 interface Props {
-    width: DimensionValue,
-    height?: number,
+    style?: ViewStyle,
     optionalButton?: boolean,
-    data: any[],
     padding?: number,
     itemFloatSpacing?: number,
-    title: string,
+    title?: string,
     showSeeMore?: boolean
 }
 
 const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
+    style,
     optionalButton,
-    width,
-    data,
     itemFloatSpacing = 24,
-    padding,
-    title,
+    title = undefined,
     showSeeMore }, ref) => {
     const {
         width: windowWidth,
@@ -37,37 +38,26 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
 
     const themeValue = useCustomTheme()
     const { colors } = themeValue
-
-    const [listViewable, setListViewable] = useState([true, ...Array(data.length - 1).fill(false)])
-    const [currenIndex, setCurrentIndex] = useState(0)
-
-    const updateViewableItems = (index: number, value: boolean) => {
-        let newState = listViewable.slice()
-        newState[index] = value
-        setListViewable(newState)
-    }
+    const dispatch = useDispatch<AppDispatch>()
+    const { nowShowing, fetching: loadingImage } = useSelector((state: RootState) => state.public)
 
     const scrollX = useRef(new RNAnimated.Value(0)).current
     const [isExpanded, setIsExpanded] = useState(true)
 
-    const height = useDerivedValue(() => {
-        return isExpanded ? withTiming(CAROUSEL_ITEM_SIZE.height + (title ? 32 : 0)) : withTiming(CAROUSEL_ITEM_SIZE.minimum + (title ? 32 : 0))
-    }, [isExpanded])
-    const animationStyle = useAnimatedStyle(() => ({
-        height: height.value
-    }))
-
-    const minimalHeight = useDerivedValue(() => {
-        return isExpanded ? 0 : CAROUSEL_ITEM_SIZE.minimum + 32
-    }, [isExpanded])
     const animationSmallList = useAnimatedStyle(() => ({
-        height: withDelay(300, withTiming(minimalHeight.value)),
-        opacity: withDelay(300, withTiming(isExpanded ? 0 : 1))
+        height: isExpanded ? 0 : withTiming(CAROUSEL_ITEM_SIZE.minimum),
+        opacity: withDelay(300, withTiming(isExpanded ? 0 : 1)),
+        borderColor: isExpanded ? withTiming('transparent') : withTiming(colors.border.default)
     }))
 
     const animationBigList = useAnimatedStyle(() => ({
-        opacity: withDelay(300, withTiming(isExpanded ? 1 : 0))
+        height: isExpanded ? withTiming(CAROUSEL_ITEM_SIZE.height) : 0,
+        opacity: withTiming(isExpanded ? 1 : 0)
     }))
+
+    useEffect(() => {
+        console.log('now showing::::::::::', nowShowing)
+    }, [nowShowing])
 
     useImperativeHandle(ref, () => ({
         expand: () => {
@@ -78,12 +68,15 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
         }
     }))
 
-    const renderItem = (item: any, index: number) => {
+    const renderItem = (item: MovieType | boolean, index: number) => {
+
 
         if (typeof item === 'boolean') {
-            return <View style={{
-                width: CAROUSEL_ITEM_SIZE.width / 2, height: CAROUSEL_ITEM_SIZE.height
-            }} />
+            return <View
+                style={{
+                    width: CAROUSEL_ITEM_SIZE.width / 2,
+                    height: CAROUSEL_ITEM_SIZE.height
+                }} />
         }
         const inputRange = [
             (index - 2) * CAROUSEL_ITEM_SIZE.width,
@@ -98,70 +91,90 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
             inputRange,
             outputRange: [-50, 0, -50]
         })
+        const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.5, 1, 0.5]
+        })
 
         return (
             <RNAnimated.View
-                className={''}
                 style={{
                     transform: [
-                        { scale: scale || 1 },
+                        { scale: scale },
                         { translateY: translateY }],
-                    width: CAROUSEL_ITEM_SIZE.width,
-                    height: CAROUSEL_ITEM_SIZE.height
+                    opacity: opacity
                 }}>
+                <TouchableOpacity className='flex-1'
+                    onPress={() => {
+                        dispatch(setLoading(true))
+                        router.push({ pathname: '/routes/details/[id]', params: { id: item.id } })
+                    }}>
 
-                <VerticalCard
-                    style={{
-                        width: CAROUSEL_ITEM_SIZE.width,
-                        height: CAROUSEL_ITEM_SIZE.height
-                    }}
-                    title={'Spiderman: No Way HomeSpiderman: No Way HomeSpiderman: No Way Home'}
-                    subtitle='9.5/10 IMDb'
-                    imageSoure={require('../../assets/images/image-2.png')}
-                />
+                    <VerticalCard
+                        style={{
+                            width: CAROUSEL_ITEM_SIZE.width,
+                            height: CAROUSEL_ITEM_SIZE.height
+                        }}
+                        data={item}
+                    />
+                </TouchableOpacity>
             </RNAnimated.View >
         )
     }
 
-    const renderSmallItem = () => {
+    const renderSmallItem = (item: MovieType, index: number) => {
         return (
-            <MinimalCard src={require('../../assets/images/image-2.png')} />)
+            <MinimalCard style={{
+                height: '100%'
+            }} src={item.poster_path}
+                title={item.title} />)
     }
+
+    useEffect(() => {
+        console.log(nowShowing)
+    }, [nowShowing])
 
     return (
         <Animated.View
+            className={'flex-1'}
             style={[
-                {
-                    padding: padding || 0
-                },
-                animationStyle
+                style
             ]}>
             {title &&
-                <SectionTitle title={title} showButton />}
+                //40 px
+                <View className='h-10'>
+
+                    <SectionTitle
+                        onPress={() => router.push({
+                            pathname: '/routes/search',
+                            params: { id: nowShowing[0].id }
+                        })}
+                        title={title}
+                        showButton />
+                </View>
+            }
             {/* minimal list */}
             <Animated.View
+                className={'py-2 border-t border-b'}
                 style={animationSmallList}>
                 <FlatList
                     bounces={false}
-                    snapToInterval={150 + 8}
+                    snapToInterval={158}
                     decelerationRate={0}
-                    className={'w-full'}
                     contentContainerStyle={{
                         columnGap: 8,
-                        paddingHorizontal: 8
                     }}
                     horizontal
-                    data={data}
-                    renderItem={({ item, index }) => renderSmallItem()} />
+                    data={nowShowing}
+                    renderItem={({ item, index }) => renderSmallItem(item, index)} />
             </Animated.View>
 
+
             {/* carousel */}
-            <Animated.View style={animationBigList}>
+            <Animated.View
+                className={'flex-1 h-[300px]'}
+                style={[animationBigList]}>
                 <RNAnimated.FlatList
-                    contentContainerStyle={{
-                        columnGap: 8,
-                        paddingHorizontal: 8
-                    }}
                     showsHorizontalScrollIndicator={false}
                     horizontal
                     snapToInterval={CAROUSEL_ITEM_SIZE.width}
@@ -178,7 +191,7 @@ const CustomCarousel = forwardRef<CustomCarouselRef, Props>(({
                         { useNativeDriver: true }
                     )}
                     scrollEventThrottle={16}
-                    data={[false, ...data, false]}
+                    data={[false, ...nowShowing.slice(0, 11), false]}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item, index }) => renderItem(item, index)} />
             </Animated.View>

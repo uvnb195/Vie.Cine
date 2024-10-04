@@ -1,13 +1,16 @@
 import * as SplashScreen from 'expo-splash-screen';
 
-import { Slot, Stack } from 'expo-router';
-import CustomThemeProvider from '../contexts/theme';
 import { useFonts } from 'expo-font';
-import { useEffect } from 'react';
+import { router, Slot, Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
+import CustomThemeProvider from '../contexts/theme';
 import { store } from '../redux/store';
+import { auth } from '../api/firebase/config';
+import AuthProvider from '../contexts/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,11 +36,12 @@ export default function RootLayout() {
     <Provider store={store}>
       <GestureHandlerRootView>
         <CustomThemeProvider >
-          {/* <Slot /> */}
-          <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }} />
+          <Stack initialRouteName='(tabs)' screenOptions={{ headerShown: false }}>
+            <Stack.Screen name='(tabs)' />
+          </Stack>
           <StatusBar backgroundColor='transparent' />
         </CustomThemeProvider>
       </GestureHandlerRootView>
     </Provider>
-  );
-}
+  )
+} 

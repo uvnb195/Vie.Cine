@@ -5,8 +5,6 @@ import { useCustomTheme } from '@/src/contexts/theme'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 
 interface Props {
-    height?: number,
-    width?: number,
     title?: string,
     Icon?: React.ReactNode,
     disabled?: boolean,
@@ -29,19 +27,20 @@ const CustomButton = ({
         <TouchableOpacity
             disabled={disabled}
             onPress={onPress}
-            className='self-start items-center justify-center flex-row px-2 rounded-2 border'
+            className='self-start items-center justify-between flex-row px-2 border'
             style={[
                 {
+                    borderRadius: 8,
                     borderColor: hasBorder
                         ? (disabled
                             ? colors.border.disable
                             : colors.border.default)
                         : ('transparent'),
                     minWidth: title ? 80 : undefined,
-                    minHeight: 50,
+                    height: 50,
                     backgroundColor: disabled ?
                         'transparent'
-                        : hexToRGBA(colors.background.bottomSheet, 0.5)
+                        : hexToRGBA(colors.background.default, 0.5)
                 },
                 style
             ]}>

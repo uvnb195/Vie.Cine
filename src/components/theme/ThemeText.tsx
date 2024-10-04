@@ -45,7 +45,8 @@ const ThemeText = ({
                     color: textColor,
                     fontSize: fontSize || 16,
                     lineHeight: lineHeight,
-                    letterSpacing: letterSpacing || 1.5
+                    letterSpacing: letterSpacing || 1.5,
+                    overflow: 'visible'
                 },
                 { ...otherPropStyles }
             ]}

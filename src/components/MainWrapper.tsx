@@ -34,10 +34,12 @@ const MainWrapper = ({ HeaderComponent: headerComponent, children, style, Bottom
             <SafeAreaView className='flex-1' style={style}>
                 {bottomSheetComponent}
                 {headerComponent
-                    && <View className='w-full h-[60px]'>
+                    && <View className='w-full'>
                         {headerComponent}
                     </View>}
-                {children}
+                <View className='flex-1'>
+                    {children}
+                </View>
             </SafeAreaView>
         </MainBackgroundImageView>
     )

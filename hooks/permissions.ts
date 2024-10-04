@@ -1,4 +1,5 @@
 import { getCurrentPositionAsync, requestForegroundPermissionsAsync, reverseGeocodeAsync } from "expo-location"
+import { getLocales, Localization } from 'expo-localization'
 
 export const requestLocationPermission = async () => {
     try {
@@ -35,3 +36,22 @@ export const getDeviceLocation = async () => {
         return { status: 'fail', msg: e.message }
     }
 }
+
+export const getDeviceLocales = () => {
+    const locales = getLocales()[0]
+    return locales
+}
+
+
+// locales return = {
+//     "currencyCode": "USD",
+//     "currencySymbol": "$",
+//     "decimalSeparator": ".",
+//     "digitGroupingSeparator": ",",
+//     "languageCode": "en",
+//     "languageTag": "en-US",
+//     "measurementSystem": "us",
+//     "regionCode": "US",
+//     "temperatureUnit": "fahrenheit",
+//     "textDirection": "ltr"
+// }

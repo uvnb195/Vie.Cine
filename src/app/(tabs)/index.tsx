@@ -1,163 +1,185 @@
-import { CAROUSEL_ITEM_SIZE, HORIZONTALCARD_SIZE } from '@/constants/Size'
+import { CAROUSEL_ITEM_SIZE, TAB_BAR_HEIGHT } from '@/constants/Size'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
-import { BottomSheetRef } from '@/src/components/bottom-sheet/PaymentSheet'
-import SectionTitle from '@/src/components/button/SectionTitle'
-import HorizontalCard from '@/src/components/card/HorizontalCard'
-import MinimalCard from '@/src/components/card/MinimalCard'
+import CustomButton from '@/src/components/button/CustomButton'
 import HomeHeader from '@/src/components/header/HomeHeader'
 import LocationTag from '@/src/components/LocationTag'
 import MainWrapper from '@/src/components/MainWrapper'
-import CustomCarousel, { CustomCarouselRef } from '@/src/components/scroll/CustomCarousel'
+import AnimatedHorizontalScroll from '@/src/components/scroll/AnimatedHorizontalScroll'
+import HorizontalScroll from '@/src/components/scroll/HorizontalScroll'
+import ThemeText from '@/src/components/theme/ThemeText'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { RootState } from '@/src/redux/store'
-import React, { useRef } from 'react'
-import { Animated as RNAnimated, View } from 'react-native'
-import { FlatList } from 'react-native-gesture-handler'
-import { CakeIcon, MapPinIcon, UserIcon } from 'react-native-heroicons/solid'
-import Animated, { interpolate, useAnimatedStyle, useDerivedValue, withSpring, withTiming } from 'react-native-reanimated'
-import { useSelector } from 'react-redux'
+import { updateListGroupShowing } from '@/src/redux/publicSlice'
+import { AppDispatch, RootState } from '@/src/redux/store'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
+import { router } from 'expo-router'
+import React, { useEffect } from 'react'
+import { ActivityIndicator, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
+import { ArrowLeftEndOnRectangleIcon } from 'react-native-heroicons/solid'
+import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withTiming } from 'react-native-reanimated'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Tab = () => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
+    const dispatch = useDispatch<AppDispatch>()
+    const { loading, nowShowing, upComing, userInfo: currentUser } = useSelector((state: RootState) => state.public)
 
-    const bottomSheetRef = useRef<BottomSheetRef>(null)
+    const comboList = [
+        { original_title: 'Combo 1', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
+        { original_title: 'Combo 2', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
+        { original_title: 'Combo 3', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
+        { original_title: 'Combo 4', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
+        { original_title: 'Combo5', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
+        { original_title: 'Combo 6', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
+        { original_title: 'Combo7', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' }
+    ]
 
-    const [toggle, setToggle] = React.useState(true)
-
-    const carouselHeight = useDerivedValue(() => {
-        return toggle ? withSpring(CAROUSEL_ITEM_SIZE.height + 32) : withSpring(CAROUSEL_ITEM_SIZE.minimum + 32)
-    }, [toggle])
-
-    const carouselAnimation = useAnimatedStyle(() => {
-        return ({
-            height: carouselHeight.value
-        })
-    })
-
-    const bottomAnimation = useAnimatedStyle(() => ({
-        height: withTiming(interpolate(
-            carouselHeight.value,
-            [CAROUSEL_ITEM_SIZE.height + 32, CAROUSEL_ITEM_SIZE.minimum + 32],
-            [0, CAROUSEL_ITEM_SIZE.minimum + 32]),
-            { duration: 100 })
+    const ticketListHeight = useSharedValue(0)
+    const ticketListAnimation = useAnimatedStyle(() => ({
+        height: ticketListHeight.value,
+        opacity: ticketListHeight.value > 0 ? withTiming(1, { duration: 1000 }) : 0
     }))
 
-    const carouselRef = useRef<CustomCarouselRef>(null)
+    const [toggleSearchBox, setToggleSearchBox] = React.useState(false)
+    const searchBox = useDerivedValue(() => toggleSearchBox ? 60 : 0)
+    const searchBoxAnimation = useAnimatedStyle(() => ({
+        height: withTiming(searchBox.value, { duration: 500 }),
+        overflow: 'hidden'
+    }))
+    const bgColors = ['transparent', hexToRGBA(colors.background.highlight, 0.5), colors.background.highlight,]
 
-    const renderItem = (item: any, index: number) => {
-        if (typeof item === 'boolean') return <View style={{ height: HORIZONTALCARD_SIZE.height }} />
-
-        return (
-            <RNAnimated.View
-                className={' w-fulloverflow-hidden'}
-                style={{
-                }}>
-
-                <HorizontalCard
-
-                    style={{
-                        backgroundColor: hexToRGBA(colors.background.default, 0.5),
-                        padding: 8,
-                        width: '100%',
-                        height: HORIZONTALCARD_SIZE.height
-                    }}
-                    title={'Venom Let There Be Carnage'}
-                    stats={[
-                        {
-                            content: 'Keanu Charles Reeves',
-                            icon: <UserIcon
-                                color={colors.text.default}
-                                size={16} />
-                        },
-                        {
-                            content: 'September 2, 1964',
-                            icon: <CakeIcon
-                                color={colors.text.default}
-                                size={16} />
-                        },
-                        {
-                            content: 'London, United Kingdom',
-                            icon: <MapPinIcon
-                                color={colors.text.default}
-                                size={16} />
-                        }
-                    ]}
-                    shortTags={[
-                        'Action',
-                        'Adventure',
-                        'Fantasy',
-                        'Action',
-                        'Adventure',
-                        'Fantasy'
-                    ]}
-                    image={require('../../assets/images/Image.png')} />
-            </RNAnimated.View >
-        )
-    }
+    useEffect(() => {
+        if (currentUser != null) {
+            ticketListHeight.value = withDelay(1000, withTiming(CAROUSEL_ITEM_SIZE.minimum + 40, { duration: 500 }))
+        }
+    }, [currentUser])
 
     return (
         <MainWrapper
+            style={{
+                flex: 1,
+                marginBottom: TAB_BAR_HEIGHT
+            }}
             HeaderComponent={
                 <HomeHeader />
             }>
+
             {/* location */}
-
             <LocationTag />
-
-            {/* title & showmore */}
-            <Animated.View className='w-full overflow-hidden'
-                style={carouselAnimation}>
-                <CustomCarousel
-                    ref={carouselRef}
-                    width={'100%'}
-                    data={[1, 2, 3, 4, 5]}
-                    title={'Now Showing'} />
-            </Animated.View>
-
-            <SectionTitle title='Up Coming' showButton />
-            <RNAnimated.FlatList
-                showsVerticalScrollIndicator={false}
-                indicatorStyle={'white'}
-                // snapToInterval={HORIZONTALCARD_SIZE.height}
-                // decelerationRate={0}
-                decelerationRate={'fast'}
+            <ScrollView
                 bounces={false}
-                onScroll={e => {
-                    const offsetY = e.nativeEvent.contentOffset.y
-                    if (offsetY == 0 && carouselHeight.value != CAROUSEL_ITEM_SIZE.height) {
-                        carouselRef.current?.expand()
-                        setToggle(true)
-                        return
-                    }
-                    if (offsetY > 0 && carouselHeight.value != CAROUSEL_ITEM_SIZE.minimum) {
-                        carouselRef.current?.collapse()
-                        setToggle(false)
-                    }
-                }}
-                scrollEventThrottle={16}
-                data={[1, 2, 3, 4, 5, 6, 7, 8]}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => renderItem(item, index)} />
+                decelerationRate={'fast'}>
+                {/* ticket booked */}
+                <Animated.View
+                    className='w-full' style={[
+                        {
+                            height: CAROUSEL_ITEM_SIZE.minimum
+                        },
+                        ticketListAnimation
+                    ]}>
+                    <AnimatedHorizontalScroll
+                        titleSize={16}
+                        title='Booked Tickets'
+                        list={nowShowing}
+                        contentStyle={{
+                            showSubTitle: true,
+                            height: CAROUSEL_ITEM_SIZE.minimum
+                        }}
+                        viewableItems={(viewableItems) => {
+                            // console.log('viewable:::::::::::::::::::::::::::', viewableItems)
+                        }}
+                    />
+                </Animated.View>
 
-            {/* bottom */}
-            <Animated.View className='w-full'
-                style={
-                    bottomAnimation
-                } >
-                <SectionTitle title='Hot Combos' />
-                <FlatList
-                    bounces={false}
-                    contentContainerStyle={{
-                        columnGap: 8,
-                        paddingHorizontal: 8,
-                    }}
-                    snapToInterval={150 + 8}
-                    decelerationRate={0}
-                    horizontal
-                    data={[0, 1, 2, 3, 4, 5]}
-                    renderItem={() => <MinimalCard title={'Hot Combo'} src={{ uri: 'https://iguov8nhvyobj.vcdn.cloud/media/wysiwyg/2020/072020/KICHI_VOUCHER_350x495.jpg' }} />} />
-            </Animated.View>
+                {/* now showing */}
+                <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                    <AnimatedHorizontalScroll
+                        directionTo='left'
+                        titleSize={24}
+                        title='Now Showing'
+                        list={nowShowing.slice(0, 10)}
+                        showMore={nowShowing.length > 10}
+                        contentStyle={{
+                            showTitle: true,
+                            width: CAROUSEL_ITEM_SIZE.width,
+                            height: CAROUSEL_ITEM_SIZE.height
+                        }}
+                        onShowMore={() => {
+                            dispatch(updateListGroupShowing('nowShowing'))
+                            router.push({
+                                pathname: '/routes/groups/[id]',
+                                params: { id: 'trending' }
+                            })
+                        }}
+                    />
+                </View>
+
+                {/* upcoming */}
+                <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                    <AnimatedHorizontalScroll
+                        titleSize={16}
+                        title='Upcoming'
+                        list={upComing.slice(0, 10)}
+                        showMore={upComing.length > 10}
+                        onShowMore={() => {
+                            dispatch(updateListGroupShowing('upComing'))
+                            router.push({
+                                pathname: '/routes/groups/[id]',
+                                params: { id: 'up coming' }
+                            })
+                        }}
+                        contentStyle={{
+                            showTitle: true,
+                            showSubTitle: true,
+                            width: CAROUSEL_ITEM_SIZE.width,
+                            height: CAROUSEL_ITEM_SIZE.height
+                        }}
+                    />
+                </View>
+                {loading
+                    ? <View className='flex-1 items-center justify-center'>
+                        <ActivityIndicator size={40} />
+                    </View>
+                    :
+                    (currentUser == null ?
+
+                        <TouchableOpacity onPress={() =>
+                            router.push('/routes/(auth)')}
+                        >
+                            <View className='flex-1 border-4 items-center justify-around'>
+
+                                <ThemeText
+                                    fontSize={20}
+                                    fontWeight='light'
+                                    letterSpacing={4}
+                                    otherProps={{
+                                        textAlign: 'center'
+                                    }}>Login for more features</ThemeText>
+                                <CustomButton
+                                    style={{
+                                        alignSelf: 'center',
+                                        marginVertical: 16,
+                                    }} title='Login'
+                                    Icon={<ArrowLeftEndOnRectangleIcon color={colors.smallButton.textDefault} />} />
+                            </View>
+                        </TouchableOpacity>
+                        : <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                            <HorizontalScroll
+                                titleSize={16}
+                                title='Hot Combos'
+                                showMore
+                                list={upComing}
+                                contentStyle={{
+                                    showSubTitle: true,
+                                    showTitle: true
+                                }}
+                            />
+                        </View>)
+                }
+
+
+            </ScrollView>
         </MainWrapper>
     )
 }

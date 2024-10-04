@@ -9,18 +9,20 @@ interface Props {
     showButton?: boolean,
     onPress?: () => void,
     style?: ViewStyle,
+    fontSize?: number,
 }
 
-const SectionTitle = ({ title, showButton, onPress, style }: Props) => {
+const SectionTitle = ({
+    title,
+    showButton,
+    onPress,
+    style,
+    fontSize = 24 }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     return (
-        <View className='items-center justify-between flex-row-reverse h-[32px] w-full' style={[
-            {
-                paddingHorizontal: 8,
-                marginVertical: 8
-            },
-            style]}>
+        <View className='items-center justify-between flex-row-reverse h-8 overflow-hidden w-full'
+            style={[style]}>
             {showButton &&
                 <View>
                     <SmallButton
@@ -31,7 +33,7 @@ const SectionTitle = ({ title, showButton, onPress, style }: Props) => {
                 otherProps={{
                     flexGrow: 1,
                 }}
-                fontSize={24}
+                fontSize={fontSize}
                 fontWeight='bold'
                 color={colors.text.light}
                 letterSpacing={3}>{title}</ThemeText>

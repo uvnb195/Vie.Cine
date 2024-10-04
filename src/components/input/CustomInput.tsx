@@ -1,8 +1,10 @@
 import { View, Text, TextInput, Pressable, TextStyle, KeyboardAvoidingView } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import { EyeIcon } from 'react-native-heroicons/solid'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { hexToRGBA } from '@/hooks/hexToRGBA'
 
 interface Props {
     height?: number,
@@ -14,10 +16,13 @@ interface Props {
     textAlgin?: TextStyle['textAlign'],
     LeftIcon?: React.ReactNode,
     keyboardType?: 'default' | 'number-pad' | 'email-address' | 'numeric',
-    blockText?: boolean
+    blockText?: boolean,
+    value?: string,
+    onValueChange?: (value: string) => void,
+    onSubmitEditing?: () => void
 }
 
-const CustomInput = ({
+const CustomInput = forwardRef<TextInput, Props>(({
     height = 50,
     width,
     borderColor,
@@ -27,27 +32,22 @@ const CustomInput = ({
     textAlgin = 'left',
     LeftIcon: leftIcon,
     keyboardType = 'default',
-    blockText = false }: Props) => {
+    blockText = false,
+    value,
+    onValueChange,
+    onSubmitEditing }: Props, ref) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
+    const [enableShowButton, setEnableShowButton] = React.useState(false)
     const [showInput, setShowInput] = React.useState(blockText)
-    const [input, setInput] = React.useState('')
 
     const handleSetShowInput = () => {
-        if (input.length > 0) {
-            setShowInput(!showInput)
-        }
-    }
-
-    const handleTextChange = (text: string) => {
-        if (keyboardType === 'number-pad' || keyboardType === 'numeric')
-            if (text.includes('.') || text.includes(',') || text.includes('-') || text.includes(' ')) return
-        setInput(text)
+        setShowInput(!showInput)
     }
 
     return (
-        <KeyboardAvoidingView behavior='position'>
+        <KeyboardAvoidingView behavior='padding' >
 
             <View className='w-full flex-row items-center rounded-2 border overflow-hidden'
                 style={{
@@ -56,6 +56,7 @@ const CustomInput = ({
                     borderColor: borderColor || (disabled
                         ? colors.border.disable
                         : colors.border.default),
+                    backgroundColor: hexToRGBA(colors.background.default, 0.7)
                 }}>
                 {/* icon */}
                 {
@@ -74,9 +75,17 @@ const CustomInput = ({
                 {/* input */}
                 <View className='h-full flex-auto'>
                     <TextInput
+                        ref={ref}
                         editable={!disabled}
-                        value={input}
-                        onChangeText={handleTextChange}
+                        value={value}
+                        onChangeText={(value) => {
+                            if (value.length > 0) {
+                                setEnableShowButton(true)
+                            } else {
+                                setEnableShowButton(false)
+                            }
+                            onValueChange && onValueChange(value)
+                        }}
                         secureTextEntry={showInput}
                         numberOfLines={1}
                         selectionColor={colors.text.light}
@@ -88,12 +97,14 @@ const CustomInput = ({
                             height: height,
                             color: colors.text.default,
                             textAlign: textAlgin
-                        }} />
+                        }}
+                        onSubmitEditing={onSubmitEditing} />
                 </View>
 
                 {/* showTextIcon */}
                 {blockText
-                    && <Pressable
+                    && <TouchableOpacity
+                        disabled={!enableShowButton}
                         className=' items-center justify-center'
                         style={{
                             width: height,
@@ -103,10 +114,10 @@ const CustomInput = ({
                         <EyeIcon
                             color={showInput ? colors.text.light : colors.text.default}
                             size={24} />
-                    </Pressable>}
+                    </TouchableOpacity>}
             </View>
         </KeyboardAvoidingView>
     )
-}
+})
 
 export default CustomInput

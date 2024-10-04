@@ -1,3 +1,5 @@
+export const TAB_BAR_HEIGHT = 50
+
 export const PADDING_VALUE = {
     sm: 4,
     md: 8,
@@ -8,10 +10,17 @@ export const PADDING_VALUE = {
 }
 
 export const CAROUSEL_ITEM_SIZE = {
-    width: 200,
-    height: 320,
+    width: 120,
+    height: 200,
     padding: 24,
-    minimum: 100,
+    minimum: 120,
+}
+
+export const CAROUSEL_ITEM_SIZE_BIG = {
+    width: 200,
+    height: 300,
+    padding: 24,
+    minimum: 120,
 }
 
 export const HORIZONTALCARD_SIZE = {

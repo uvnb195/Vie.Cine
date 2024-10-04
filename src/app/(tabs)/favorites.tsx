@@ -5,6 +5,7 @@ import ThemeText from '@/src/components/theme/ThemeText'
 import Header from '@/src/components/header'
 import SectionTitle from '@/src/components/button/SectionTitle'
 import CustomScroll from '@/src/components/scroll/CustomScroll'
+import { TAB_BAR_HEIGHT } from '@/constants/Size'
 
 interface Props {
 }
@@ -13,8 +14,12 @@ const Tab = ({
 }: Props) => {
     return (
         <MainWrapper
+            style={{
+                flex: 1,
+                marginBottom: TAB_BAR_HEIGHT
+            }}
             HeaderComponent={
-                <Header title='Favorites' leftIconShown={false} />
+                <Header title='Favorites' backIconShown={false} />
             }>
             <View className='flex-1'>
                 <CustomScroll

@@ -22,7 +22,7 @@ const TextHighLight = ({
     const { colors, theme } = themeValue
 
     return (
-        <View className='rounded-full min-w-[40px] px-2 items-center justify-center'
+        <View className='rounded-full min-w-[40px] px-2 py-1 items-center justify-center'
             style={[bgColor(backgroundColor || colors.textHighLight.background),
             {
                 marginHorizontal: marginX,
