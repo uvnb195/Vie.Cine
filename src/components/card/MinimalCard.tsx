@@ -25,23 +25,20 @@ const MinimalCard = ({ style, src, title, subTitle, onPress }: CardProps) => {
 
     return (
         <TouchableOpacity onPress={onPress} >
-            <View className='flex-col-reverse h-full w-full'
+            <View className='flex-col-reverse h-full'
                 style={[
                     {
-                        width: CAROUSEL_ITEM_SIZE.minimum,
-                        height: CAROUSEL_ITEM_SIZE.minimum,
+                        minHeight: CAROUSEL_ITEM_SIZE.minimum,
+                        minWidth: CAROUSEL_ITEM_SIZE.minimum,
                     },
                     style]}>
 
                 {/* subtitle */}
                 {subTitle &&
-                    <View className='h-6 absolute top-[8px] left-[8px] right-[8px] z-50 items-center justify-around flex-row rounded-2'
+                    <View className='h-6 absolute top-[8px] self-center z-50 items-center justify-around flex-row rounded-2'
                         style={{
                             backgroundColor: hexToRGBA(colors.textHighLight.background, 0.5),
                         }}>
-                        <StarIcon size={12}
-                            fill='white'
-                            color={colors.textHighLight.text} />
                         <ThemeText color={colors.textHighLight.text} fontSize={12}>{subTitle}</ThemeText>
                     </View>}
 
@@ -63,7 +60,7 @@ const MinimalCard = ({ style, src, title, subTitle, onPress }: CardProps) => {
                     <Image
                         onError={() => setShowDefault(true)}
                         loadingIndicatorSource={require('@/assets/images/icon.png')}
-                        className='flex-1 w-full rounded-2'
+                        className='w-full h-full rounded-2'
                         source={{ uri: src }}
                         resizeMode='cover' />
                     {showDefault &&

@@ -1,21 +1,20 @@
-import { View, Text, ViewStyle, ViewToken } from 'react-native'
-import React, { useEffect } from 'react'
-import { FlatList } from 'react-native-gesture-handler'
-import { MovieType } from '@/constants/types'
-import MinimalCard, { CardProps } from '../card/MinimalCard'
-import SectionTitle from '../button/SectionTitle'
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
-import { router } from 'expo-router'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '@/src/redux/store'
-import { resetDetail, setLoading } from '@/src/redux/publicSlice'
+import { MovieType } from '@/constants/types'
 import { dateConverter } from '@/hooks/convertDate'
-import { ScrollProps } from './HorizontalScroll'
-import Animated, { interpolateColor, SharedValue, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated'
-import { fetchMovie } from '@/src/redux/publicAsyncAction'
-import { ChevronDoubleRightIcon } from 'react-native-heroicons/outline'
-import { useCustomTheme } from '@/src/contexts/theme'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
+import { useCustomTheme } from '@/src/contexts/theme'
+import { fetchMovie } from '@/src/redux/publicAsyncAction'
+import { setLoading } from '@/src/redux/publicSlice'
+import { AppDispatch } from '@/src/redux/store'
+import { router } from 'expo-router'
+import React, { useEffect } from 'react'
+import { View, ViewToken } from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
+import Animated, { interpolateColor, SharedValue, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated'
+import { useDispatch } from 'react-redux'
+import SectionTitle from '../button/SectionTitle'
+import MinimalCard from '../card/MinimalCard'
+import { ScrollProps } from './HorizontalScroll'
 
 interface AnimatedScrollProps extends ScrollProps {
     directionTo?: 'down' | 'left'
@@ -81,7 +80,7 @@ const AnimatedHorizontalScroll = ({
                 bounces={false}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={list}
+                data={list?.results}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => renderItem(item, index)} />
         </View>
@@ -134,25 +133,26 @@ const ItemSlideDown = (
                 }}
                 onPress={() => {
                     dispatch(setLoading(true))
-                    dispatch(fetchMovie(`${item.id}`))
                     router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
                 }} />
         </Animated.View>
     )
 }
 
-const ItemScale = (
+export const ItemScale = (
     {
         item,
         index,
         viewableItems,
         contentStyle,
+        onPress,
     }:
         {
             item: MovieType,
             index: number,
             viewableItems: SharedValue<ViewToken[]>,
             contentStyle?: ScrollProps['contentStyle'],
+            onPress?: () => void
         }) => {
     const dispatch = useDispatch<AppDispatch>()
     const animation = useAnimatedStyle(() => {
@@ -181,12 +181,11 @@ const ItemScale = (
                     : undefined
                 } src={item.poster_path}
                 style={{
-                    width: contentStyle?.width || CAROUSEL_ITEM_SIZE.width,
-                    height: contentStyle?.height || CAROUSEL_ITEM_SIZE.height
+                    width: '100%',
+                    height: '100%'
                 }}
                 onPress={() => {
                     dispatch(setLoading(true))
-                    dispatch(fetchMovie(`${item.id}`))
                     router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
                 }} />
         </Animated.View>

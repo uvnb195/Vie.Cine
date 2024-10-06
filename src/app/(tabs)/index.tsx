@@ -8,7 +8,7 @@ import AnimatedHorizontalScroll from '@/src/components/scroll/AnimatedHorizontal
 import HorizontalScroll from '@/src/components/scroll/HorizontalScroll'
 import ThemeText from '@/src/components/theme/ThemeText'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { updateListGroupShowing } from '@/src/redux/publicSlice'
+import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import { router } from 'expo-router'
@@ -50,7 +50,7 @@ const Tab = () => {
     const bgColors = ['transparent', hexToRGBA(colors.background.highlight, 0.5), colors.background.highlight,]
 
     useEffect(() => {
-        if (currentUser != null) {
+        if (currentUser !== null && currentUser !== undefined) {
             ticketListHeight.value = withDelay(1000, withTiming(CAROUSEL_ITEM_SIZE.minimum + 40, { duration: 500 }))
         }
     }, [currentUser])
@@ -58,8 +58,7 @@ const Tab = () => {
     return (
         <MainWrapper
             style={{
-                flex: 1,
-                marginBottom: TAB_BAR_HEIGHT
+                flex: 1
             }}
             HeaderComponent={
                 <HomeHeader />
@@ -68,6 +67,7 @@ const Tab = () => {
             {/* location */}
             <LocationTag />
             <ScrollView
+                showsVerticalScrollIndicator={false}
                 bounces={false}
                 decelerationRate={'fast'}>
                 {/* ticket booked */}
@@ -81,7 +81,7 @@ const Tab = () => {
                     <AnimatedHorizontalScroll
                         titleSize={16}
                         title='Booked Tickets'
-                        list={nowShowing}
+                        list={nowShowing || null}
                         contentStyle={{
                             showSubTitle: true,
                             height: CAROUSEL_ITEM_SIZE.minimum
@@ -98,18 +98,18 @@ const Tab = () => {
                         directionTo='left'
                         titleSize={24}
                         title='Now Showing'
-                        list={nowShowing.slice(0, 10)}
-                        showMore={nowShowing.length > 10}
+                        list={nowShowing || null}
+                        showMore={nowShowing && nowShowing?.total_results > 10 || false}
                         contentStyle={{
                             showTitle: true,
                             width: CAROUSEL_ITEM_SIZE.width,
                             height: CAROUSEL_ITEM_SIZE.height
                         }}
                         onShowMore={() => {
-                            dispatch(updateListGroupShowing('nowShowing'))
+                            dispatch(setLoading(true))
                             router.push({
                                 pathname: '/routes/groups/[id]',
-                                params: { id: 'trending' }
+                                params: { id: '/now-showing' }
                             })
                         }}
                     />
@@ -120,13 +120,13 @@ const Tab = () => {
                     <AnimatedHorizontalScroll
                         titleSize={16}
                         title='Upcoming'
-                        list={upComing.slice(0, 10)}
-                        showMore={upComing.length > 10}
+                        list={upComing}
+                        showMore={upComing && upComing?.total_results > 10 || false}
                         onShowMore={() => {
-                            dispatch(updateListGroupShowing('upComing'))
+                            dispatch(setLoading(true))
                             router.push({
                                 pathname: '/routes/groups/[id]',
-                                params: { id: 'up coming' }
+                                params: { id: '/upcoming' }
                             })
                         }}
                         contentStyle={{
@@ -137,48 +137,41 @@ const Tab = () => {
                         }}
                     />
                 </View>
-                {loading
-                    ? <View className='flex-1 items-center justify-center'>
-                        <ActivityIndicator size={40} />
-                    </View>
+                {currentUser === null ?
+                    <TouchableOpacity onPress={() =>
+                        router.push('/routes/(auth)/')}
+                    >
+                        <View className='flex-1 items-center justify-around mt-6'>
+
+                            <ThemeText
+                                fontSize={20}
+                                fontWeight='light'
+                                letterSpacing={4}
+                                otherProps={{
+                                    textAlign: 'center'
+                                }}>Login for more features</ThemeText>
+                            <CustomButton
+                                style={{
+                                    alignSelf: 'center',
+                                    marginVertical: 16,
+                                }} title='Login'
+                                Icon={<ArrowLeftEndOnRectangleIcon color={colors.smallButton.textDefault} />} />
+                        </View>
+                    </TouchableOpacity>
                     :
-                    (currentUser == null ?
-
-                        <TouchableOpacity onPress={() =>
-                            router.push('/routes/(auth)')}
-                        >
-                            <View className='flex-1 border-4 items-center justify-around'>
-
-                                <ThemeText
-                                    fontSize={20}
-                                    fontWeight='light'
-                                    letterSpacing={4}
-                                    otherProps={{
-                                        textAlign: 'center'
-                                    }}>Login for more features</ThemeText>
-                                <CustomButton
-                                    style={{
-                                        alignSelf: 'center',
-                                        marginVertical: 16,
-                                    }} title='Login'
-                                    Icon={<ArrowLeftEndOnRectangleIcon color={colors.smallButton.textDefault} />} />
-                            </View>
-                        </TouchableOpacity>
-                        : <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
-                            <HorizontalScroll
-                                titleSize={16}
-                                title='Hot Combos'
-                                showMore
-                                list={upComing}
-                                contentStyle={{
-                                    showSubTitle: true,
-                                    showTitle: true
-                                }}
-                            />
-                        </View>)
+                    (currentUser !== undefined && <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                        <HorizontalScroll
+                            titleSize={16}
+                            title='Hot Combos'
+                            showMore
+                            list={upComing}
+                            contentStyle={{
+                                showSubTitle: true,
+                                showTitle: true
+                            }}
+                        />
+                    </View>)
                 }
-
-
             </ScrollView>
         </MainWrapper>
     )

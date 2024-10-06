@@ -1,24 +1,27 @@
-import { View, Text, Image, KeyboardAvoidingView, BackHandler } from 'react-native'
-import React, { useCallback, useEffect } from 'react'
-import MainWrapper from '@/src/components/MainWrapper'
-import { useCustomTheme } from '@/src/contexts/theme'
-import { shadowImageStyle } from '@/constants/Styles'
-import ThemeText from '@/src/components/theme/ThemeText'
-import Animated, { interpolate, useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
-import { ScrollView } from 'react-native-gesture-handler'
-import CustomInput from '@/src/components/input/CustomInput'
-import { AtSymbolIcon, KeyIcon, PhoneIcon } from 'react-native-heroicons/outline'
-import Terms from '@/src/components/card/Terms'
-import CustomButton from '@/src/components/button/CustomButton'
-import { hexToRGBA } from '@/hooks/hexToRGBA'
-import { Link, router } from 'expo-router'
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
 import { auth } from '@/src/api/firebase/config'
-import AuthProvider, { useAuth } from '@/src/contexts/auth'
+import CustomButton from '@/src/components/button/CustomButton'
+import Terms from '@/src/components/card/Terms'
+import CustomInput from '@/src/components/input/CustomInput'
+import MainWrapper from '@/src/components/MainWrapper'
+import ThemeText from '@/src/components/theme/ThemeText'
+import { useAuth } from '@/src/contexts/auth'
+import { useCustomTheme } from '@/src/contexts/theme'
+import { setLoading } from '@/src/redux/publicSlice'
+import { AppDispatch, RootState } from '@/src/redux/store'
+import { Link, router } from 'expo-router'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import React, { useEffect } from 'react'
+import { Image, KeyboardAvoidingView, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
+import { AtSymbolIcon, KeyIcon, PhoneIcon } from 'react-native-heroicons/outline'
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Login = () => {
     const themeValue = useCustomTheme()
-    const { colors, theme } = themeValue
+    const { colors, currentTheme: theme } = themeValue
+    const dispatch = useDispatch<AppDispatch>()
+    const { userInfo } = useSelector((state: RootState) => state.public)
 
     const {
         emailOrPhone,
@@ -26,8 +29,6 @@ const Login = () => {
         setEmailOrPhone,
         setPassword,
         checkEmailOrPhoneType,
-        loading,
-        setLoading,
         showNoti
     } = useAuth()
 
@@ -63,30 +64,47 @@ const Login = () => {
         }
     }
 
-    const handleSubmit = () => {
-        setLoading(true)
+    const handleSubmit = async () => {
+        dispatch(setLoading(true))
         if (emailError || passwordError) return
         const type = checkEmailOrPhoneType(emailOrPhone)
         switch (type) {
             case 'email': {
-                createUserWithEmailAndPassword(auth, emailOrPhone, password).then((userCredential) => {
-                    console.log('user credential:::::::::::::', userCredential)
-                })
-                    .catch((error: Error) => {
-                        console.log(error.message)
+                const validation = await signInWithEmailAndPassword(auth, emailOrPhone, password)
+                    .catch(err => {
+                        console.log(err.code)
+                        switch (err.code) {
+                            case 'auth/user-not-found': {
+                                showNoti('User not found')
+                                break
+                            }
+                            case 'auth/wrong-password': {
+                                showNoti('Wrong password')
+                                break
+                            }
+                            case 'auth/too-many-requests': {
+                                showNoti('Please restart your app and try again')
+                                break
+                            }
+                            default: {
+                                showNoti('Something went wrong')
+                                break
+                            }
+                        }
                     })
-                    .finally(() => {
-                        setLoading(false)
-                        router.replace('/')
-                    })
+                dispatch(setLoading(false))
+                console.log(validation)
+                break;
             }
-                return
             case 'phone': {
                 showNoti('Phone number is not supported yet')
-                setLoading(false)
+                dispatch(setLoading(false))
                 return
             }
-            default: return
+            default: {
+                showNoti('Invalid email or phone number')
+                return
+            }
         }
     }
 
@@ -108,12 +126,18 @@ const Login = () => {
         }
     }
 
+    useEffect(() => {
+        if (userInfo)
+            router.dismissAll()
+    }, [userInfo])
 
     return (
-        <MainWrapper style={{
-            alignItems: 'center',
-            flex: 1
-        }}>
+        <MainWrapper
+            loadingLayer={false}
+            style={{
+                alignItems: 'center',
+                flex: 1
+            }}>
             <KeyboardAvoidingView
                 behavior='height'
                 className='self-center'>
@@ -189,16 +213,16 @@ const Login = () => {
                     {/* bottom */}
                     <View className='w-full px-6 self-center h-[50px]'>
                         <ThemeText otherProps={{ textAlign: 'center' }}>You have any problem? Try{" \n"}
-                            <Link href={"/"} >
-                                <ThemeText
-                                    color={colors.icon.highlight}
-                                    fontWeight='bold'
-                                    otherProps={{
-                                        textDecorationLine: 'underline',
-                                        padding: 0,
-                                        margin: 0
-                                    }}>Register</ThemeText>
-                            </Link> or{" "}
+                            <ThemeText
+                                onPress={() => router.replace('/routes/(auth)/register')}
+                                color={colors.icon.highlight}
+                                fontWeight='bold'
+                                otherProps={{
+                                    textDecorationLine: 'underline',
+                                    padding: 0,
+                                    margin: 0
+                                }}>Register</ThemeText>
+                            or{" "}
                             <Link href={"/"} onPress={() => console.log('pressed')}>
                                 <ThemeText
                                     color={colors.icon.highlight}

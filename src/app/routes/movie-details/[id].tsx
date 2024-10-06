@@ -1,3 +1,4 @@
+import { Cast, MovieType } from '@/constants/types'
 import { dateConverter } from '@/hooks/convertDate'
 import { convertDuration } from '@/hooks/convertDurration'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
@@ -18,7 +19,7 @@ import { resetDetail, setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { ClockIcon, HeartIcon, TicketIcon } from 'react-native-heroicons/outline'
@@ -41,6 +42,7 @@ const DetailScreen = () => {
 
     const scrollRef = useRef<ScrollView>(null)
     const [toggleBottomSheet, setToggleBottomSheet] = useState(false)
+
     const scrollY = useSharedValue(0)
     const videoAnimation = useAnimatedStyle(() => ({
         opacity: interpolate(
@@ -129,27 +131,28 @@ const DetailScreen = () => {
     }
 
     useEffect(() => {
-        console.log(id)
-        if (loading) {
+        if (movieInfo.movie && movieInfo.movie.id.toString() == id.toString()) {
             scrollY.value = 0
-            dispatch(fetchMovie(`${id}`))
+            dispatch(setLoading(false))
         }
+    }, [movieInfo])
+
+    useEffect(() => {
+        dispatch(setLoading(true))
+        dispatch(fetchMovie({ id: id + "" }))
         return () => {
             clearTimeout(timeoutRef.current as NodeJS.Timeout)
         }
-    }, [loading])
-
-    useEffect(() => { console.log(movieInfo) }, [movieInfo])
+    }, [id])
 
     return (
         <BottomSheetModalProvider>
             <DetailBackgroundWrapper
-                sourceUri={movieInfo.movie?.poster_path}
+                sourceUri={loading ? undefined : movieInfo.movie?.poster_path}
                 HeaderComponent={< Header
                     searchIconShown
                     backIconPress={() => {
-                        dispatch(resetDetail())
-                        router.back()
+                        router.dismiss()
                     }} />}
                 BottomSheetComponent={
                     toggleBottomSheet ?
@@ -336,7 +339,7 @@ const DetailScreen = () => {
                             <ThemeText
                                 fontSize={16}
                                 otherProps={{
-                                    height: movieInfo.movie?.overview && movieInfo.movie?.overview.length < 200 ? 150 : 'auto',
+                                    height: movieInfo.movie?.overview && movieInfo.movie?.overview.length < 300 ? 200 : 'auto',
                                     marginTop: 8,
                                     textAlign: 'justify'
                                 }} color={colors.text.light}
@@ -369,8 +372,8 @@ const DetailScreen = () => {
                                         title={item.original_name}
                                         src={item.profile_path || ""}
                                         onPress={() => {
-                                            dispatch(fetchPerson(item.id + ""))
-                                            router.push({
+                                            dispatch(setLoading(true))
+                                            router.replace({
                                                 pathname: '/routes/person-details/[id]',
                                                 params: {
                                                     id: item.id
@@ -386,4 +389,4 @@ const DetailScreen = () => {
     )
 }
 
-export default DetailScreen
+export default memo(DetailScreen)

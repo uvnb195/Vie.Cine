@@ -1,7 +1,7 @@
-import { View, Text, ViewStyle, ViewToken } from 'react-native'
+import { View, Text, ViewStyle, ViewToken, DimensionValue } from 'react-native'
 import React from 'react'
 import { FlatList } from 'react-native-gesture-handler'
-import { MovieType } from '@/constants/types'
+import { ListResponse, MovieType } from '@/constants/types'
 import MinimalCard from '../card/MinimalCard'
 import SectionTitle from '../button/SectionTitle'
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
@@ -15,14 +15,16 @@ export interface ScrollProps {
     style?: ViewStyle,
     title?: string,
     titleSize?: number,
-    list: MovieType[],
+    list: ListResponse<MovieType> | null,
     showMore?: boolean,
     onShowMore?: () => void,
     contentStyle?: {
-        width?: number,
-        height?: number,
+        width?: DimensionValue,
+        height?: DimensionValue,
         showTitle?: boolean,
-        showSubTitle?: boolean
+        showSubTitle?: boolean,
+        paddingHorizontal?: number,
+        paddingVertical?: number
     },
     viewableItems?: (items: ViewToken<MovieType>[]) => void
 }
@@ -54,7 +56,7 @@ const HorizontalScroll = ({
             }} src={item.poster_path}
             onPress={() => {
                 dispatch(setLoading(true))
-                router.push({ pathname: '/routes/details/[id]', params: { id: item.id } })
+                router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
             }} />)
     }
 
@@ -83,7 +85,7 @@ const HorizontalScroll = ({
                 bounces={false}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={list}
+                data={list?.results || []}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => renderItem(item, index)} />
         </View>

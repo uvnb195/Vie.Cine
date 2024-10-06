@@ -1,14 +1,16 @@
-import { View, Text, Pressable, TouchableOpacity } from 'react-native'
-import React, { ReactNode, useEffect, useRef } from 'react'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { ArrowLeftIcon, ChevronLeftIcon, EllipsisHorizontalIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
-import { Entypo } from '@expo/vector-icons/'
-import ThemeText from '../theme/ThemeText'
-import { LinearGradient } from 'expo-linear-gradient'
+import { router } from 'expo-router'
+import React, { useEffect, useRef } from 'react'
+import { TouchableOpacity, View } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
+import { ArrowLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
 import CustomInput from '../input/CustomInput'
-import { TextInput } from 'react-native-gesture-handler'
-import { router } from 'expo-router'
+import ThemeText from '../theme/ThemeText'
+import { AppDispatch } from '@/src/redux/store'
+import { useDispatch } from 'react-redux'
+import { postSearch } from '@/src/redux/publicAsyncAction'
+import { setLoading } from '@/src/redux/publicSlice'
 
 interface Props {
     backIconShown?: boolean,
@@ -30,6 +32,7 @@ const Header = ({
     initialState }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
+    const dispatch = useDispatch<AppDispatch>()
     const searchRef = useRef<TextInput | null>(null)
 
     const [toggleSearchBox, setToggleSearchBox] = React.useState(initialState || false)
@@ -40,7 +43,38 @@ const Header = ({
         overflow: 'hidden'
     }))
 
+    const handleBackPress = () => {
+        dispatch(setLoading(false))
+        backIconPress && backIconPress()
+    }
 
+    const onSubmitSearch = () => {
+        setToggleSearchBox(false)
+        const dispatchValue = searchValue.includes(" ") ? searchValue.split(" ") : searchValue
+        console.log(dispatchValue)
+        dispatch(postSearch({ keyword: dispatchValue }))
+        router.push({
+            pathname: '/routes/search',
+            params: {
+                keyword: searchValue
+            }
+        })
+    }
+
+    // const searchDebounce = useRef(debounce((value: string) => {
+    //     console.log(value)
+    // }, 500))
+
+    // useEffect(() => {
+    //     searchDebounce.current(searchValue)
+    //     return () => {
+    //         searchDebounce.current.cancel()
+    //         if (searchValue.length != 0) {
+    //             searchDebounce.current(searchValue)
+    //         }
+    //     }
+
+    // }, [searchValue])
 
     useEffect(() => {
         if (toggleSearchBox) {
@@ -55,7 +89,7 @@ const Header = ({
                 {/* left button */}
                 <View className='w-[60px] h-[60px] items-center justify-center'>
                     {backIconShown &&
-                        <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center' onPress={backIconPress}>
+                        <TouchableOpacity className='w-[60px] h-[60px] items-center justify-center' onPress={handleBackPress}>
                             <View className='w-8 h-8 items-center justify-center'>
                                 <ArrowLeftIcon
                                     color={colors.icon.enable}
@@ -103,15 +137,7 @@ const Header = ({
                     ref={searchRef}
                     onValueChange={setSearchValue}
                     placeHolder={'Search'}
-                    onSubmitEditing={() => {
-                        setToggleSearchBox(false)
-                        router.push({
-                            pathname: '/routes/search',
-                            params: {
-                                keyword: searchValue
-                            }
-                        })
-                    }} />
+                    onSubmitEditing={onSubmitSearch} />
             </Animated.View>
         </View >
     )

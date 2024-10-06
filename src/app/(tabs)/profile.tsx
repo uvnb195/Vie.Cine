@@ -18,35 +18,34 @@ import { auth } from '@/src/api/firebase/config'
 import { router } from 'expo-router'
 import { current } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchNowShowing } from '@/src/redux/publicAsyncAction'
 import { AppDispatch, RootState } from '@/src/redux/store'
 
 const Tab = () => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
+    const dispatch = useDispatch<AppDispatch>()
+    const { loading, userInfo } = useSelector((state: RootState) => state.public)
 
-    const currentUser = auth.currentUser
-    const signButtonTitle = currentUser && currentUser.isAnonymous || !currentUser ? 'Sign In' : 'Sign Out'
+    const signButtonTitle = !userInfo ? 'Sign In' : 'Sign Out'
 
 
     const shadow = shadowImageStyle(colors.text.light)
-    const dispatch = useDispatch<AppDispatch>()
-    const { loading, userInfo } = useSelector((state: RootState) => state.public)
+
 
     const handleSignOut = () => {
         signOut(auth)
         router.push('/routes/(auth)')
     }
 
-    const handleSignIn = () => {
-        dispatch(fetchNowShowing())
-    }
+    useEffect(() => {
+        console.log('current user:', userInfo?.providerData)
+
+    }, [userInfo])
 
     return (
         <MainWrapper
             style={{
-                flex: 1,
-                marginBottom: TAB_BAR_HEIGHT
+                flex: 1
             }}
             HeaderComponent={
                 <Header title='Profile' backIconShown={false} />
@@ -71,8 +70,8 @@ const Tab = () => {
                         fontWeight='bold'
                         fontSize={24}
                         letterSpacing={4}
-                        numsOfLines={2}>{currentUser?.email || 'Anonymous'}</ThemeText>
-                    {currentUser != null ?
+                        numsOfLines={2}>{userInfo?.displayName || userInfo?.email || "Anonymous"}</ThemeText>
+                    {userInfo ?
                         <View>
                             <ThemeText
                                 fontSize={16}
@@ -82,7 +81,7 @@ const Tab = () => {
                                     marginBottom: 8
                                 }}
                                 numsOfLines={1}
-                            >Email: uvnb195@gmail.com</ThemeText>
+                            >Email: {userInfo.email}</ThemeText>
                             <ThemeText
                                 fontSize={16}
                                 fontWeight='light'
@@ -91,7 +90,7 @@ const Tab = () => {
                                     marginBottom: 8
                                 }}
                                 numsOfLines={1}
-                            >Phone No: 0399818565</ThemeText>
+                            >Phone No: {userInfo.phoneNumber || 'not add yet'}</ThemeText>
                             <ThemeText
                                 fontSize={16}
                                 fontWeight='light'
@@ -107,9 +106,9 @@ const Tab = () => {
 
                 </View>
 
-                {currentUser == null ? <View className='w-full py-4'>
+                {!userInfo ? <View className='w-full py-4'>
                     <CustomButton
-                        onPress={handleSignIn}
+                        onPress={() => { }}
                         title='Login'
                         style={{ alignSelf: 'center' }}
                         Icon={<ArrowLeftEndOnRectangleIcon color={colors.text.default} />} />
@@ -122,7 +121,13 @@ const Tab = () => {
 
                         {/* buttons */}
                         <View className='w-full px-4 mt-8 flex-row justify-evenly'>
-                            <CustomButton title='Settings'
+                            <CustomButton
+                                onPress={() => {
+                                    router.push({
+                                        pathname: '/routes/settings',
+                                    })
+                                }}
+                                title='Settings'
                                 Icon={<Cog8ToothIcon color={colors.text.default} />} />
                             <CustomButton
                                 onPress={handleSignOut}

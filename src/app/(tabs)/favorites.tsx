@@ -15,8 +15,7 @@ const Tab = ({
     return (
         <MainWrapper
             style={{
-                flex: 1,
-                marginBottom: TAB_BAR_HEIGHT
+                flex: 1
             }}
             HeaderComponent={
                 <Header title='Favorites' backIconShown={false} />

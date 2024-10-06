@@ -7,9 +7,12 @@ import { dateConverter } from "@/hooks/convertDate"
 import { CAROUSEL_ITEM_SIZE } from "@/constants/Size"
 import { setLoading } from "@/src/redux/publicSlice"
 import { router } from "expo-router"
-import { ActivityIndicator, Dimensions, FlatList, Image, View } from "react-native"
+import { ActivityIndicator, Dimensions, FlatList, Image, View, ViewToken } from "react-native"
 import SectionTitle from "../button/SectionTitle"
 import { useEffect, useState } from "react"
+import { useCustomTheme } from "@/src/contexts/theme"
+import { ItemScale } from "./AnimatedHorizontalScroll"
+import { useSharedValue } from "react-native-reanimated"
 
 interface VerticalGridScrollProps extends ScrollProps {
     numColumns?: number,
@@ -24,56 +27,44 @@ const VerticalGridScroll = ({
     contentStyle,
     showMore,
     onShowMore,
-    viewableItems,
     numColumns = 1,
     onEndReached
 }: VerticalGridScrollProps) => {
-    const { width, height } = Dimensions.get('window')
-    const paddingValue = 16
     const dispatch = useDispatch<AppDispatch>()
-    const { fetching, listGroupShowing } = useSelector((state: RootState) => state.public)
-    const [showList, setShowList] = useState<MovieType[]>([])
-
-    useEffect(() => {
-        console.log(listGroupShowing)
-        setShowList(listGroupShowing)
-    }, [listGroupShowing])
+    const { fetching } = useSelector((state: RootState) => state.public)
+    const themeValue = useCustomTheme()
+    const { colors } = themeValue
+    const viewableItems = useSharedValue<ViewToken[]>([])
 
     const renderItem = (item: MovieType, index: number) => {
         return (
-            <View className="px-4 py-2" style={{
-                width: width / numColumns
+            <View className="items-center justify-center" style={{
+                width: `${100 / numColumns}%`,
             }}>
                 <MinimalCard
                     title={contentStyle?.showTitle
                         ? item.original_title
                         : undefined}
                     subTitle={contentStyle?.showSubTitle
-                        ? item.release_date
+                        ? dateConverter(item.release_date)
                         : undefined
-                    }
+                    } src={item.poster_path}
                     style={{
                         width: '100%',
-                        height: contentStyle?.height || CAROUSEL_ITEM_SIZE.height
-                    }} src={item.poster_path}
+                        height: CAROUSEL_ITEM_SIZE.height,
+                        paddingHorizontal: contentStyle?.paddingHorizontal || 4,
+                        paddingVertical: contentStyle?.paddingVertical || 8
+                    }}
                     onPress={() => {
                         dispatch(setLoading(true))
-                        router.push({ pathname: '/routes/details/[id]', params: { id: item.id } })
+                        router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
                     }} />
-                {/* <View className="absolute top-0 bottom-0 left-0 right-0 p-10">
-                    <View className="flex-1 bg-white rounded-2">
-                        <Image
-                            source={require('../../assets/images/qr-dummy.png')}
-                            className="w-full h-full"
-                            resizeMode="contain" />
-                    </View>
-                </View> */}
             </View >)
     }
 
     return (
         <View
-            className='flex-col'
+            className='flex-col4'
             style={[
                 {
                     flex: 1,
@@ -86,25 +77,28 @@ const VerticalGridScroll = ({
                 title={title}
                 showButton={showMore}
                 onPress={onShowMore} />}
-            <FlatList
-                windowSize={50}
-                extraData={showList}
-                ListFooterComponent={() =>
-                    fetching &&
-                    <View>
-                        <ActivityIndicator size={40} />
-                    </View>}
-                onEndReachedThreshold={0.5}
-                onEndReached={onEndReached}
-                onViewableItemsChanged={({ viewableItems: vItems }) => { viewableItems && viewableItems(vItems) }}
-                numColumns={numColumns}
-                contentContainerStyle={{
-                }}
-                bounces={false}
-                showsVerticalScrollIndicator={false}
-                data={showList}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => renderItem(item, index)} />
+            <View className="flex-1">
+                <FlatList
+                    windowSize={50}
+                    extraData={list}
+                    ListFooterComponent={() =>
+                        fetching &&
+                        <View className="py-4">
+                            <ActivityIndicator size={40} color={colors.icon.highlight} />
+                        </View>}
+                    onEndReachedThreshold={0.5}
+                    onEndReached={onEndReached}
+                    numColumns={numColumns}
+                    contentContainerStyle={{
+                        columnGap: 8
+                    }}
+                    onViewableItemsChanged={({ viewableItems: vItems }) => { viewableItems.value = vItems }}
+                    bounces={false}
+                    showsVerticalScrollIndicator={false}
+                    data={list?.results}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => renderItem(item, index)} />
+            </View>
         </View>
     )
 }

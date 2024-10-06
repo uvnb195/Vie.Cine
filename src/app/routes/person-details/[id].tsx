@@ -19,7 +19,7 @@ import { resetDetail, resetPersonDetail, setLoading } from '@/src/redux/publicSl
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import { Image, View } from 'react-native'
 import { FlatList, Gesture, GestureDetector, ScrollView } from 'react-native-gesture-handler'
 import { ClockIcon, HeartIcon, TicketIcon } from 'react-native-heroicons/outline'
@@ -123,26 +123,29 @@ const PersonScreen = () => {
     }
 
     useEffect(() => {
-        if (loading) {
+        if (personInfo.person && personInfo.person.id.toString() == id.toString()) {
             scrollY.value = 0
-            dispatch(fetchPerson(`${id}`))
+            dispatch(setLoading(false))
         }
+    }, [personInfo])
 
+    useEffect(() => {
+        dispatch(setLoading(true))
+        dispatch(fetchPerson({ id: id + "" }))
         return () => {
             clearTimeout(timeoutRef.current as NodeJS.Timeout)
         }
-    }, [loading])
+    }, [id])
+
 
     return (
         <BottomSheetModalProvider>
             <DetailBackgroundWrapper
-                sourceUri={personInfo.person?.profile_path}
+                sourceUri={loading ? undefined : personInfo.person?.profile_path}
                 HeaderComponent={< Header
                     searchIconShown
                     backIconPress={() => {
-                        dispatch(setLoading(true))
-                        dispatch(resetPersonDetail())
-                        router.back()
+                        router.dismiss()
                     }} />}
                 BottomSheetComponent={
                     toggleBottomSheet ?
@@ -266,7 +269,7 @@ const PersonScreen = () => {
                                 otherProps={{
                                     marginTop: 8,
                                     textAlign: 'justify',
-                                    height: (toggleBiography ? 'auto' : 170),
+                                    height: (toggleBiography ? 'auto' : 250),
                                 }} color={colors.text.light}
                                 letterSpacing={1.5}
                                 lineHeight={22}>{personInfo.person?.biography}
@@ -305,8 +308,8 @@ const PersonScreen = () => {
                                 renderItem={({ item }) =>
                                     <MinimalCard
                                         onPress={() => {
-                                            dispatch(fetchMovie(`${item.id}`))
-                                            router.push({
+                                            dispatch(setLoading(true))
+                                            router.replace({
                                                 pathname: '/routes/movie-details/[id]',
                                                 params: { id: item.id }
                                             })
@@ -327,4 +330,4 @@ const PersonScreen = () => {
     )
 }
 
-export default PersonScreen
+export default memo(PersonScreen)

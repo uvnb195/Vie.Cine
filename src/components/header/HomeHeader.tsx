@@ -7,6 +7,9 @@ import ThemeText from '../theme/ThemeText'
 import { router, useLocalSearchParams } from 'expo-router'
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
 import CustomInput from '../input/CustomInput'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/src/redux/store'
+import { postSearch } from '@/src/redux/publicAsyncAction'
 
 interface Props {
     onLeftPress?: () => void,
@@ -21,11 +24,26 @@ const HomeHeader = ({ onLeftPress, onRightPress, initialState }: Props) => {
     const [toggleSearchBox, setToggleSearchBox] = React.useState(initialState || false)
     const [searchValue, setSearchValue] = React.useState('')
     const searchBox = useDerivedValue(() => toggleSearchBox ? 60 : 0)
+    const dispatch = useDispatch<AppDispatch>()
     const searchBoxAnimation = useAnimatedStyle(() => ({
         height: withTiming(searchBox.value, { duration: 500 }),
         overflow: 'hidden'
     }))
     const searchRef = React.useRef<TextInput>(null)
+
+    const onSubmitSearch = () => {
+        setToggleSearchBox(false)
+        const dispatchValue = searchValue.includes(" ") ? searchValue.split(" ") : searchValue
+        console.log(dispatchValue)
+        dispatch(postSearch({ keyword: dispatchValue }))
+        router.push({
+            pathname: '/routes/search',
+            params: {
+                keyword: searchValue
+            }
+        })
+    }
+
     return (
         <View>
             <View className=' w-full flex-row items-center px-4  justify-between'>
@@ -73,15 +91,7 @@ const HomeHeader = ({ onLeftPress, onRightPress, initialState }: Props) => {
                     ref={searchRef}
                     placeHolder={'Search'}
                     onValueChange={setSearchValue}
-                    onSubmitEditing={() => {
-                        setToggleSearchBox(false)
-                        router.push({
-                            pathname: '/routes/search',
-                            params: {
-                                keyword: searchValue
-                            }
-                        })
-                    }} />
+                    onSubmitEditing={onSubmitSearch} />
             </Animated.View>
         </View>
     )

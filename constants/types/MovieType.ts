@@ -1,9 +1,3 @@
-export interface ListResponse<T> {
-    page: number;
-    results?: (T)[] | null;
-    total_pages: number;
-    total_results: number;
-}
 export interface MovieType {
     adult: boolean
     backdrop_path: string

@@ -20,7 +20,7 @@ const Terms = ({ style }: Props) => {
                     textAlign: 'center',
                     paddingHorizontal: 24
                 }}>By proceeding. You agree to the{" "}
-                <Link href={"/"} onPress={() => console.log('pressed')}>
+                <Link href={"/notfound"} onPress={() => console.log('pressed')}>
                     <ThemeText
                         color={colors.icon.highlight}
                         fontWeight='bold'
@@ -31,7 +31,7 @@ const Terms = ({ style }: Props) => {
                         }}>Terms</ThemeText>
                 </Link>
                 {" "}&{" "}
-                <Link href={"/"} onPress={() => console.log('pressed')}>
+                <Link href={"/notfound"} onPress={() => console.log('pressed')}>
                     <ThemeText
                         color={colors.icon.highlight}
                         fontWeight='bold'

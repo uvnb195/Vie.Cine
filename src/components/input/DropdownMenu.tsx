@@ -30,8 +30,6 @@ const DropdownMenu = ({
     const { colors } = themeValue
     const [selected, setSelected] = React.useState<number | null>(placeHolder && data.includes(placeHolder) ? data.indexOf(placeHolder) : null)
 
-    const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
-
     const expandedHeight = height
         + (disableSearch ? 0 : DROPDOWN_MENU_ITEM_HEIGHT)
         + (data.length * DROPDOWN_MENU_ITEM_HEIGHT > 200
@@ -65,11 +63,6 @@ const DropdownMenu = ({
         }, 300);
     }, [show])
 
-    useEffect(() => {
-        if (selected != null)
-            onSelected && onSelected(data[selected])
-    }, [selected])
-
     const renderItems = () => (
         data.map((item, index) => (
             <Pressable
@@ -78,6 +71,8 @@ const DropdownMenu = ({
                     setSelected(index)
                     console.log(data[index] === item, index)
                     setShow(false)
+
+                    onSelected && onSelected(data[index])
                 }}
                 className='h-10 border-b justify-center px-2 overflow-hidden'
                 style={{

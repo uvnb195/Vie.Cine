@@ -11,7 +11,8 @@ interface Props {
     lineHeight?: number,
     letterSpacing?: number,
     numsOfLines?: number,
-    otherProps?: TextStyle
+    otherProps?: TextStyle,
+    onPress?: () => void
 }
 
 const ThemeText = ({
@@ -22,7 +23,8 @@ const ThemeText = ({
     lineHeight,
     letterSpacing,
     otherProps,
-    numsOfLines }: Props) => {
+    numsOfLines,
+    onPress }: Props) => {
     const { colors } = useCustomTheme()
     const fontStyle = () => {
         switch (fontWeight) {
@@ -38,6 +40,7 @@ const ThemeText = ({
 
     return (
         <Animated.Text
+            onPress={onPress}
             className={'max-w-max'}
             style={[
                 fontStyle(),

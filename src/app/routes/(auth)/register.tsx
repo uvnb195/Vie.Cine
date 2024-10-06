@@ -1,30 +1,45 @@
 import { shadowImageStyle } from '@/constants/Styles'
+import { auth } from '@/src/api/firebase/config'
 import CustomButton from '@/src/components/button/CustomButton'
 import Terms from '@/src/components/card/Terms'
 import CustomInput from '@/src/components/input/CustomInput'
 import MainWrapper from '@/src/components/MainWrapper'
 import ThemeText from '@/src/components/theme/ThemeText'
+import { useAuth } from '@/src/contexts/auth'
 import { useCustomTheme } from '@/src/contexts/theme'
+import { setLoading, setUser } from '@/src/redux/publicSlice'
+import { AppDispatch, RootState } from '@/src/redux/store'
 import { Link, router } from 'expo-router'
-import React from 'react'
-import { Image, KeyboardAvoidingView, View } from 'react-native'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import React, { useEffect } from 'react'
+import { Image, KeyboardAvoidingView, Pressable, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { AtSymbolIcon, KeyIcon, PhoneIcon, ShieldCheckIcon } from 'react-native-heroicons/outline'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import AuthProvider from '../../../contexts/auth'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Register = () => {
     const themeValue = useCustomTheme()
-    const { colors, theme } = themeValue
+    const { colors, currentTheme } = themeValue
 
     const shadow = shadowImageStyle(colors.text.dark)
 
     const [activeScroll, setActiveScroll] = React.useState(false)
-    const [input, setInput] = React.useState({
-        emailOrPhone: '',
-        password: '',
-        confirm: ''
-    })
+    const {
+        emailOrPhone,
+        password,
+        setEmailOrPhone,
+        setPassword,
+        checkEmailOrPhoneType,
+        showNoti
+    } = useAuth()
+    const dispatch = useDispatch<AppDispatch>()
+    const { userInfo } = useSelector((state: RootState) => state.public)
+
+    const [emailError, setEmailError] = React.useState<string | string[]>('')
+    const [passwordError, setPasswordError] = React.useState<string | string[]>('')
+    const [confirmPassword, setConfirmPassword] = React.useState<string>('')
+    const [confirmPasswordError, setConfirmPasswordError] = React.useState<string | string[]>('')
 
     const animation = useAnimatedStyle(() => ({
         height: 100,
@@ -35,36 +50,124 @@ const Register = () => {
         opacity: activeScroll ? withTiming(0) : withTiming(1)
     }))
 
+
+
     const handleEmailInput = (value: string) => {
-        setInput({
-            ...input,
-            emailOrPhone: value
-        })
+        const { isValid, msg } = setEmailOrPhone(value)
+        if (isValid) {
+            setEmailError('')
+        } else {
+            setEmailError(msg!!)
+        }
     }
 
     const handlePasswordInput = (value: string) => {
-        setInput({
-            ...input,
-            password: value
-        })
+        const { isValid, msg } = setPassword(value)
+        if (isValid) {
+            setPasswordError('')
+        } else {
+            setPasswordError(msg!!)
+        }
     }
 
     const handleConfirmInput = (value: string) => {
-        setInput({
-            ...input,
-            confirm: value
-        })
+        console.log(password)
+        if (value != password) {
+            setConfirmPasswordError('Password not match')
+        } else {
+            setConfirmPasswordError('')
+        }
+        setConfirmPassword(value)
     }
 
-    const isAnyBlank = () => {
-        return Object.values(input).some((value) => value === '')
+    const renderError = (error: string | string[]) => {
+        if (typeof error === 'string') {
+            return <ThemeText
+                color={colors.error}
+                fontSize={12}
+                otherProps={{ textAlign: 'left' }}>{error}</ThemeText>
+        } else {
+            return error.map((err, index) => {
+                return <ThemeText
+
+                    color={colors.error}
+                    fontSize={12}
+                    key={index}
+                    otherProps={{ textAlign: 'left' }}>{err}</ThemeText>
+            })
+        }
     }
+
+    const handleSubmit = async () => {
+        dispatch(setLoading(true))
+        if (emailError || passwordError) return
+        const type = checkEmailOrPhoneType(emailOrPhone)
+        switch (type) {
+            case 'email': {
+                const validation = await createUserWithEmailAndPassword(auth, emailOrPhone, password)
+                    .then(userCredential => dispatch(setUser(userCredential.user)))
+                    .catch(err => {
+                        console.log(err.code)
+                        switch (err.code) {
+                            case 'auth/email-already-in-use': {
+                                showNoti('Email already in use')
+                                break
+                            }
+                            case 'auth/wrong-password': {
+                                showNoti('Wrong password')
+                                break
+                            }
+                            case 'auth/too-many-requests': {
+                                showNoti('Please restart your app and try again')
+                                break
+                            }
+                            default: {
+                                showNoti('Something went wrong')
+                                break
+                            }
+                        }
+                    })
+                dispatch(setLoading(false))
+                console.log(validation)
+                break;
+                // const userCredential = await createUserWithEmailAndPassword(auth, emailOrPhone, password)
+                //     .catch((error: Error) => {
+                //         return error
+                //     })
+                //     .finally(() => {
+                //         setLoading(false)
+                //         router.replace('/')
+                //     })
+                // if (userCredential instanceof Error) {
+                //     return showNoti(userCredential.message)
+                // }
+                // return
+            }
+            case 'phone': {
+                showNoti('Phone number is not supported yet')
+                dispatch(setLoading(false))
+                return
+            }
+            default: {
+                showNoti('Invalid email or phone number')
+                return
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (userInfo) {
+            router.replace('/')
+        }
+    }, [userInfo])
 
     return (
-        <MainWrapper style={{
-            alignItems: 'center',
-            flex: 1
-        }}>
+        <MainWrapper
+            loadingLayer={false}
+            style={{
+                alignItems: 'center',
+                flex: 1
+            }}>
             <KeyboardAvoidingView
                 contentContainerStyle={{
                 }}
@@ -74,7 +177,7 @@ const Register = () => {
                 <Animated.View
                     style={animation}
                     className='w-full items-center justify-center self-center'>
-                    <Image source={theme == 'dark' ? require('@/assets/images/icon-outline.png') : require('@/assets/images/icon.png')} resizeMode='contain' className='w-[150px] h-full'
+                    <Image source={currentTheme == 'dark' ? require('@/assets/images/icon-outline.png') : require('@/assets/images/icon.png')} resizeMode='contain' className='w-[150px] h-full'
                         style={{
                         }} />
                 </Animated.View>
@@ -103,43 +206,49 @@ const Register = () => {
                                 }}>Register</ThemeText>
 
                             {/* input */}
-                            <View className='w-full'
+                            <View
                                 style={{ rowGap: 16 }}>
-                                <CustomInput
-                                    value={input.emailOrPhone}
-                                    onValueChange={handleEmailInput}
-                                    keyboardType={input.emailOrPhone.length > 0 && input.emailOrPhone[0] === '0' ? 'number-pad' : 'email-address'}
-                                    placeHolder='Email / Phone Number'
-                                    LeftIcon={
-                                        input.emailOrPhone.length > 0 && input.emailOrPhone[0] === '0'
-                                            ? <PhoneIcon color={colors.icon.highlight} />
-                                            : <AtSymbolIcon
+                                <View>
+                                    <CustomInput
+                                        value={emailOrPhone}
+                                        onValueChange={handleEmailInput}
+                                        keyboardType={emailOrPhone.length > 0 && emailOrPhone[0] === '0' ? 'number-pad' : 'email-address'}
+                                        placeHolder='Email / Phone Number'
+                                        LeftIcon={
+                                            emailOrPhone.length > 0 && emailOrPhone[0] === '0'
+                                                ? <PhoneIcon color={colors.icon.highlight} />
+                                                : <AtSymbolIcon
+                                                    color={colors.icon.highlight}
+                                                />
+                                        } />
+                                    {emailError && renderError(emailError)}
+                                </View>
+                                <View>
+                                    <CustomInput
+                                        value={password}
+                                        onValueChange={handlePasswordInput}
+                                        blockText={true}
+                                        placeHolder='Password'
+                                        LeftIcon={<KeyIcon color={colors.icon.highlight} />} />
+                                    {passwordError && renderError(passwordError)}
+                                </View>
+                                <View>
+                                    <CustomInput
+                                        value={confirmPassword}
+                                        onValueChange={handleConfirmInput}
+                                        blockText={true}
+                                        placeHolder='Confirm Password'
+                                        LeftIcon={
+                                            <ShieldCheckIcon
                                                 color={colors.icon.highlight}
-                                            />
-                                    } />
-                                <CustomInput
-                                    value={input.password}
-                                    onValueChange={handlePasswordInput}
-                                    blockText={true}
-                                    placeHolder='Password'
-                                    LeftIcon={<KeyIcon color={colors.icon.highlight} />} />
-                                <CustomInput
-                                    value={input.confirm}
-                                    onValueChange={handleConfirmInput}
-                                    blockText={true}
-                                    placeHolder='Confirm Password'
-                                    LeftIcon={
-                                        <ShieldCheckIcon
-                                            color={colors.icon.highlight}
-                                        />} />
+                                            />} />
+                                    {confirmPasswordError && renderError(confirmPasswordError)}
+                                </View>
                                 <Terms />
 
                                 <CustomButton
-                                    onPress={() => {
-                                        console.log('pressed')
-                                        router.replace('/')
-                                    }}
-                                    disabled={isAnyBlank()}
+                                    onPress={handleSubmit}
+                                    disabled={emailError || passwordError || confirmPasswordError ? true : (emailOrPhone.length === 0 || password.length === 0 || confirmPassword.length === 0) ? true : false}
                                     title='Continue' style={{
                                         width: '100%',
                                     }} />
@@ -149,16 +258,16 @@ const Register = () => {
                     {/* bottom */}
                     <View className='w-full px-6 self-center h-[50px]'>
                         <ThemeText otherProps={{ textAlign: 'center' }}>You have any problem? Try{" \n"}
-                            <Link href={"/"} >
-                                <ThemeText
-                                    color={colors.icon.highlight}
-                                    fontWeight='bold'
-                                    otherProps={{
-                                        textDecorationLine: 'underline',
-                                        padding: 0,
-                                        margin: 0
-                                    }}>Login</ThemeText>
-                            </Link> now
+                            <ThemeText
+                                onPress={() => router.replace('/routes/(auth)/')}
+                                color={colors.icon.highlight}
+                                fontWeight='bold'
+                                otherProps={{
+                                    textDecorationLine: 'underline',
+                                    padding: 0,
+                                    margin: 0
+                                }}>Login</ThemeText>
+                            {" "}now
                         </ThemeText>
                     </View>
                 </View>

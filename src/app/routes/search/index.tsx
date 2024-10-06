@@ -1,92 +1,120 @@
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
+import { hexToRGBA } from '@/hooks/hexToRGBA'
 import DetailBackgroundWrapper from '@/src/components/DetailBackgroundWrapper'
 import Header from '@/src/components/header'
+import CustomInput from '@/src/components/input/CustomInput'
 import SearchInput from '@/src/components/input/SearchInput'
 import MainWrapper from '@/src/components/MainWrapper'
+import VerticalGridScroll from '@/src/components/scroll/VerticalGridScroll'
+import ThemeText from '@/src/components/theme/ThemeText'
+import { useCustomTheme } from '@/src/contexts/theme'
+import { setLoading } from '@/src/redux/publicSlice'
+import { AppDispatch, RootState } from '@/src/redux/store'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { Image, Text, View } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { ChevronDoubleDownIcon } from 'react-native-heroicons/outline'
 import MapView, { Marker } from 'react-native-maps'
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import WebView from 'react-native-webview'
+import { useDispatch, useSelector } from 'react-redux'
 
 const SearchScreen = () => {
-    const [search, setSearch] = React.useState<{ movies: string[], people: string[] }>({
-        movies: [],
-        people: [],
-    })
+    const themeValue = useCustomTheme()
+    const { colors } = themeValue
     const { keyword } = useLocalSearchParams()
-
-    const handleSearch = (text: string) => {
-        setSearch({
-            movies: ['movie1', 'movie2', 'movie3'],
-            people: ['person1', 'person2', 'person3'],
-        })
+    const { search: searchValue } = useSelector((state: RootState) => state.public)
+    const dispatch = useDispatch<AppDispatch>()
+    const [input, setInput] = useState('')
+    const expand = useSharedValue(0)
+    const backgroundStyle = {
+        backgroundColor: hexToRGBA(colors.background.highlight, 0.5),
+        borderColor: colors.border.default
     }
+    const personAnimation = useAnimatedStyle(() => ({
+        flexGrow: expand.value,
+        borderRadius: interpolate(expand.value, [0, 1], [4, 16]),
+        marginTop: 16,
+        marginBottom: 8,
+        ...backgroundStyle
+    }))
+    const movieAnimation = useAnimatedStyle(() => ({
+        borderRadius: interpolate(expand.value, [0, 1], [8, 16]),
+        ...backgroundStyle
+    }))
 
-    const [mapLat, setMapLat] = useState(6.841776681);
-    const [mapLong, setMapLong] = useState(79.869319);
-    const locationData = [
-        { latitude: 6.841776681, longitude: 79.869319 },
-        { latitude: 6.84076664, longitude: 79.871323 },
-    ];
+    const rotateAnimation = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${interpolate(expand.value, [0, 1], [180, 0])}deg` }]
+    }))
+
     useEffect(() => {
-        console.log(keyword)
-    }, [])
+        console.log('searchValue::::::::::::::::::::', searchValue)
+        if (searchValue.keyword.length > 0) {
+            const searchKeyword = Array.isArray(searchValue.keyword) ? searchValue.keyword.join(' ') : searchValue.keyword
+            setInput(searchKeyword)
+        }
+        dispatch(setLoading(false))
+    }, [searchValue])
 
     return (
         <MainWrapper
             HeaderComponent={<Header
-                title={keyword.toString()}
+                title={"Search"}
                 initialState={false}
                 backIconPress={() => router.dismiss()} />}>
             <View className='flex-1 px-4'>
-                <SearchInput onTextChange={handleSearch} />
-
-                {/* content */}
-                <View className='flex-1'>
-                    {search.movies.length == 0 && search.people.length == 0
-                        ? (
-                            <View className='flex-1 items-center justify-start pt-6'>
-                                <Image
-                                    resizeMode='contain'
-                                    style={{
-                                        width: '70%',
-                                        height: 200,
-                                        opacity: 0.3
-                                    }}
-                                    source={require('@/assets/images/logo-maintain.png')} />
-                            </View>
-                        )
-                        : (
-                            <View className='w-full border-2 h-[500px]'>
-                                <MapView
-                                    style={{ flex: 1 }}
-                                    initialRegion={{
-                                        latitude: mapLat,
-                                        longitude: mapLong,
-                                        latitudeDelta: 0.0922,
-                                        longitudeDelta: 0.0421,
-                                    }}
-                                >
-                                    {locationData.map((data, index) => (
-
-
-                                        <Marker
-                                            pinColor={'blue'}
-                                            key={index}
-                                            coordinate={{
-                                                latitude: data.latitude,
-                                                longitude: data.longitude,
-                                            }}
-                                            title={`Marker ${index + 1}`}
-                                            description={`Weight:`}
-                                        />
-                                    ))}
-                                </MapView>
-                            </View>
-                        )}
+                <CustomInput
+                    onValueChange={(value) => setInput(value)}
+                    value={input}
+                    placeHolder={'Search'} />
+                <View className='flex-1 mt-2'>
+                    {/* content */}
+                    {/* movie */}
+                    <Animated.View className='flex-1 border'
+                        style={movieAnimation}>
+                        <View className='w-full h-10 items-center justify-between px-4 flex-row'>
+                            <ThemeText letterSpacing={2} fontWeight='bold' color={colors.text.light}>Movie ({searchValue.movie?.total_results})</ThemeText>
+                        </View>
+                        <View className='flex-1'>
+                            <VerticalGridScroll
+                                style={{
+                                    paddingBottom: 8
+                                }}
+                                contentStyle={{
+                                    showTitle: true,
+                                    showSubTitle: true,
+                                    width: '100%',
+                                    height: CAROUSEL_ITEM_SIZE.height,
+                                    paddingHorizontal: 8,
+                                }}
+                                numColumns={3}
+                                list={searchValue.movie || null} />
+                        </View>
+                    </Animated.View>
+                    {/* person */}
+                    <Animated.View style={personAnimation} className='border overflow-hidden min-h-[100px]'>
+                        <TouchableOpacity className='w-full h-10 items-center justify-between px-4 flex-row' onPress={() => {
+                            expand.value = withTiming(expand.value === 0 ? 1 : 0, { duration: 500 })
+                        }}>
+                            <ThemeText letterSpacing={2} fontWeight='bold' color={colors.text.light}>Person ({searchValue.person?.total_results})</ThemeText>
+                            <Animated.View style={rotateAnimation}>
+                                <ChevronDoubleDownIcon color={colors.icon.highlight} />
+                            </Animated.View>
+                        </TouchableOpacity>
+                        <VerticalGridScroll
+                            style={{
+                                paddingBottom: 8
+                            }}
+                            contentStyle={{
+                                showTitle: true,
+                                showSubTitle: true
+                            }}
+                            numColumns={3}
+                            list={searchValue.movie || null} />
+                    </Animated.View>
                 </View>
             </View>
-
         </MainWrapper>
     )
 }

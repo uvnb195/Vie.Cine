@@ -6,7 +6,7 @@ import { hexToRGBA } from '@/hooks/hexToRGBA'
 
 interface Props {
     title?: string,
-    Icon?: React.ReactNode,
+    Icon?: React.ReactNode | undefined,
     disabled?: boolean,
     onPress?: () => void,
     style?: ViewStyle,
@@ -27,7 +27,7 @@ const CustomButton = ({
         <TouchableOpacity
             disabled={disabled}
             onPress={onPress}
-            className='self-start items-center justify-between flex-row px-2 border'
+            className='self-start items-center flex-row px-2 border'
             style={[
                 {
                     borderRadius: 8,
@@ -40,7 +40,8 @@ const CustomButton = ({
                     height: 50,
                     backgroundColor: disabled ?
                         'transparent'
-                        : hexToRGBA(colors.background.default, 0.5)
+                        : hexToRGBA(colors.background.default, 0.5),
+                    justifyContent: !title || !Icon ? 'center' : 'space-between'
                 },
                 style
             ]}>

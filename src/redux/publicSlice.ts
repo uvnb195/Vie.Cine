@@ -1,30 +1,36 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import axios from "axios"
-import { fetchMovie, fetchNowShowing, fetchPerson, fetchUpcoming } from "./publicAsyncAction"
 import { ListResponse, MovieType } from "@/constants/types"
-import { User } from "firebase/auth"
 import { Cast } from "@/constants/types/PersonType"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { User } from "firebase/auth"
+import { fetchList, fetchMovie, fetchPerson, postSearch } from "./publicAsyncAction"
+import { PublicURL } from "../api/axios"
 
 interface PublicStates {
     location: {
         city: string,
         district: string
     },
-    userInfo: User | undefined,
-    nowShowing: MovieType[],
+    // undefined: startup, 
+    // null: not logged in, 
+    // User: logged in as user
+    userInfo: User | null | undefined,
+    nowShowing: ListResponse<MovieType> | null,
     nowShowingReachingEnd: boolean,
-    upComing: MovieType[],
+    upComing: ListResponse<MovieType> | null,
     upcomingReachingEnd: boolean,
-    listGroupShowing: MovieType[],
+    longList: ListResponse<MovieType | Cast> | null,
     loading: boolean,
     fetching: boolean,
     imageUri: string,
     movieInfo: { movie?: MovieType, cast?: Cast[] },
     personInfo: { person?: Cast, cast?: MovieType[] },
-    phoneRegion: string
+    phoneRegion: string,
+    search: {
+        keyword: string | string[],
+        movie: ListResponse<MovieType> | null,
+        person: ListResponse<Cast> | null
+    }
 }
-
-type UpdateType = 'nowShowing' | 'upComing' | 'reset'
 
 const initValue: PublicStates = {
     location: {
@@ -32,17 +38,22 @@ const initValue: PublicStates = {
         district: ''
     },
     userInfo: undefined,
-    nowShowing: [],
+    nowShowing: null,
     nowShowingReachingEnd: false,
-    upComing: [],
+    upComing: null,
     upcomingReachingEnd: false,
-    listGroupShowing: [],
-    loading: true,
+    longList: null,
+    loading: false,
     fetching: false,
     imageUri: '',
     movieInfo: {},
     personInfo: {},
-    phoneRegion: ''
+    phoneRegion: '',
+    search: {
+        keyword: '',
+        movie: null,
+        person: null
+    }
 }
 
 export const publicSlice = createSlice({
@@ -53,10 +64,14 @@ export const publicSlice = createSlice({
             state,
             action: PayloadAction<boolean>) => {
             state.loading = action.payload
+            if (action.payload === true) {
+                state.movieInfo = {}
+                state.personInfo = {}
+            }
         },
         setUser: (
             state,
-            action: PayloadAction<User>) => {
+            action: PayloadAction<User | null>) => {
             state.userInfo = action.payload
         },
         setPhoneRegion: (
@@ -70,104 +85,107 @@ export const publicSlice = createSlice({
         resetPersonDetail: (state) => {
             state.personInfo = {}
         },
-        updateListGroupShowing: (state, action: PayloadAction<UpdateType>) => {
+        updateLongList: (
+            state,
+            action: PayloadAction<PublicURL | null>) => {
             switch (action.payload) {
-                case 'nowShowing':
-                    state.listGroupShowing = state.nowShowing
+                case "/now-showing":
+                    state.longList = state.nowShowing
                     break
-                case 'upComing':
-                    state.listGroupShowing = state.upComing
+                case "/upcoming":
+                    state.longList = state.upComing
                     break
-                default:
-                    state.listGroupShowing = []
+                case "/trending": break;
+                case "/search/movie": break;
+                case "/search/person": break;
+                default: state.longList = null
             }
-        }
+        },
     },
     extraReducers: (builder) => {
-        // fetch now showing list
         builder
-            .addCase(fetchNowShowing.fulfilled, (state, action) => {
-                state.loading = false
-                state.fetching = false
+            // fetch  list
+            .addCase(fetchList.fulfilled, (state, action) => {
                 const page = action.meta.arg.page
-                if (page > 1) {
-                    if (action.payload.length < 20) {
-                        state.nowShowingReachingEnd = true
-                        return
-                    }
-                    state.listGroupShowing = state.listGroupShowing.concat(action.payload)
-                } else {
-                    state.nowShowing = action.payload
-                }
-            })
-            .addCase(fetchNowShowing.pending, (state, action) => {
-                state.loading = true
-                if (!state.nowShowingReachingEnd)
-                    state.fetching = true
-            })
-            .addCase(fetchNowShowing.rejected, (state, action) => {
-                state.loading = false
-                state.fetching = false
-            }),
-            // fetch upcoming list
-            builder
-                .addCase(fetchUpcoming.fulfilled, (state, action) => {
-                    state.loading = false
-                    state.fetching = false
-                    const page = action.meta.arg.page
-                    if (page > 1) {
-                        if (action.payload.length < 20) {
-                            state.upcomingReachingEnd = true
-                            return
+                const url = action.meta.arg.url
+                if (page == 1) state.longList = null
+                switch (url) {
+                    case "/now-showing":
+                        if (page == 1) {
+                            state.nowShowing = action.payload
+                        } else {
+                            const newResults = action.payload.results
+                            state.longList = {
+                                ...action.payload,
+                                results: state.longList?.results?.concat(newResults),
+                            }
                         }
-                        state.listGroupShowing = state.listGroupShowing.concat(action.payload)
-                    } else {
-                        state.upComing = action.payload
+                        break
+                    case "/upcoming": {
+                        if (page == 1) {
+                            state.upComing = action.payload
+                        } else
+                            state.upComing = {
+                                ...action.payload, result: state.upComing?.results + action.payload.results,
+                                page: page,
+                            }
+                        break
+                    }
+                    case "/trending": break
+                    case "/search/movie": break
+                    case "/search/person": break
+                }
+                state.fetching = false
+            })
+            .addCase(fetchList.pending, (state, action) => {
+                const page = action.meta.arg.page
+                state.fetching = true
+            })
+            .addCase(fetchList.rejected, (state, action) => {
+                state.fetching = false
+            })
+            // fetch movie detail
+            .addCase(fetchMovie.pending,
+                (state, action) => {
+                })
+            .addCase(
+                fetchMovie.fulfilled,
+                (state,
+                    action) => {
+                    state.movieInfo = {
+                        movie: action.payload.movie,
+                        cast: action.payload.cast
                     }
                 })
-                .addCase(fetchUpcoming.pending, (state, action) => {
-                    if (!state.upcomingReachingEnd)
-                        state.fetching = true
-                    state.loading = true
+            .addCase(fetchMovie.rejected,
+                (state, action) => {
                 })
-                .addCase(fetchUpcoming.rejected, (state, action) => {
-                    state.loading = false
-                    state.fetching = false
-                }),
-            // fetch movie detail
-            builder.addCase(fetchMovie.fulfilled, (state, action) => {
-                state.fetching = false
-                state.loading = false
-                state.movieInfo = {
-                    movie: action.payload.movie,
-                    cast: action.payload.cast
-                }
-            })
-                .addCase(fetchMovie.pending, (state, action) => {
-                    state.fetching = true
-                    state.loading = true
-                })
-                .addCase(fetchMovie.rejected, (state, action) => {
-                    state.fetching = false
-                    state.loading = false
-                }),
             //fetch person detail
-            builder.addCase(fetchPerson.fulfilled, (state, action) => {
-                state.fetching = false
-                state.loading = false
-                state.personInfo = {
-                    person: action.payload.person,
-                    cast: action.payload.cast
+            .addCase(fetchPerson.pending,
+                (state, action) => {
+                })
+            .addCase(fetchPerson.fulfilled,
+                (state, action) => {
+                    state.personInfo = {
+                        person: action.payload.person,
+                        cast: action.payload.cast
+                    }
+                })
+            .addCase(fetchPerson.rejected,
+                (state, action) => {
+                })
+            //search
+            .addCase(postSearch.fulfilled, (state, action) => {
+                state.search = {
+                    keyword: action.meta.arg.keyword,
+                    movie: action.payload.movie,
+                    person: action.payload.person
                 }
             })
-                .addCase(fetchPerson.pending, (state, action) => {
-                    state.fetching = true
-                    state.loading = true
-                })
-                .addCase(fetchPerson.rejected, (state, action) => {
-                    state.loading = false
-                    state.fetching = false
-                })
+            .addCase(postSearch.pending, (state, action) => {
+            })
+            .addCase(postSearch.rejected, (state, action) => {
+            })
     }
 })
 
@@ -178,5 +196,5 @@ export const { setLoading,
     resetDetail,
     setUser,
     resetPersonDetail,
-    updateListGroupShowing } = publicSlice.actions
+    updateLongList } = publicSlice.actions
 export default publicSlice.reducer

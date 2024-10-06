@@ -6,6 +6,8 @@ import { shadowImageStyle } from "@/constants/Styles";
 import ThemeText from "../components/theme/ThemeText";
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated";
 import { router } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
 
 interface UserCredentials {
     emailOrPhone: string,
@@ -18,8 +20,6 @@ interface UserCredentials {
         isValid: boolean,
         msg?: string | string[]
     }),
-    loading: boolean,
-    setLoading: (value: boolean) => void
     checkEmailOrPhoneType: (value: string) => 'email' | 'phone' | undefined
     showNoti: (msg: string) => void
 }
@@ -35,9 +35,9 @@ export const useAuth = () => {
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
+    const { loading } = useSelector((state: RootState) => state.public)
     const [emailOrPhone, setEmailOrPhone] = useState('')
     const [password, setPassword] = useState('')
-    const [loading, setLoading] = useState(false)
     const [shortNoti, setShortNoti] = useState<string | null>(null)
 
     const opacity = useRef(new RNAnimated.Value(0)).current
@@ -99,7 +99,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
 
     useEffect(() => {
-        animationOpacityIn.start()
         const handleBackAction = () => {
             if (loading === true) {
                 showNoti('Please wait for loading to finish')
@@ -121,6 +120,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }, [loading])
 
     useEffect(() => {
+        animationOpacityIn.start()
         let timeout = setTimeout(() => {
         });
         if (shortNoti != null) {
@@ -143,8 +143,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 setEmailOrPhone: handleEmailOrInput,
                 password,
                 setPassword: handlePassword,
-                loading,
-                setLoading,
                 checkEmailOrPhoneType,
                 showNoti
             }}>
@@ -172,13 +170,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                     className={'absolute bottom-6 left-0 right-0 w-full z-100 px-4 items-center justify-center overflow-hidden'}>
                     <View className="flex-1 w-1/2 rounded-2 border" style={{
                         borderColor: colors.border.default,
-                        backgroundColor: hexToRGBA(colors.textHighLight.background, 0.9),
+                        backgroundColor: hexToRGBA(colors.textHighLight.background, 0.8),
                         paddingHorizontal: 16,
                         paddingVertical: 8
                     }}>
                         <ThemeText
                             fontSize={12}
-                            color={colors.text.default}
+                            color={colors.textHighLight.text}
                             fontWeight="bold"
                             letterSpacing={2}
                             otherProps={{ textAlign: 'center' }}>{shortNoti}</ThemeText>

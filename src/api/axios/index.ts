@@ -1,7 +1,7 @@
 import { getDeviceLocales } from "@/hooks/permissions"
 import axios from "axios"
 
-export type PublicURL = '/now-showing' | '/upcoming' | '/trending'
+export type PublicURL = '/now-showing' | '/upcoming' | '/trending' | '/search/movie' | '/search/person'
 
 class PublicAxios {
     axiosInstance = axios.create({
@@ -57,6 +57,17 @@ class PublicAxios {
         return this.axiosInstance({
             method: "GET",
             url: `/person/${id}/cast`,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+
+    //search
+    search = (keyword: string) => {
+        return this.axiosInstance({
+            method: "POST",
+            url: `/search/${keyword}`,
             headers: {
                 'Content-Type': 'application/json'
             }

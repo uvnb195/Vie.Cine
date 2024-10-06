@@ -2,7 +2,7 @@ import { TAB_BAR_HEIGHT } from '@/constants/Size'
 import { getDeviceLocales } from '@/hooks/permissions'
 import { auth } from '@/src/api/firebase/config'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { fetchNowShowing, fetchUpcoming } from '@/src/redux/publicAsyncAction'
+import { fetchList } from '@/src/redux/publicAsyncAction'
 import { setLoading, setPhoneRegion, setUser } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { Redirect, router, Tabs } from 'expo-router'
@@ -40,18 +40,15 @@ const _layout = () => {
 
   useEffect(() => {
     dispatch(setLoading(true))
-
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        dispatch(setUser(user))
-      }
+      dispatch(setUser(user))
     })
     const deviceInfo = getDeviceLocales()
     if (deviceInfo.regionCode) {
       dispatch(setPhoneRegion(deviceInfo.regionCode))
     }
-    dispatch(fetchNowShowing({ page: 1 }))
-    dispatch(fetchUpcoming({ page: 1 }))
+    dispatch(fetchList({ page: 1, url: '/now-showing' }))
+    dispatch(fetchList({ page: 1, url: '/upcoming' }))
     dispatch(setLoading(false))
   }, []);
   return (
@@ -65,7 +62,7 @@ const _layout = () => {
             shadowColor: '#5bc4ff',
             shadowOpacity: 0,
             shadowRadius: 0,
-            height: TAB_BAR_HEIGHT,
+            height: 60,
           },
           headerShown: false,
           tabBarShowLabel: false,
