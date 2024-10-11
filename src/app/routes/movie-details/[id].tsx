@@ -1,4 +1,4 @@
-import { Cast, MovieType } from '@/constants/types'
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
 import { dateConverter } from '@/hooks/convertDate'
 import { convertDuration } from '@/hooks/convertDurration'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
@@ -9,22 +9,22 @@ import ScheduleSheet from '@/src/components/bottom-sheet/ScheduleSheet'
 import CustomButton from '@/src/components/button/CustomButton'
 import SectionTitle from '@/src/components/button/SectionTitle'
 import DetailStatCard from '@/src/components/card/DetailStatCard'
-import MinimalCard from '@/src/components/card/MinimalCard'
 import TextHighLight from '@/src/components/card/TextHighLight'
 import Header from '@/src/components/header'
+import PersonHorizontal from '@/src/components/scroll/PersonHorizontalScroll'
 import ThemeText from '@/src/components/theme/ThemeText'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { fetchMovie, fetchPerson } from '@/src/redux/publicAsyncAction'
-import { resetDetail, setLoading } from '@/src/redux/publicSlice'
+import { fetchMovie } from '@/src/redux/publicAsyncActions'
+import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { BottomSheetModalProvider, TouchableOpacity } from '@gorhom/bottom-sheet'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { memo, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
-import { FlatList, ScrollView } from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native-gesture-handler'
 import { ClockIcon, HeartIcon, TicketIcon } from 'react-native-heroicons/outline'
 import { PlayIcon, StarIcon } from 'react-native-heroicons/solid'
-import Animated, { cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import WebView from 'react-native-webview'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -354,32 +354,19 @@ const DetailScreen = () => {
                                 paddingHorizontal: 16,
                                 marginBottom: 8
                             }} title='Cast' />
-                            <FlatList
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={{
-                                    columnGap: 8,
-                                    paddingHorizontal: 16
+
+                            <PersonHorizontal
+                                contentStyle={{
+                                    showTitle: true,
+                                    showSubTitle: true,
                                 }}
-                                horizontal
-                                data={movieInfo.cast}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={({ item }) =>
-                                    <MinimalCard
-                                        style={{
-                                            width: 100,
-                                            height: 200,
-                                        }}
-                                        title={item.original_name}
-                                        src={item.profile_path || ""}
-                                        onPress={() => {
-                                            dispatch(setLoading(true))
-                                            router.replace({
-                                                pathname: '/routes/person-details/[id]',
-                                                params: {
-                                                    id: item.id
-                                                }
-                                            })
-                                        }} />} />
+                                style={{
+                                    width: '100%',
+                                    height: CAROUSEL_ITEM_SIZE.height + 5
+                                }}
+                                list={movieInfo.cast?.results || []}
+                                totalPages={movieInfo.cast?.total_pages}
+                            />
                         </View>
                     </ScrollView>
                 </View>
@@ -388,5 +375,7 @@ const DetailScreen = () => {
         </BottomSheetModalProvider >
     )
 }
+
+
 
 export default memo(DetailScreen)

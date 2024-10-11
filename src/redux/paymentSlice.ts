@@ -59,20 +59,6 @@ export const paymentSlice = createSlice({
     name: 'payment',
     initialState: initValue,
     reducers: {
-        // update only city and district of address
-        updateLocation: (
-            state,
-            action: PayloadAction<{
-                city: string,
-                district: string
-            }>) => {
-            state.address = {
-                ...state.address,
-                city: action.payload.city || "",
-                district: action.payload.district || ""
-            }
-            console.log(state)
-        },
         //update address => cost and services
         updateAddress: (
             state,
@@ -149,7 +135,6 @@ export const paymentSlice = createSlice({
 })
 
 export const {
-    updateLocation,
     updateSeats,
     updateAddress,
     updateServices,

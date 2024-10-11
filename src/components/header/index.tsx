@@ -9,7 +9,7 @@ import CustomInput from '../input/CustomInput'
 import ThemeText from '../theme/ThemeText'
 import { AppDispatch } from '@/src/redux/store'
 import { useDispatch } from 'react-redux'
-import { postSearch } from '@/src/redux/publicAsyncAction'
+import { postSearch } from '@/src/redux/publicAsyncActions'
 import { setLoading } from '@/src/redux/publicSlice'
 
 interface Props {
@@ -27,7 +27,7 @@ const Header = ({
     searchIconShown = false,
     title,
     backIconPress,
-    searchIconPress: rightIconPress,
+    searchIconPress,
     hasBackground,
     initialState }: Props) => {
     const themeValue = useCustomTheme()
@@ -51,7 +51,6 @@ const Header = ({
     const onSubmitSearch = () => {
         setToggleSearchBox(false)
         const dispatchValue = searchValue.includes(" ") ? searchValue.split(" ") : searchValue
-        console.log(dispatchValue)
         dispatch(postSearch({ keyword: dispatchValue }))
         router.push({
             pathname: '/routes/search',
@@ -60,21 +59,6 @@ const Header = ({
             }
         })
     }
-
-    // const searchDebounce = useRef(debounce((value: string) => {
-    //     console.log(value)
-    // }, 500))
-
-    // useEffect(() => {
-    //     searchDebounce.current(searchValue)
-    //     return () => {
-    //         searchDebounce.current.cancel()
-    //         if (searchValue.length != 0) {
-    //             searchDebounce.current(searchValue)
-    //         }
-    //     }
-
-    // }, [searchValue])
 
     useEffect(() => {
         if (toggleSearchBox) {
@@ -135,7 +119,7 @@ const Header = ({
 
                 <CustomInput
                     ref={searchRef}
-                    onValueChange={setSearchValue}
+                    handleValue={setSearchValue}
                     placeHolder={'Search'}
                     onSubmitEditing={onSubmitSearch} />
             </Animated.View>

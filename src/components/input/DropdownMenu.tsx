@@ -1,43 +1,72 @@
 import { DROPDOWN_MENU_HEIGHT, DROPDOWN_MENU_ITEM_HEIGHT } from '@/constants/Size'
 import { useCustomTheme } from '@/src/contexts/theme'
-import React, { useEffect } from 'react'
-import { DimensionValue, Dimensions, KeyboardAvoidingView, Pressable, TextInput, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { DimensionValue, Dimensions, KeyboardAvoidingView, Pressable, TextInput, TouchableOpacity, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { MagnifyingGlassIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import { ChevronDownIcon } from 'react-native-heroicons/solid'
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
+import debounce from 'lodash.debounce'
 
 interface Props {
     placeHolder?: string,
     data: string[],
+    value?: string,
     width?: DimensionValue,
     height?: number,
-    padding?: number,
     disableSearch?: boolean,
-    onSelected?: (value: string) => void
+    onSelected?: (value: string) => void,
+    hasBorder?: boolean,
+    disable?: boolean,
 }
 
 const DropdownMenu = ({
     data,
+    value,
     width = 200,
     height = 50,
     placeHolder,
-    padding = 8,
     disableSearch,
-    onSelected }: Props) => {
+    onSelected,
+    hasBorder = true,
+    disable,
+}: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
-    const [selected, setSelected] = React.useState<number | null>(placeHolder && data.includes(placeHolder) ? data.indexOf(placeHolder) : null)
+
+    const [searchList, setSearchList] = useState(data)
+    const [selected, setSelected] = useState<string>(value || "")
 
     const expandedHeight = height
         + (disableSearch ? 0 : DROPDOWN_MENU_ITEM_HEIGHT)
-        + (data.length * DROPDOWN_MENU_ITEM_HEIGHT > 200
-            ? 200
+        + (data.length * DROPDOWN_MENU_ITEM_HEIGHT > 300
+            ? 300
             : data.length * DROPDOWN_MENU_ITEM_HEIGHT)
 
-    const [show, setShow] = React.useState(false)
-    const [disable, setDisable] = React.useState(false)
+    const [show, setShow] = useState(false)
+    const [search, setSearch] = useState('')
+
+    const opacity = useDerivedValue(() => {
+        return selected.length > 0 ? 1 : 0
+    }, [value])
+
+    const placeholderAnim = useAnimatedStyle(() => ({
+        left: 8,
+        opacity: opacity.value
+    }))
+
+    const handleSelected = useCallback((value: string) => {
+        setSelected(value)
+    }, [])
+
+    const handleSearchDebounce = useCallback(
+        debounce((value: string) => {
+            if (value === '') { setSearchList(data) }
+            else {
+                setSearchList(data.filter(item => item.toLocaleLowerCase().includes(value.toLocaleLowerCase())))
+            }
+        }, 500), [data])
 
     const handleShow = () => {
         setShow(!show)
@@ -52,67 +81,88 @@ const DropdownMenu = ({
     }, [show])
 
     const animation = useAnimatedStyle(() => ({
-        overflow: 'hidden',
         height: animStyle.value
     }))
 
     useEffect(() => {
-        setDisable(true)
-        setTimeout(() => {
-            setDisable(false)
-        }, 300);
-    }, [show])
+        if (search === '') {
+            handleSearchDebounce(''); return
+        } else
+            handleSearchDebounce(search)
+        return () => {
+            handleSearchDebounce.cancel()
+        }
+    }, [search])
 
-    const renderItems = () => (
-        data.map((item, index) => (
-            <Pressable
-                key={index}
-                onPress={() => {
-                    setSelected(index)
-                    console.log(data[index] === item, index)
-                    setShow(false)
+    useEffect(() => {
+        if (data.length > 0) {
+            setSearchList(data)
+        }
+    }, [data])
 
-                    onSelected && onSelected(data[index])
-                }}
-                className='h-10 border-b justify-center px-2 overflow-hidden'
-                style={{
-                    borderColor: colors.border.disable
-                }}>
-                <ThemeText
-                    numsOfLines={1}
-                    fontWeight={(selected !== null && data[selected]) == item ? 'bold' : 'light'}>{item}</ThemeText>
-            </Pressable>
-        ))
-    )
+    useEffect(() => {
+        console.log(value)
+        if (value && value.length > 0)
+            handleSelected(value)
+        else handleSelected(placeHolder || "")
+    }, [value])
+
+    const renderItems = () => {
+        const showingList = searchList.length > 0 ? searchList : data
+        return (
+            showingList.map((item, index) => (
+                <Pressable
+                    key={index}
+                    onPress={() => {
+                        setShow(false)
+                        handleSelected(item)
+                        onSelected && onSelected(item)
+                    }}
+                    className='h-10 border-b justify-center px-2 overflow-hidden'
+                    style={{
+                        borderColor: colors.border.disable
+                    }}>
+                    <ThemeText
+                        numsOfLines={1}
+                        fontWeight={(value !== null && value == item) ? 'bold' : 'light'}>{item}</ThemeText>
+                </Pressable>
+            ))
+        )
+    }
 
     return (
-        <KeyboardAvoidingView behavior='position' style={
-            {
-                padding: padding,
-            }
-        }>
+        <KeyboardAvoidingView behavior='position' >
             <Animated.View
                 style={[animation]}
-            // onLayout={e => {
-            //     e.target.measureInWindow((x, y) => {
-            //         console.log(x, y)
-            //         animation.value = { x, y }
-            //     })
-            // }}
             >
-                <Pressable
+                {/* placeholder */}
+                <Animated.View
+                    className='absolute top-0 bg-black z-[25] rounded-2'
+                    style={[placeholderAnim]}>
+                    <ThemeText
+                        fontSize={12}
+                        letterSpacing={1}
+                        otherProps={{
+                            backgroundColor: colors.background.default,
+                            paddingHorizontal: 2,
+                            borderRadius: 4,
+                        }}>{placeHolder}</ThemeText>
+                </Animated.View>
+                <TouchableOpacity
                     onPress={handleShow}
                     className='z-20 fixed'
                     disabled={disable}
                 >
                     {/* content */}
                     <Animated.View
-                        className='flex-row-reverse h-[50px] items-center px-4 rounded-2 overflow-hidden self-start border justify-between'
+                        className='flex-row-reverse h-[50px] items-center px-4 rounded-2 self-start border justify-between mt-2'
                         style={{
                             backgroundColor: show ? colors.background.bottomSheet : colors.background.default,
-                            borderColor: disable
-                                ? 'transparent'
-                                : colors.border.default,
+                            borderColor: hasBorder
+                                ? (disable
+                                    ? colors.border.disable
+                                    : colors.border.default)
+                                : 'transparent',
                             width: width,
                             height: height
                         }}>
@@ -124,16 +174,16 @@ const DropdownMenu = ({
                                 : <ChevronDownIcon className='w-6 h-6'
                                     color={colors.icon.enable} />
                         }
-                        <ThemeText numsOfLines={1}>
-                            {selected != null ? data[selected] : placeHolder}
+                        <ThemeText numsOfLines={1}
+                            color={disable ? colors.text.light : colors.text.default}>{selected.length > 0 ? selected : placeHolder}
                         </ThemeText>
                     </Animated.View>
 
-                </Pressable>
+                </TouchableOpacity>
                 {show &&
 
                     // dropdown menu
-                    <View className='flex-1 rounded-2 mt-1 overflow-hidden border'
+                    <View className='flex-1 rounded-2 mt-1 border'
                         style={{
                             width: width,
                             height: DROPDOWN_MENU_HEIGHT,
@@ -151,6 +201,8 @@ const DropdownMenu = ({
                                 {/* input */}
                                 <View className='flex-1 h-full p-2 max-w'>
                                     <TextInput
+                                        value={search}
+                                        onChangeText={setSearch}
                                         placeholder='Search'
                                         placeholderTextColor={colors.text.light}
                                         style={{

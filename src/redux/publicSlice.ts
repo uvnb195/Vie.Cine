@@ -1,9 +1,10 @@
-import { ListResponse, MovieType } from "@/constants/types"
 import { Cast } from "@/constants/types/PersonType"
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { User } from "firebase/auth"
-import { fetchList, fetchMovie, fetchPerson, postSearch } from "./publicAsyncAction"
-import { PublicURL } from "../api/axios"
+import { fetchAllProvince, fetchDistricts, fetchList, fetchMovie, fetchPerson, fetchWards, postSearch } from "./publicAsyncActions"
+import { PublicURL } from "../api/axios/public"
+import { Address, ListResponse } from "@/constants/types/index"
+import { MovieType } from "@/constants/types/MovieType"
 
 interface PublicStates {
     location: {
@@ -13,35 +14,32 @@ interface PublicStates {
     // undefined: startup, 
     // null: not logged in, 
     // User: logged in as user
-    userInfo: User | null | undefined,
     nowShowing: ListResponse<MovieType> | null,
-    nowShowingReachingEnd: boolean,
     upComing: ListResponse<MovieType> | null,
-    upcomingReachingEnd: boolean,
-    longList: ListResponse<MovieType | Cast> | null,
+    longList: ListResponse<MovieType> | null,
     loading: boolean,
     fetching: boolean,
     imageUri: string,
-    movieInfo: { movie?: MovieType, cast?: Cast[] },
+    movieInfo: { movie?: MovieType, cast?: ListResponse<Cast> },
     personInfo: { person?: Cast, cast?: MovieType[] },
     phoneRegion: string,
     search: {
         keyword: string | string[],
         movie: ListResponse<MovieType> | null,
         person: ListResponse<Cast> | null
-    }
+    },
+    provinces: Address<'Province'>[],
+    districts: Address<'District'>[],
+    wards: Address<'Ward'>[],
+    local: { province: string, district: string }
 }
-
 const initValue: PublicStates = {
     location: {
         city: '',
         district: ''
     },
-    userInfo: undefined,
     nowShowing: null,
-    nowShowingReachingEnd: false,
     upComing: null,
-    upcomingReachingEnd: false,
     longList: null,
     loading: false,
     fetching: false,
@@ -53,7 +51,11 @@ const initValue: PublicStates = {
         keyword: '',
         movie: null,
         person: null
-    }
+    },
+    provinces: [],
+    districts: [],
+    wards: [],
+    local: { province: '', district: '' }
 }
 
 export const publicSlice = createSlice({
@@ -69,18 +71,10 @@ export const publicSlice = createSlice({
                 state.personInfo = {}
             }
         },
-        setUser: (
-            state,
-            action: PayloadAction<User | null>) => {
-            state.userInfo = action.payload
-        },
         setPhoneRegion: (
             state,
             action: PayloadAction<string>) => {
             state.phoneRegion = action.payload
-        },
-        resetDetail: (state) => {
-            state.movieInfo = {}
         },
         resetPersonDetail: (state) => {
             state.personInfo = {}
@@ -101,6 +95,25 @@ export const publicSlice = createSlice({
                 default: state.longList = null
             }
         },
+        resetDistricts: (state) => {
+            state.districts = []
+        },
+        resetWards: (state) => {
+            state.wards = []
+        },
+
+        // update only city and district of address
+        updateLocation: (
+            state,
+            action: PayloadAction<{
+                city: string,
+                district: string
+            }>) => {
+            state.local = {
+                province: action.payload.city || "",
+                district: action.payload.district || ""
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -115,6 +128,7 @@ export const publicSlice = createSlice({
                             state.nowShowing = action.payload
                         } else {
                             const newResults = action.payload.results
+
                             state.longList = {
                                 ...action.payload,
                                 results: state.longList?.results?.concat(newResults),
@@ -186,6 +200,22 @@ export const publicSlice = createSlice({
             })
             .addCase(postSearch.rejected, (state, action) => {
             })
+            .addCase(fetchAllProvince.fulfilled, (
+                state,
+                action) => {
+                state.provinces = action.payload
+            })
+            .addCase(
+                fetchDistricts.fulfilled,
+                (state, action) => {
+                    state.districts = action.payload
+                })
+            .addCase(
+                fetchWards.fulfilled,
+                (state, action) => {
+                    state.wards = action.payload
+
+                })
     }
 })
 
@@ -193,8 +223,9 @@ export const selectPublic = (state: { public: PublicStates }) => state.public
 
 export const { setLoading,
     setPhoneRegion,
-    resetDetail,
-    setUser,
     resetPersonDetail,
-    updateLongList } = publicSlice.actions
+    updateLongList,
+    resetDistricts,
+    resetWards,
+    updateLocation } = publicSlice.actions
 export default publicSlice.reducer

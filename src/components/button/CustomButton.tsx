@@ -10,7 +10,8 @@ interface Props {
     disabled?: boolean,
     onPress?: () => void,
     style?: ViewStyle,
-    hasBorder?: boolean
+    hasBorder?: boolean,
+    textColor?: string,
 }
 
 const CustomButton = ({
@@ -19,7 +20,8 @@ const CustomButton = ({
     disabled = false,
     onPress,
     style,
-    hasBorder = true
+    hasBorder = true,
+    textColor
 }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
@@ -54,7 +56,7 @@ const CustomButton = ({
                     color={
                         disabled
                             ? colors.text.disable
-                            : colors.text.dark}>{title}</ThemeText>}
+                            : (textColor ? textColor : colors.text.dark)}>{title}</ThemeText>}
             {Icon && <View className='pl-2'
                 style={{
                     paddingLeft: title ? 8 : 0

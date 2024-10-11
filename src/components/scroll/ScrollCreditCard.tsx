@@ -69,10 +69,6 @@ const ScrollCreditCard = ({ width, height }: Props) => {
         )
     }
 
-    // useEffect(() => {
-    //     console.log(scrollY)
-    // }, [scrollY])
-
 
     return (
         <View className='w-full h-full '

@@ -1,7 +1,6 @@
 import { View, Text, ViewStyle, ViewToken, DimensionValue } from 'react-native'
 import React from 'react'
 import { FlatList } from 'react-native-gesture-handler'
-import { ListResponse, MovieType } from '@/constants/types'
 import MinimalCard from '../card/MinimalCard'
 import SectionTitle from '../button/SectionTitle'
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
@@ -10,12 +9,13 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@/src/redux/store'
 import { setLoading } from '@/src/redux/publicSlice'
 import { dateConverter } from '@/hooks/convertDate'
+import { Cast, MovieType } from '@/constants/types/index'
 
-export interface ScrollProps {
+export interface ScrollProps<T> {
     style?: ViewStyle,
     title?: string,
     titleSize?: number,
-    list: ListResponse<MovieType> | null,
+    list: T[] | null,
     showMore?: boolean,
     onShowMore?: () => void,
     contentStyle?: {
@@ -26,10 +26,11 @@ export interface ScrollProps {
         paddingHorizontal?: number,
         paddingVertical?: number
     },
-    viewableItems?: (items: ViewToken<MovieType>[]) => void
+    viewableItems?: (items: ViewToken<MovieType | Cast>[]) => void,
+    totalPages?: number
 }
 
-const HorizontalScroll = ({
+const MovieHorizontalScroll = ({
     style,
     title,
     titleSize = 16,
@@ -37,8 +38,9 @@ const HorizontalScroll = ({
     contentStyle,
     showMore,
     onShowMore,
-    viewableItems
-}: ScrollProps) => {
+    viewableItems,
+    totalPages
+}: ScrollProps<MovieType>) => {
     const dispatch = useDispatch<AppDispatch>()
 
     const renderItem = (item: MovieType, index: number) => {
@@ -55,7 +57,6 @@ const HorizontalScroll = ({
                 height: contentStyle?.height || CAROUSEL_ITEM_SIZE.height
             }} src={item.poster_path}
             onPress={() => {
-                dispatch(setLoading(true))
                 router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
             }} />)
     }
@@ -85,11 +86,11 @@ const HorizontalScroll = ({
                 bounces={false}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={list?.results || []}
+                data={(list !== null) ? list : []}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => renderItem(item, index)} />
         </View>
     )
 }
 
-export default HorizontalScroll
+export default MovieHorizontalScroll

@@ -9,7 +9,7 @@ import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-n
 import CustomInput from '../input/CustomInput'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@/src/redux/store'
-import { postSearch } from '@/src/redux/publicAsyncAction'
+import { postSearch } from '@/src/redux/publicAsyncActions'
 
 interface Props {
     onLeftPress?: () => void,
@@ -34,7 +34,6 @@ const HomeHeader = ({ onLeftPress, onRightPress, initialState }: Props) => {
     const onSubmitSearch = () => {
         setToggleSearchBox(false)
         const dispatchValue = searchValue.includes(" ") ? searchValue.split(" ") : searchValue
-        console.log(dispatchValue)
         dispatch(postSearch({ keyword: dispatchValue }))
         router.push({
             pathname: '/routes/search',
@@ -90,7 +89,7 @@ const HomeHeader = ({ onLeftPress, onRightPress, initialState }: Props) => {
                 <CustomInput
                     ref={searchRef}
                     placeHolder={'Search'}
-                    onValueChange={setSearchValue}
+                    handleValue={setSearchValue}
                     onSubmitEditing={onSubmitSearch} />
             </Animated.View>
         </View>

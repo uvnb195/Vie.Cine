@@ -3,7 +3,7 @@ import { MovieType } from '@/constants/types'
 import { dateConverter } from '@/hooks/convertDate'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { fetchMovie } from '@/src/redux/publicAsyncAction'
+import { fetchMovie } from '@/src/redux/publicAsyncActions'
 import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch } from '@/src/redux/store'
 import { router } from 'expo-router'
@@ -14,13 +14,13 @@ import Animated, { interpolateColor, SharedValue, useAnimatedStyle, useSharedVal
 import { useDispatch } from 'react-redux'
 import SectionTitle from '../button/SectionTitle'
 import MinimalCard from '../card/MinimalCard'
-import { ScrollProps } from './HorizontalScroll'
+import { ScrollProps } from './MovieHorizontalScroll'
 
-interface AnimatedScrollProps extends ScrollProps {
+interface AnimatedScrollProps extends ScrollProps<MovieType> {
     directionTo?: 'down' | 'left'
 }
 
-const AnimatedHorizontalScroll = ({
+const AnimatedMovieHorizontalScroll = ({
     style,
     title,
     titleSize = 16,
@@ -46,9 +46,17 @@ const AnimatedHorizontalScroll = ({
 
     const renderItem = (item: MovieType, index: number) => {
         if (directionTo === 'down') {
-            return <ItemSlideDown item={item} index={index} viewableItems={viewableItems} contentStyle={contentStyle} />
+            return <ItemSlideDown
+                item={item}
+                index={index}
+                viewableItems={viewableItems}
+                contentStyle={contentStyle} />
         }
-        return <ItemScale item={item} index={index} viewableItems={viewableItems} contentStyle={contentStyle} />
+        return <ItemScale
+            item={item}
+            index={index}
+            viewableItems={viewableItems}
+            contentStyle={contentStyle} />
     }
 
     useEffect(() => {
@@ -70,19 +78,27 @@ const AnimatedHorizontalScroll = ({
                 title={title}
                 showButton={showMore}
                 onPress={onShowMore} />}
-            <FlatList
-                onViewableItemsChanged={({ viewableItems: vItems }) => { viewableItems.value = vItems }}
-                contentContainerStyle={{
-                    paddingHorizontal: 8,
-                    paddingVertical: 8,
-                    columnGap: 16,
-                }}
-                bounces={false}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                data={list?.results}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => renderItem(item, index)} />
+            <View className='flex-grow'>
+                <FlatList
+                    style={
+                        {
+                            width: '100%',
+                            height: '100%',
+                        }
+                    }
+                    onViewableItemsChanged={({ viewableItems: vItems }) => { viewableItems.value = vItems }}
+                    contentContainerStyle={{
+                        paddingHorizontal: 8,
+                        columnGap: 16,
+                    }}
+                    bounces={false}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    data={list}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => renderItem(item, index)} />
+            </View>
+
         </View>
     )
 }
@@ -98,7 +114,7 @@ const ItemSlideDown = (
             item: MovieType,
             index: number,
             viewableItems: SharedValue<ViewToken[]>,
-            contentStyle?: ScrollProps['contentStyle'],
+            contentStyle?: ScrollProps<MovieType>['contentStyle'],
         }) => {
     const dispatch = useDispatch<AppDispatch>()
     const animation = useAnimatedStyle(() => {
@@ -151,7 +167,7 @@ export const ItemScale = (
             item: MovieType,
             index: number,
             viewableItems: SharedValue<ViewToken[]>,
-            contentStyle?: ScrollProps['contentStyle'],
+            contentStyle?: ScrollProps<MovieType>['contentStyle'],
             onPress?: () => void
         }) => {
     const dispatch = useDispatch<AppDispatch>()
@@ -192,4 +208,4 @@ export const ItemScale = (
     )
 }
 
-export default AnimatedHorizontalScroll
+export default AnimatedMovieHorizontalScroll

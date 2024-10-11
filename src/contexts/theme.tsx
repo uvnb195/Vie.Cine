@@ -32,7 +32,6 @@ const CustomThemeProvider = ({ children }: Props) => {
     useEffect(() => {
         const getStoredTheme = async () => {
             const storedTheme = await AsyncStorage.getItem('theme')
-            console.log('storedTheme:', storedTheme)
             if (!storedTheme) setMode('system')
             else setMode(storedTheme as ('dark' | 'light'))
         }

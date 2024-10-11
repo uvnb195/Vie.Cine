@@ -1,21 +1,20 @@
-import { View, Text, ViewStyle, Image, ImageSourcePropType, Pressable } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { styled } from 'nativewind'
-import { IMAGE_PICKER_SIZE } from '@/constants/Size'
+import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
-import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
+import React, { useEffect, useState } from 'react'
+import { Image, Pressable, View, ViewStyle } from 'react-native'
 import { PhotoIcon } from 'react-native-heroicons/outline'
+import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
-import { hexToRGBA } from '@/hooks/hexToRGBA'
 
 interface Props {
+    disabled?: boolean,
     style?: ViewStyle,
     defaultUri?: string
-    onImageChange: (base64: string) => void
+    onImageChange?: (uri: string) => void
 }
 
-const ImagePicker = ({ style, defaultUri, onImageChange }: Props) => {
+const ImagePicker = ({ disabled, style, defaultUri, onImageChange }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
@@ -36,13 +35,16 @@ const ImagePicker = ({ style, defaultUri, onImageChange }: Props) => {
             mediaTypes: MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [3, 4],
-            quality: 1,
-            base64: true
+            quality: 0.5,
+            base64: true,
         })
             .catch(err => console.log(err))
             .then(result => {
                 if (result && !result.canceled) {
-                    setImage(result.assets[0].uri)
+                    const imageType = result.assets[0].mimeType
+                    const imageBase64 = `data:${imageType};base64,${result.assets[0].base64}`
+                    setImage(imageBase64)
+                    onImageChange && onImageChange(imageBase64)
                 }
             })
     }
@@ -56,12 +58,16 @@ const ImagePicker = ({ style, defaultUri, onImageChange }: Props) => {
     }
 
     useEffect(() => {
-        console.log(showEdit)
         if (showEdit == true)
             setTimeout(() => {
                 setShowEdit(false)
             }, 1000);
     }, [showEdit])
+
+    useEffect(() => {
+        if (defaultUri && defaultUri.length > 0)
+            setImage(defaultUri)
+    }, [defaultUri])
 
     return (
         <View className='rounded-full items-center justify-center overflow-hidden border'
@@ -71,13 +77,13 @@ const ImagePicker = ({ style, defaultUri, onImageChange }: Props) => {
                     borderColor: colors.text.light
                 },
                 style]}>
-            <Pressable onPress={handlePress}
-                className=' w-full h-full'>
+            <Pressable onPress={handlePress} disabled={disabled}
+                className=' w-full h-full items-center justify-center'>
                 <Image
                     source={image != null
                         ? { uri: image }
                         : require('../../assets/images/default-avatar.png')}
-                    className='w-[200px] h-[200px] border-4 rounded-full'
+                    className='w-full h-full border-4 rounded-full'
                     resizeMode={image == null ? 'contain' : 'cover'}
                     tintColor={image == null
                         ? colors.text.dark : undefined} />

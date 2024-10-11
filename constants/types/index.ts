@@ -7,3 +7,5 @@ export interface ListResponse<T> {
 
 export * from './MovieType'
 export * from './PersonType'
+export * from './UserType'
+export * from './AddressType'

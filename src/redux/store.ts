@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import paymentSlice from './paymentSlice'
 import publicSlice from './publicSlice'
+import privateSlice from './privateSlice'
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -10,7 +11,8 @@ export const store = configureStore({
     }),
   reducer: {
     payment: paymentSlice,
-    public: publicSlice
+    public: publicSlice,
+    private: privateSlice
   },
 })
 

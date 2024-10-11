@@ -1,16 +1,13 @@
-import { View, Text, ImageSourcePropType, ViewStyle, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import clsx from 'clsx'
-import { useCustomTheme } from '@/src/contexts/theme'
-import ThemeText from '../theme/ThemeText'
-import { StarIcon } from 'react-native-heroicons/solid'
 import { shadowImageStyle } from '@/constants/Styles'
-import { MovieType } from '@/constants/types'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/src/redux/store'
-import { fetchImage } from '@/src/redux/publicAsyncAction'
 import { dateConverter } from '@/hooks/convertDate'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
+import { useCustomTheme } from '@/src/contexts/theme'
+import { RootState } from '@/src/redux/store'
+import React from 'react'
+import { Image, View, ViewStyle } from 'react-native'
+import { useSelector } from 'react-redux'
+import ThemeText from '../theme/ThemeText'
+import { MovieType } from '@/constants/types/index'
 
 interface Props {
     data: MovieType,

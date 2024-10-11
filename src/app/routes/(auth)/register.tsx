@@ -7,7 +7,8 @@ import MainWrapper from '@/src/components/MainWrapper'
 import ThemeText from '@/src/components/theme/ThemeText'
 import { useAuth } from '@/src/contexts/auth'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { setLoading, setUser } from '@/src/redux/publicSlice'
+import { fetchUserInfo } from '@/src/redux/privateAsyncActions'
+import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { Link, router } from 'expo-router'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
@@ -34,7 +35,7 @@ const Register = () => {
         showNoti
     } = useAuth()
     const dispatch = useDispatch<AppDispatch>()
-    const { userInfo } = useSelector((state: RootState) => state.public)
+    const { userInfo } = useSelector((state: RootState) => state.private)
 
     const [emailError, setEmailError] = React.useState<string | string[]>('')
     const [passwordError, setPasswordError] = React.useState<string | string[]>('')
@@ -71,7 +72,6 @@ const Register = () => {
     }
 
     const handleConfirmInput = (value: string) => {
-        console.log(password)
         if (value != password) {
             setConfirmPasswordError('Password not match')
         } else {
@@ -104,8 +104,15 @@ const Register = () => {
         const type = checkEmailOrPhoneType(emailOrPhone)
         switch (type) {
             case 'email': {
-                const validation = await createUserWithEmailAndPassword(auth, emailOrPhone, password)
-                    .then(userCredential => dispatch(setUser(userCredential.user)))
+                await createUserWithEmailAndPassword(auth, emailOrPhone, password)
+                    .then(userCredential => {
+                        const user = userCredential.user
+                        user.getIdToken().then(token => {
+                            dispatch(fetchUserInfo({ token }))
+                            router.replace('/routes/(settings)/update-profile')
+                        }
+                        )
+                    })
                     .catch(err => {
                         console.log(err.code)
                         switch (err.code) {
@@ -128,20 +135,7 @@ const Register = () => {
                         }
                     })
                 dispatch(setLoading(false))
-                console.log(validation)
                 break;
-                // const userCredential = await createUserWithEmailAndPassword(auth, emailOrPhone, password)
-                //     .catch((error: Error) => {
-                //         return error
-                //     })
-                //     .finally(() => {
-                //         setLoading(false)
-                //         router.replace('/')
-                //     })
-                // if (userCredential instanceof Error) {
-                //     return showNoti(userCredential.message)
-                // }
-                // return
             }
             case 'phone': {
                 showNoti('Phone number is not supported yet')
@@ -155,12 +149,6 @@ const Register = () => {
         }
     }
 
-    useEffect(() => {
-        if (userInfo) {
-            router.replace('/')
-        }
-    }, [userInfo])
-
     return (
         <MainWrapper
             loadingLayer={false}
@@ -172,7 +160,7 @@ const Register = () => {
                 contentContainerStyle={{
                 }}
                 behavior='height'
-                className='self-center border-red-500'>
+                className='self-center'>
                 {/* logo */}
                 <Animated.View
                     style={animation}
@@ -210,8 +198,7 @@ const Register = () => {
                                 style={{ rowGap: 16 }}>
                                 <View>
                                     <CustomInput
-                                        value={emailOrPhone}
-                                        onValueChange={handleEmailInput}
+                                        handleValue={handleEmailInput}
                                         keyboardType={emailOrPhone.length > 0 && emailOrPhone[0] === '0' ? 'number-pad' : 'email-address'}
                                         placeHolder='Email / Phone Number'
                                         LeftIcon={
@@ -225,8 +212,8 @@ const Register = () => {
                                 </View>
                                 <View>
                                     <CustomInput
-                                        value={password}
-                                        onValueChange={handlePasswordInput}
+                                        initValue={password}
+                                        handleValue={handlePasswordInput}
                                         blockText={true}
                                         placeHolder='Password'
                                         LeftIcon={<KeyIcon color={colors.icon.highlight} />} />
@@ -234,8 +221,8 @@ const Register = () => {
                                 </View>
                                 <View>
                                     <CustomInput
-                                        value={confirmPassword}
-                                        onValueChange={handleConfirmInput}
+                                        initValue={confirmPassword}
+                                        handleValue={handleConfirmInput}
                                         blockText={true}
                                         placeHolder='Confirm Password'
                                         LeftIcon={

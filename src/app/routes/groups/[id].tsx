@@ -1,16 +1,14 @@
-import { View, Text } from 'react-native'
-import React, { useEffect } from 'react'
+import { PublicURL } from '@/src/api/axios/public'
+import Header from '@/src/components/header'
 import MainWrapper from '@/src/components/MainWrapper'
 import VerticalGridScroll from '@/src/components/scroll/VerticalGridScroll'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { AppDispatch, RootState } from '@/src/redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import { router, useLocalSearchParams } from 'expo-router'
-import Header from '@/src/components/header'
-import { fetchList } from '@/src/redux/publicAsyncAction'
-import { ListResponse, MovieType } from '@/constants/types'
+import { fetchList } from '@/src/redux/publicAsyncActions'
 import { setLoading, updateLongList } from '@/src/redux/publicSlice'
-import { PublicURL } from '@/src/api/axios'
+import { AppDispatch, RootState } from '@/src/redux/store'
+import { router, useLocalSearchParams } from 'expo-router'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 const GroupView = () => {
     const themeValue = useCustomTheme()
@@ -30,7 +28,6 @@ const GroupView = () => {
     }, [])
 
     useEffect(() => {
-        console.log(longList?.results?.length)
         dispatch(setLoading(false))
     }, [longList])
 
@@ -71,7 +68,7 @@ const GroupView = () => {
                 }}
                 onEndReached={handleLoadMore}
                 numColumns={3}
-                list={longList as ListResponse<MovieType>} />
+                list={longList?.results || []} />
         </MainWrapper>
     )
 }

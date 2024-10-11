@@ -73,7 +73,6 @@ const ScheduleSheet = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
         (async () => {
             const result = await requestLocationPermission()
             if (result.status == 'success') {
-                console.log("coords::::::::::", result.data)
                 setCoords({
                     latitude: result.data!!.coords.latitude,
                     longitude: result.data!!.coords.longitude

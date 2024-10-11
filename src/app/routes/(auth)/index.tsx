@@ -21,7 +21,7 @@ const Login = () => {
     const themeValue = useCustomTheme()
     const { colors, currentTheme: theme } = themeValue
     const dispatch = useDispatch<AppDispatch>()
-    const { userInfo } = useSelector((state: RootState) => state.public)
+    const { userInfo } = useSelector((state: RootState) => state.private)
 
     const {
         emailOrPhone,
@@ -93,7 +93,6 @@ const Login = () => {
                         }
                     })
                 dispatch(setLoading(false))
-                console.log(validation)
                 break;
             }
             case 'phone': {
@@ -127,8 +126,11 @@ const Login = () => {
     }
 
     useEffect(() => {
-        if (userInfo)
+        dispatch(setLoading(true))
+        if (userInfo) {
             router.dismissAll()
+        }
+        dispatch(setLoading(false))
     }, [userInfo])
 
     return (
@@ -176,8 +178,9 @@ const Login = () => {
                                 style={{ rowGap: 16 }}>
                                 <View>
                                     <CustomInput
-                                        value={emailOrPhone}
-                                        onValueChange={handleEmailInput}
+                                        useDebounceCallback={true}
+                                        initValue={emailOrPhone}
+                                        handleValue={handleEmailInput}
                                         keyboardType={emailOrPhone.length > 0 && emailOrPhone[0] === '0' ? 'number-pad' : 'email-address'}
                                         placeHolder='Email / Phone Number'
                                         LeftIcon={
@@ -185,13 +188,15 @@ const Login = () => {
                                                 ? <PhoneIcon color={colors.icon.highlight} />
                                                 : <AtSymbolIcon
                                                     color={colors.icon.highlight}
-                                                />} />
+                                                />}
+                                    />
                                     {emailError && renderError(emailError)}
                                 </View>
                                 <View>
                                     <CustomInput
-                                        value={password}
-                                        onValueChange={handlePasswordInput}
+                                        useDebounceCallback={true}
+                                        initValue={password}
+                                        handleValue={handlePasswordInput}
                                         blockText={true}
                                         placeHolder='Password'
                                         LeftIcon={<KeyIcon color={colors.icon.highlight} />} />
@@ -203,7 +208,8 @@ const Login = () => {
                                 <CustomButton
                                     onPress={handleSubmit}
                                     disabled={emailError || passwordError ? true : (emailOrPhone.length === 0 || password.length === 0) ? true : false}
-                                    title='Continue' style={{
+                                    title='Continue'
+                                    style={{
                                         width: '100%',
                                     }} />
                             </View>

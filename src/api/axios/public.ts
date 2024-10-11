@@ -3,14 +3,14 @@ import axios from "axios"
 
 export type PublicURL = '/now-showing' | '/upcoming' | '/trending' | '/search/movie' | '/search/person'
 
-class PublicAxios {
+class PublicAxiosRepository {
     axiosInstance = axios.create({
-        baseURL: process.env.EXPO_PUBLIC_BASEURL,
+        baseURL: `${process.env.EXPO_PUBLIC_BASE_URL}/api`,
         timeout: 3000
     })
-
     regionCode = getDeviceLocales().regionCode || 'VN'
 
+    //movie list
     getPublicList = (url: PublicURL, page: number) => {
         return this.axiosInstance({
             method: "GET",
@@ -73,6 +73,37 @@ class PublicAxios {
             }
         })
     }
+
+    //get all provinces 
+    getProvinces = () => {
+        return this.axiosInstance({
+            method: "GET",
+            url: `/p`,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+
+    getDistricts = (provinceCode: string) => {
+        return this.axiosInstance({
+            method: "GET",
+            url: `/p/${provinceCode}`,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+
+    getWards = (districtCode: string) => {
+        return this.axiosInstance({
+            method: "GET",
+            url: `/d/${districtCode}`,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    }
 }
 
-export default new PublicAxios()
+export default new PublicAxiosRepository()

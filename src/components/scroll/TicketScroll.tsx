@@ -1,10 +1,10 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import SectionTitle from '../button/SectionTitle'
-import { FlatList } from 'react-native-gesture-handler'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCustomTheme } from '@/src/contexts/theme'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import React from 'react'
+import { View } from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
 import { ClockIcon, MapPinIcon } from 'react-native-heroicons/solid'
+import SectionTitle from '../button/SectionTitle'
 import Ticket from '../card/Ticket'
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
     data: any[]
 }
 
-const ScrollTickets = ({
+const TicketScroll = ({
     title,
     data
 }: Props
@@ -69,4 +69,4 @@ const ScrollTickets = ({
     )
 }
 
-export default ScrollTickets
+export default TicketScroll

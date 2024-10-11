@@ -70,7 +70,6 @@ const PaymentSheet = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
     const state = useSelector((state: RootState) => state.payment)
 
     useEffect(() => {
-        console.log('state', state.services.length)
         switch (currentPage) {
             case 0: {
                 if (state.address && state.address.city.length > 0 && state.address.district.length > 0) {
@@ -114,7 +113,6 @@ const PaymentSheet = forwardRef<BottomSheetRef, Props>(({ children }, ref) => {
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={(index) => {
-                console.log(index)
                 setCurrentSize(pageSizes[index])
             }}
             enablePanDownToClose={false}

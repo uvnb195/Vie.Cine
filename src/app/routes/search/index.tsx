@@ -1,9 +1,7 @@
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
-import DetailBackgroundWrapper from '@/src/components/DetailBackgroundWrapper'
 import Header from '@/src/components/header'
 import CustomInput from '@/src/components/input/CustomInput'
-import SearchInput from '@/src/components/input/SearchInput'
 import MainWrapper from '@/src/components/MainWrapper'
 import VerticalGridScroll from '@/src/components/scroll/VerticalGridScroll'
 import ThemeText from '@/src/components/theme/ThemeText'
@@ -12,12 +10,10 @@ import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { Image, Text, View } from 'react-native'
+import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { ChevronDoubleDownIcon } from 'react-native-heroicons/outline'
-import MapView, { Marker } from 'react-native-maps'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import WebView from 'react-native-webview'
 import { useDispatch, useSelector } from 'react-redux'
 
 const SearchScreen = () => {
@@ -49,7 +45,7 @@ const SearchScreen = () => {
     }))
 
     useEffect(() => {
-        console.log('searchValue::::::::::::::::::::', searchValue)
+        dispatch(setLoading(true))
         if (searchValue.keyword.length > 0) {
             const searchKeyword = Array.isArray(searchValue.keyword) ? searchValue.keyword.join(' ') : searchValue.keyword
             setInput(searchKeyword)
@@ -65,8 +61,8 @@ const SearchScreen = () => {
                 backIconPress={() => router.dismiss()} />}>
             <View className='flex-1 px-4'>
                 <CustomInput
-                    onValueChange={(value) => setInput(value)}
-                    value={input}
+                    handleValue={(value) => setInput(value)}
+                    initValue={input}
                     placeHolder={'Search'} />
                 <View className='flex-1 mt-2'>
                     {/* content */}
@@ -89,7 +85,7 @@ const SearchScreen = () => {
                                     paddingHorizontal: 8,
                                 }}
                                 numColumns={3}
-                                list={searchValue.movie || null} />
+                                list={searchValue.movie?.results || null} />
                         </View>
                     </Animated.View>
                     {/* person */}
@@ -111,7 +107,7 @@ const SearchScreen = () => {
                                 showSubTitle: true
                             }}
                             numColumns={3}
-                            list={searchValue.movie || null} />
+                            list={searchValue.movie?.results || null} />
                     </Animated.View>
                 </View>
             </View>

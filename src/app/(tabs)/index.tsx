@@ -4,9 +4,11 @@ import CustomButton from '@/src/components/button/CustomButton'
 import HomeHeader from '@/src/components/header/HomeHeader'
 import LocationTag from '@/src/components/LocationTag'
 import MainWrapper from '@/src/components/MainWrapper'
-import AnimatedHorizontalScroll from '@/src/components/scroll/AnimatedHorizontalScroll'
-import HorizontalScroll from '@/src/components/scroll/HorizontalScroll'
+import AnimatedHorizontalScroll from '@/src/components/scroll/AnimatedMovieHorizontalScroll'
+import MovieHorizontalScroll from '@/src/components/scroll/MovieHorizontalScroll'
+import TabContentWrapper from '@/src/components/TabContentWrapper'
 import ThemeText from '@/src/components/theme/ThemeText'
+import { useAuth } from '@/src/contexts/auth'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
@@ -23,17 +25,8 @@ const Tab = () => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     const dispatch = useDispatch<AppDispatch>()
-    const { loading, nowShowing, upComing, userInfo: currentUser } = useSelector((state: RootState) => state.public)
-
-    const comboList = [
-        { original_title: 'Combo 1', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
-        { original_title: 'Combo 2', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
-        { original_title: 'Combo 3', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
-        { original_title: 'Combo 4', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
-        { original_title: 'Combo5', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
-        { original_title: 'Combo 6', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' },
-        { original_title: 'Combo7', poster_path: 'https://stc.shopiness.vn/deal/2017/09/11/f/d/f/7/1505119515777_540.jpg' }
-    ]
+    const { loading, nowShowing, upComing } = useSelector((state: RootState) => state.public)
+    const { userInfo } = useSelector((state: RootState) => state.private)
 
     const ticketListHeight = useSharedValue(0)
     const ticketListAnimation = useAnimatedStyle(() => ({
@@ -50,129 +43,142 @@ const Tab = () => {
     const bgColors = ['transparent', hexToRGBA(colors.background.highlight, 0.5), colors.background.highlight,]
 
     useEffect(() => {
-        if (currentUser !== null && currentUser !== undefined) {
+        if (userInfo !== null && userInfo !== undefined) {
             ticketListHeight.value = withDelay(1000, withTiming(CAROUSEL_ITEM_SIZE.minimum + 40, { duration: 500 }))
+        } else {
+            ticketListHeight.value = 0
         }
-    }, [currentUser])
+    }, [userInfo])
 
     return (
         <MainWrapper
             style={{
-                flex: 1
+                flex: 1,
+                marginBottom: TAB_BAR_HEIGHT
             }}
             HeaderComponent={
                 <HomeHeader />
             }>
+            <TabContentWrapper>
 
-            {/* location */}
-            <LocationTag />
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                bounces={false}
-                decelerationRate={'fast'}>
-                {/* ticket booked */}
-                <Animated.View
-                    className='w-full' style={[
-                        {
-                            height: CAROUSEL_ITEM_SIZE.minimum
-                        },
-                        ticketListAnimation
-                    ]}>
-                    <AnimatedHorizontalScroll
-                        titleSize={16}
-                        title='Booked Tickets'
-                        list={nowShowing || null}
-                        contentStyle={{
-                            showSubTitle: true,
-                            height: CAROUSEL_ITEM_SIZE.minimum
-                        }}
-                        viewableItems={(viewableItems) => {
-                            // console.log('viewable:::::::::::::::::::::::::::', viewableItems)
-                        }}
-                    />
-                </Animated.View>
-
-                {/* now showing */}
-                <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
-                    <AnimatedHorizontalScroll
-                        directionTo='left'
-                        titleSize={24}
-                        title='Now Showing'
-                        list={nowShowing || null}
-                        showMore={nowShowing && nowShowing?.total_results > 10 || false}
-                        contentStyle={{
-                            showTitle: true,
-                            width: CAROUSEL_ITEM_SIZE.width,
-                            height: CAROUSEL_ITEM_SIZE.height
-                        }}
-                        onShowMore={() => {
-                            dispatch(setLoading(true))
-                            router.push({
-                                pathname: '/routes/groups/[id]',
-                                params: { id: '/now-showing' }
-                            })
-                        }}
-                    />
-                </View>
-
-                {/* upcoming */}
-                <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
-                    <AnimatedHorizontalScroll
-                        titleSize={16}
-                        title='Upcoming'
-                        list={upComing}
-                        showMore={upComing && upComing?.total_results > 10 || false}
-                        onShowMore={() => {
-                            dispatch(setLoading(true))
-                            router.push({
-                                pathname: '/routes/groups/[id]',
-                                params: { id: '/upcoming' }
-                            })
-                        }}
-                        contentStyle={{
-                            showTitle: true,
-                            showSubTitle: true,
-                            width: CAROUSEL_ITEM_SIZE.width,
-                            height: CAROUSEL_ITEM_SIZE.height
-                        }}
-                    />
-                </View>
-                {currentUser === null ?
-                    <TouchableOpacity onPress={() =>
-                        router.push('/routes/(auth)/')}
-                    >
-                        <View className='flex-1 items-center justify-around mt-6'>
-
-                            <ThemeText
-                                fontSize={20}
-                                fontWeight='light'
-                                letterSpacing={4}
-                                otherProps={{
-                                    textAlign: 'center'
-                                }}>Login for more features</ThemeText>
-                            <CustomButton
-                                style={{
-                                    alignSelf: 'center',
-                                    marginVertical: 16,
-                                }} title='Login'
-                                Icon={<ArrowLeftEndOnRectangleIcon color={colors.smallButton.textDefault} />} />
-                        </View>
-                    </TouchableOpacity>
-                    :
-                    (currentUser !== undefined && <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
-                        <HorizontalScroll
+                {/* location */}
+                <LocationTag />
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    bounces={false}
+                    decelerationRate={'fast'}>
+                    {/* ticket booked */}
+                    <Animated.View
+                        className='w-full' style={[
+                            {
+                                height: CAROUSEL_ITEM_SIZE.minimum
+                            },
+                            ticketListAnimation
+                        ]}>
+                        <AnimatedHorizontalScroll
                             titleSize={16}
-                            title='Hot Combos'
-                            showMore
-                            list={upComing}
+                            title='Booked Tickets'
+                            list={nowShowing?.results || null}
+                            totalPages={nowShowing?.total_pages}
                             contentStyle={{
                                 showSubTitle: true,
-                                showTitle: true
+                                height: CAROUSEL_ITEM_SIZE.minimum
+                            }}
+                            viewableItems={(viewableItems) => { }}
+                        />
+                    </Animated.View>
+
+                    {/* now showing */}
+                    <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                        <AnimatedHorizontalScroll
+                            directionTo='left'
+                            titleSize={24}
+                            title='Now Showing'
+                            list={nowShowing?.results || null}
+                            totalPages={nowShowing?.total_pages}
+                            showMore={nowShowing && nowShowing?.total_results > 10 || false}
+                            contentStyle={{
+                                showTitle: true,
+                                width: CAROUSEL_ITEM_SIZE.width,
+                                height: CAROUSEL_ITEM_SIZE.height
+                            }}
+                            onShowMore={() => {
+                                dispatch(setLoading(true))
+                                router.push({
+                                    pathname: '/routes/groups/[id]',
+                                    params: { id: '/now-showing' }
+                                })
                             }}
                         />
-                    </View>)
-                }
-            </ScrollView>
+                    </View>
+
+                    {/* upcoming */}
+                    <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                        <AnimatedHorizontalScroll
+                            titleSize={16}
+                            title='Upcoming'
+                            list={upComing?.results || null}
+                            totalPages={upComing?.total_pages}
+                            showMore={upComing && upComing?.total_results > 10 || false}
+                            onShowMore={() => {
+                                dispatch(setLoading(true))
+                                router.push({
+                                    pathname: '/routes/groups/[id]',
+                                    params: { id: '/upcoming' }
+                                })
+                            }}
+                            contentStyle={{
+                                showTitle: true,
+                                showSubTitle: true,
+                                width: CAROUSEL_ITEM_SIZE.width,
+                                height: CAROUSEL_ITEM_SIZE.height
+                            }}
+                        />
+                    </View>
+                    {userInfo === null ?
+                        <TouchableOpacity onPress={() =>
+                            router.push('/routes/(auth)/')}
+                        >
+                            <View className='flex-1 items-center justify-around mt-6'>
+
+                                <ThemeText
+                                    fontSize={20}
+                                    fontWeight='light'
+                                    letterSpacing={4}
+                                    otherProps={{
+                                        textAlign: 'center'
+                                    }}>Login for more features</ThemeText>
+                                <CustomButton
+                                    style={{
+                                        alignSelf: 'center',
+                                        marginVertical: 16,
+                                    }} title='Login'
+                                    Icon={<ArrowLeftEndOnRectangleIcon color={colors.smallButton.textDefault} />} />
+                            </View>
+                        </TouchableOpacity>
+                        :
+                        (userInfo !== undefined
+                            && <View className='w-full' style={{ height: CAROUSEL_ITEM_SIZE.height + 40 }}>
+                                <AnimatedHorizontalScroll
+                                    directionTo='left'
+                                    titleSize={16}
+                                    title='Hot Combos'
+                                    showMore
+                                    list={upComing?.results || null}
+                                    totalPages={upComing?.total_pages}
+                                    contentStyle={{
+                                        showSubTitle: true,
+                                        showTitle: true,
+                                        height: CAROUSEL_ITEM_SIZE.height
+                                    }}
+                                    style={{
+                                        height: CAROUSEL_ITEM_SIZE.height + 40,
+                                    }}
+                                />
+                            </View>)
+                    }
+                </ScrollView>
+            </TabContentWrapper>
         </MainWrapper>
     )
 }

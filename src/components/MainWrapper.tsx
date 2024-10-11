@@ -31,29 +31,21 @@ const MainWrapper = ({
 
     const renderChildren = () => {
         if (!loadingLayer) return children
-        return loading !== true ?
+        return (loading !== true ?
             children
             :
-            <ActivityIndicator className='mt-20' size={40} color={colors.icon.highlight} />
+            <ActivityIndicator className='mt-20' size={40} color={colors.icon.highlight} />)
     }
-
-
-    // const renderBackdrop = (backdropProps) => (
-    //     <BottomSheetBackdrop
-    //         enableTouchThrough={true}
-    //         pressBehavior='collapse'
-    //         style={{ backgroundColor: colors.background.bottomSheet }} />
-    // )
 
     return (
         <MainBackgroundImageView>
-            <SafeAreaView className='flex-1' style={style}>
+            <SafeAreaView className='flex-1'>
                 {BottomSheetComponent}
                 {headerComponent
                     && <View className='w-full'>
                         {headerComponent}
                     </View>}
-                <View className='flex-1 mb-[20px]'>
+                <View className='flex-1'>
                     {renderChildren()}
                 </View>
             </SafeAreaView>

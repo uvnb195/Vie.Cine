@@ -1,10 +1,12 @@
 import { TAB_BAR_HEIGHT } from '@/constants/Size'
 import MainWrapper from '@/src/components/MainWrapper'
+import TabContentWrapper from '@/src/components/TabContentWrapper'
 import Header from '@/src/components/header'
-import ScrollTickets from '@/src/components/scroll/ScrollTickets'
-import VerticalGridScroll from '@/src/components/scroll/VerticalGridScroll'
+import ScrollTickets from '@/src/components/scroll/TicketScroll'
+import ThemeText from '@/src/components/theme/ThemeText'
 import { RootState } from '@/src/redux/store'
 import React from 'react'
+import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 const Tab = () => {
@@ -12,18 +14,15 @@ const Tab = () => {
     return (
         <MainWrapper
             style={{
-                flex: 1
+                flex: 1,
+                paddingBottom: TAB_BAR_HEIGHT
             }}
             HeaderComponent={
-                <Header title='Tickets History' backIconShown={false} />
+                <Header title='/HISTORY' backIconShown={false} />
             }>
-            <VerticalGridScroll
-                contentStyle={{
-                    showTitle: true,
-                    showSubTitle: true
-                }}
-                numColumns={2}
-                list={nowShowing} />
+            <TabContentWrapper>
+                <ThemeText>Tickets Screen</ThemeText>
+            </TabContentWrapper>
 
         </MainWrapper>
     )
