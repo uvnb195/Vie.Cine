@@ -9,11 +9,14 @@ import { setLoading } from '../redux/publicSlice';
 const ThemeContext = createContext<{
     colors: PaletteType,
     currentTheme: 'dark' | 'light' | 'system',
-    toggleTheme: (value: 'dark' | 'light') => void
+    toggleTheme: (value: 'dark' | 'light') => void,
+    isAdminMode?: boolean,
+    setIsAdminMode: (value: boolean) => void
 }>({
     colors: Colors.light,
     currentTheme: 'system',
-    toggleTheme: () => { }
+    toggleTheme: () => { },
+    setIsAdminMode: () => { }
 })
 
 interface Props {
@@ -28,7 +31,7 @@ export const useCustomTheme = () => {
 const CustomThemeProvider = ({ children }: Props) => {
     const theme = useColorScheme()
     const [mode, setMode] = useState<'dark' | 'light' | 'system'>('system')
-
+    const [isAdminMode, setIsAdminMode] = useState<boolean>(false)
     useEffect(() => {
         const getStoredTheme = async () => {
             const storedTheme = await AsyncStorage.getItem('theme')
@@ -45,7 +48,9 @@ const CustomThemeProvider = ({ children }: Props) => {
             toggleTheme: (value) => {
                 setMode(value)
             },
-            currentTheme: mode
+            currentTheme: mode,
+            isAdminMode: isAdminMode,
+            setIsAdminMode: setIsAdminMode
         }}>
             {children}
         </ThemeContext.Provider>

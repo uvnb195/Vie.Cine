@@ -1,5 +1,6 @@
-import { IMAGE_PICKER_SIZE } from '@/constants/Size'
+import { IMAGE_PICKER_SIZE } from '@/constants/Values'
 import { shadowImageStyle } from '@/constants/Styles'
+import { locationFilter } from '@/hooks/locationFilter'
 import { auth } from '@/src/api/firebase/config'
 import CustomButton from '@/src/components/button/CustomButton'
 import Header from '@/src/components/header'
@@ -104,24 +105,11 @@ const ProfileSettingScreen = () => {
 
         await auth.currentUser?.getIdToken()
             .then(token => {
-                dispatch(updateProfile({ formData, token: token }))
+                dispatch(updateProfile({ formData, token }))
             })
 
         dispatch(setLoading(false))
         router.dismissAll()
-    }
-
-    const provinceFilter = (name: string) => {
-        return name.includes('Tỉnh ')
-            ? name.replace('Tỉnh ', '')
-            : name.includes('Thành phố ') ? name.replace('Thành phố ', 'Tp. ') : name
-    }
-    const districtFilter = (name: string) => {
-        return name.includes('Thành Phố ') ? name.replace('Thành Phố ', 'Tp. ') :
-            name.includes('Thành phố ') ? name.replace('Thành phố ', 'Tp. ') :
-                name.includes('Quận ')
-                    ? name.replace('Quận ', '') : name.includes('Huyện ')
-                        ? name.replace('Huyện ', '') : name.includes('Thị xã ') ? name.replace('Thị xã ', 'Tx. ') : name
     }
 
     const handleCancel = () => {
@@ -213,7 +201,7 @@ const ProfileSettingScreen = () => {
                         <View className='w-full flex-row pt-4'>
                             <View className='flex-1 pr-4'>
                                 <CustomInput
-                                    initValue={profileInput.email}
+                                    value={profileInput.email}
                                     disabled
                                     placeHolder={'Email'} />
 
@@ -238,14 +226,17 @@ const ProfileSettingScreen = () => {
                         <View className='w-full flex-row pt-4'>
                             <View className='flex-1'>
                                 <CustomInput
-                                    initValue={profileInput.phoneNumber || undefined}
+                                    value={profileInput.phoneNumber || undefined}
                                     keyboardType='number-pad'
                                     placeHolder={'Phone Number (optional)'}
-                                    handleValue={v => {
+                                    onValueChange={v => {
                                         handleProfileChange('phoneNumber', v)
                                     }} />
                                 {profileInputErrors.phoneNumber
                                     && <ThemeText
+                                        otherProps={{
+                                            textAlign: 'right'
+                                        }}
                                         fontSize={12}
                                         color={colors.error}
                                     >{profileInputErrors.phoneNumber}</ThemeText>}
@@ -254,13 +245,16 @@ const ProfileSettingScreen = () => {
                         {/* name field */}
                         <View className='w-full pt-4'>
                             <CustomInput
-                                initValue={profileInput.displayName || undefined}
+                                value={profileInput.displayName || undefined}
                                 placeHolder={'Name (*)'}
-                                handleValue={v => {
+                                onValueChange={v => {
                                     handleProfileChange('displayName', v)
                                 }} />
                             {profileInputErrors.displayName
                                 && <ThemeText
+                                    otherProps={{
+                                        textAlign: 'right'
+                                    }}
                                     fontSize={12}
                                     color={colors.error}
                                 >{profileInputErrors.displayName}</ThemeText>}
@@ -269,15 +263,18 @@ const ProfileSettingScreen = () => {
                         <View className='w-full flex-row pt-4'>
                             <View className='flex-1'>
                                 <CustomInput
-                                    initValue={profileInput?.birthday || undefined}
+                                    value={profileInput?.birthday || undefined}
                                     inputFormatter='date'
                                     keyboardType='number-pad'
                                     placeHolder={'Day of birth  (*)'}
-                                    handleValue={v => {
+                                    onValueChange={v => {
                                         handleProfileChange('birthday', v)
                                     }} />
                                 {profileInputErrors.birthday
                                     && <ThemeText
+                                        otherProps={{
+                                            textAlign: 'right'
+                                        }}
                                         fontSize={12}
                                         color={colors.error}
                                     >{profileInputErrors.birthday}</ThemeText>}
@@ -288,7 +285,7 @@ const ProfileSettingScreen = () => {
                             <View className='flex-row items-center justify-between'>
                                 <ThemeText
                                     otherProps={{
-                                        paddingHorizontal: 8
+                                        paddingHorizontal: 8,
                                     }}
                                     fontSize={18}
                                     color={colors.text.light}>Gender:</ThemeText>
@@ -311,6 +308,9 @@ const ProfileSettingScreen = () => {
                             </View>
                             {profileInputErrors.gender
                                 && <ThemeText
+                                    otherProps={{
+                                        textAlign: 'right'
+                                    }}
                                     fontSize={12}
                                     color={colors.error}
                                 >{profileInputErrors.gender}</ThemeText>}
@@ -330,10 +330,12 @@ const ProfileSettingScreen = () => {
                                         onSelected={handleSelectDistrict}
                                         disable={profileInput.address?.province?.name === undefined}
                                         value={profileInput?.address?.district?.name || ""}
-                                        width={'100%'}
                                         placeHolder='District (*)'
                                         data={
-                                            districts.map(item => districtFilter(item.name))
+                                            districts.map(item => ({
+                                                key: item.code,
+                                                value: locationFilter(item.name, 'District')
+                                            }))
                                             || []} />
                                 </View>
                                 {/*  province  */}
@@ -342,11 +344,13 @@ const ProfileSettingScreen = () => {
                                         onSelected={handleSelectProvince}
                                         value={profileInput?.address?.province?.name || ""}
                                         disable={profileInput.address?.district?.name === undefined}
-                                        width={'100%'}
                                         placeHolder='Province (*)'
                                         data={
-                                            provinces.map(item => provinceFilter(item.name)) || []
-                                        } />
+                                            districts.map(item => ({
+                                                key: item.code,
+                                                value: locationFilter(item.name, 'Province')
+                                            }))
+                                            || []} />
                                 </View>
                             </View>
                         </View>
@@ -357,18 +361,20 @@ const ProfileSettingScreen = () => {
                                 onSelected={handleSelectWand}
                                 disable={profileInput.address?.district?.name === undefined}
                                 value={profileInput?.address?.ward?.name || undefined}
-                                width={'100%'}
                                 placeHolder='Ward (*)'
-                                data={wards.map(item => item.name) || []} />
-                            {/* <DropdownMenu
-                                onSelected={handleSelectWand}
-                                value={userInfo?.address?.ward?.name || ""}
-                                width={'100%'}
-                                placeHolder='Ward (*)'*/}
+                                data={districts.map(item => ({
+                                    key: item.code,
+                                    value: item.name
+                                })) || []} />
                             {profileInputErrors.address
                                 && <ThemeText
                                     fontSize={12}
                                     color={colors.error}
+                                    otherProps={{
+                                        marginTop: 8,
+                                        textAlign: 'right'
+
+                                    }}
                                 >{profileInputErrors.address}</ThemeText>}
                         </View>
 

@@ -89,7 +89,7 @@ const HomeHeader = ({ onLeftPress, onRightPress, initialState }: Props) => {
                 <CustomInput
                     ref={searchRef}
                     placeHolder={'Search'}
-                    handleValue={setSearchValue}
+                    onValueChange={setSearchValue}
                     onSubmitEditing={onSubmitSearch} />
             </Animated.View>
         </View>

@@ -10,13 +10,18 @@ import { router } from 'expo-router'
 import React from 'react'
 import { useColorScheme, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
+import { UserGroupIcon } from 'react-native-heroicons/solid'
 import { ChevronRightIcon } from 'react-native-heroicons/solid'
 import { useDispatch, useSelector } from 'react-redux'
 
 const SettingsScreen = () => {
     const deviceTheme = useColorScheme()
-    const themeValue = useCustomTheme()
-    const { colors, toggleTheme, currentTheme } = themeValue
+    const {
+        colors,
+        toggleTheme,
+        currentTheme,
+        setIsAdminMode
+    } = useCustomTheme()
     const dispatch = useDispatch<AppDispatch>()
     const { userInfo } = useSelector((state: RootState) => state.private)
 
@@ -31,6 +36,11 @@ const SettingsScreen = () => {
             toggleTheme(deviceTheme == 'dark' ? 'dark' : 'light')
             await AsyncStorage.removeItem('theme')
         }
+    }
+
+    const handleNavigation = () => {
+        setIsAdminMode(true)
+        router.dismissAll()
     }
 
     return (
@@ -87,22 +97,35 @@ const SettingsScreen = () => {
                         </View>
                     </TouchableOpacity>
 
-                    {/* interface */}
-                    <View className='m-0 flex-row items-center justify-between px-6 py-2 border-b'
+                    {/* mode */}
+                    <View className='flex-row items-center justify-between px-6 border-b h-max'
                         style={{
                             borderColor: colors.border.disable
                         }}>
                         <ThemeText>Mode:</ThemeText>
-                        <View className='z-20'>
+                        <View className='z-20 h-full pb-4'>
                             <DropdownMenu
                                 onSelected={handleSetUpTheme}
                                 disableSearch
-                                placeHolder={currentTheme[0].toUpperCase() + currentTheme.slice(1)}
+                                value={currentTheme[0].toUpperCase() + currentTheme.slice(1)}
                                 data={['Light', 'Dark', 'System']}
                                 width={120} />
                         </View>
                     </View>
 
+                    {/* admin manager */}
+                    {userInfo?.role === 'admin' &&
+                        <TouchableOpacity onPress={handleNavigation}>
+                            <View className='m-0 flex-row items-center justify-between px-6 py-2 border-b h-[60px]'
+                                style={{
+                                    borderColor: colors.border.disable
+                                }}>
+                                <ThemeText>Admin Manager</ThemeText>
+                                <View className='z-20'>
+                                    <UserGroupIcon color={colors.icon.enable} />
+                                </View>
+                            </View>
+                        </TouchableOpacity>}
 
                 </ScrollView>
             </View>

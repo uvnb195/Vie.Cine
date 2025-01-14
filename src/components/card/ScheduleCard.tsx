@@ -1,63 +1,138 @@
 import { useCustomTheme } from '@/src/contexts/theme'
-import React, { memo } from 'react'
-import { View, ViewStyle, ViewToken } from 'react-native'
+import React, { memo, useEffect } from 'react'
+import { Pressable, View, ViewStyle, ViewToken } from 'react-native'
 import { MapPinIcon } from 'react-native-heroicons/solid'
 import Animated, { SharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/src/redux/store'
+import { ScheduleType } from '@/constants/types/ScheduleType'
+import { getMovieSchedule } from '@/src/redux/privateAsyncActions'
+import { getTheatreDetail } from '@/src/redux/adminAsyncActions'
+import { auth } from '@/src/api/firebase/config'
+import { TheatreResponse } from '@/src/redux/adminSlice'
+import moment from 'moment'
+import { UserTheatreList } from '@/src/redux/privateSlice'
 interface Props {
     style?: ViewStyle
     selected?: boolean
-    id: string,
-    viewableItems: SharedValue<ViewToken[]>
+    data: ScheduleType,
+    onSelected?: (lat: number, lng: number) => void,
+    onChooseTime?: (time: moment.Moment, price: number, scheduleId: string, timeId: string) => void
 }
 
-const ScheduleCard = ({ style, selected, id, viewableItems }: Props) => {
-    const themeValue = useCustomTheme()
-    const { colors } = themeValue
+const ScheduleCard = ({ style, selected, data, onSelected, onChooseTime }: Props) => {
+    const { colors } = useCustomTheme()
+    const dispatch = useDispatch<AppDispatch>()
+    const { theatres } = useSelector((state: RootState) => state.private)
+    const [theatreData, setTheatreData] = React.useState<UserTheatreList | null>(null)
 
-    const animation = useAnimatedStyle(() => {
-        const isVisible = Boolean(viewableItems.value.filter((item) => item.isViewable).find((viewable) => viewable.item == id))
+    const handlePress = () => {
+        onSelected && onSelected(theatreData?.location.lat!!, theatreData?.location.lng!!)
+    }
 
-        return ({
-            opacity: withTiming(isVisible ? 1 : 0, { duration: 300 }),
-            transform: [
+    const getTime = (date: moment.Moment) => {
+        const hour = date.toDate().getHours().toString().length === 1 ? `0${date.toDate().getHours()}` : date.toDate().getHours()
+        const minute = date.toDate().getMinutes().toString().length === 1 ? `0${date.toDate().getMinutes()}` : date.toDate().getMinutes()
+        return `${hour}:${minute}`
+    }
+    const getDateString = (date: moment.Moment) => {
+        const day = date.toDate().getDate().toString().length === 1 ? `0${date.toDate().getDate()}` : date.toDate().getDate()
+        const month = date.toDate().getMonth().toString().length === 1 ? `0${date.toDate().getMonth() + 1}` : date.toDate().getMonth() + 1
+        const year = date.toDate().getFullYear()
+        return `${day}/${month}/${year}`
+    }
+    const isToday = (date: moment.Moment) => {
+        const today = new Date()
+        return date.toDate().getDate() === today.getDate() && date.toDate().getMonth() === today.getMonth() && date.toDate().getFullYear() === today.getFullYear()
+    }
+    const isPast = (date: moment.Moment) => {
+        const currentTime = moment()
+        return currentTime.isAfter(date)
+    }
 
-                { translateX: withTiming(isVisible ? 0 : 200, { duration: 500 }) }
-            ],
-            transformOrigin: 'top right'
-        })
-        // isVisible ? withTiming(1, { duration: 300 }) : withTiming(0, { duration: 300 })
-    })
+
+    const renderRunTime = () => {
+        return (
+            data.runTimes.map((e, i) => {
+                return (
+                    <Pressable
+                        key={i}
+                        disabled={isPast(moment(e.time))}
+                        onPress={() => {
+                            onChooseTime && onChooseTime(moment(e.time), e.price, data._id, e._id)
+                        }}>
+                        <View
+                            className='rounded-2 p-2 mx-2'
+                            style={{
+                                borderWidth: 1,
+                                borderColor: isPast(moment(e.time)) ? colors.border.disable : colors.border.default,
+                                backgroundColor: isPast(moment(e.time)) ? colors.background.default : colors.background.default,
+                            }}>
+                            <ThemeText fontSize={12}>{getTime(moment(e.time))}</ThemeText>
+                        </View>
+                    </Pressable>
+                )
+            })
+        )
+
+    }
+
+    useEffect(() => {
+        if (!theatres.map(e => e._id).includes(data.theatreId)) {
+            auth.currentUser?.getIdToken().then(token => {
+                dispatch(getTheatreDetail({ token, id: data.theatreId }))
+            })
+        }
+    }, [])
+
+    useEffect(() => {
+        const theatre = theatres.find(e => e._id === data.theatreId)
+        if (theatre) {
+            setTheatreData(theatre)
+        }
+    }, [theatres])
 
     return (
-        <Animated.View
-            className='border-t flex-row items-center mx-2 py-2' style={[
-                {
-                    borderColor: colors.textHighLight.background
-                },
-                animation,
-                style]}>
-            {/* time */}
-            <View className='mx-2 px-2 py-1 items-center rounded-4 self-center' style={{
-                backgroundColor: colors.icon.highlight
-            }}>
-                <ThemeText fontWeight='bold' letterSpacing={-0.5}>12 : 30</ThemeText>
-
-            </View>
-            {/* info */}
-            <View className='px-2 flex-1 h-full'>
-                <ThemeText fontWeight='bold'>Hope Thearter</ThemeText>
-                <ThemeText fontSize={12}>72376 Francis Mountains, South Altaside, AK 13277</ThemeText>
-            </View>
-
-            {/* icon pin */}
-            <View className='w-6 h-6 self-end'>
-                <MapPinIcon color={selected
-                    ? colors.icon.highlight
-                    : colors.icon.enable} />
-            </View>
-        </Animated.View>
+        <Pressable onPress={handlePress}>
+            <Animated.View
+                className='border-y items-center py-2 px-4' style={[
+                    {
+                        borderColor: colors.textHighLight.background
+                    },
+                    style]}>
+                {/* theatre info */}
+                <View className='w-full'>
+                    <ThemeText
+                        otherProps={{
+                            paddingBottom: 4,
+                        }}
+                        fontSize={18}
+                        fontWeight='bold'>{theatreData?.name}</ThemeText>
+                    <View className='flex-row items-center'>
+                        <MapPinIcon size={16} color={colors.icon.highlight} />
+                        <View className='w-2' />
+                        <ThemeText fontSize={12}>{theatreData?.location.address.replace('\n', ' ')}</ThemeText>
+                    </View>
+                </View>
+                <View className='w-full pt-2'>
+                    <ThemeText
+                        otherProps={{
+                            paddingBottom: 4,
+                            paddingHorizontal: 8,
+                        }}
+                        fontSize={18}
+                        color={colors.text.light}>{
+                            isToday(moment(data.runDate))
+                                ? 'Today'
+                                : getDateString(moment(data.runDate))}</ThemeText>
+                    <View className='flex-row w-full flex-wrap gap-y-2'>
+                        {renderRunTime()}
+                    </View>
+                </View>
+            </Animated.View>
+        </Pressable>
     )
 }
 
-export default memo(ScheduleCard)
+export default ScheduleCard

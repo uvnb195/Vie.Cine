@@ -27,7 +27,6 @@ const UpdateAvatarScreen = () => {
     const handleSubmit = async () => {
         if (!imageBase64) return
         dispatch(setLoading(true))
-        console.log('image change', imageBase64.slice(0, 100))
         setDisable(false)
         const formImage = new FormData()
         formImage.append('image', imageBase64)

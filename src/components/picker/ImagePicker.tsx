@@ -10,11 +10,20 @@ import ThemeText from '../theme/ThemeText'
 interface Props {
     disabled?: boolean,
     style?: ViewStyle,
-    defaultUri?: string
+    defaultUri?: string,
+    shape?: 'circle' | 'square',
+    mode?: 'avatar' | 'image',
+    required?: boolean,
     onImageChange?: (uri: string) => void
 }
 
-const ImagePicker = ({ disabled, style, defaultUri, onImageChange }: Props) => {
+const ImagePicker = ({ disabled,
+    style,
+    defaultUri,
+    shape = 'circle',
+    mode = 'avatar',
+    required,
+    onImageChange }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
@@ -34,7 +43,7 @@ const ImagePicker = ({ disabled, style, defaultUri, onImageChange }: Props) => {
         await launchImageLibraryAsync({
             mediaTypes: MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [3, 4],
+            aspect: mode == 'avatar' ? [3, 4] : undefined,
             quality: 0.5,
             base64: true,
         })
@@ -48,6 +57,10 @@ const ImagePicker = ({ disabled, style, defaultUri, onImageChange }: Props) => {
                 }
             })
     }
+
+    const errorAnim = useAnimatedStyle(() => ({
+        height: image == null ? withTiming(20) : withTiming(0),
+    }))
 
     const handlePress = () => {
         if (showEdit) {
@@ -70,38 +83,61 @@ const ImagePicker = ({ disabled, style, defaultUri, onImageChange }: Props) => {
     }, [defaultUri])
 
     return (
-        <View className='rounded-full items-center justify-center overflow-hidden border'
-            style={[
-                {
-                    backgroundColor: colors.background.bottomSheet,
-                    borderColor: colors.text.light
-                },
-                style]}>
-            <Pressable onPress={handlePress} disabled={disabled}
-                className=' w-full h-full items-center justify-center'>
-                <Image
-                    source={image != null
-                        ? { uri: image }
-                        : require('../../assets/images/default-avatar.png')}
-                    className='w-full h-full border-4 rounded-full'
-                    resizeMode={image == null ? 'contain' : 'cover'}
-                    tintColor={image == null
-                        ? colors.text.dark : undefined} />
-                <Animated.View
-                    className=' absolute top-0 bottom-0 left-0 right-0 items-center justify-center'
-                    style={[
-                        {
-                            backgroundColor: hexToRGBA(colors.background.default, 0.8)
-                        },
-                        animation
-                    ]} >
-                    <PhotoIcon
-                        color={colors.text.default}
-                        size={40} />
-                    <ThemeText fontWeight='light' fontSize={13}>Choose new Avatar</ThemeText>
-                </Animated.View>
+        <View>
+            <View className='items-center justify-center overflow-hidden'
+                style={[
+                    {
+                        backgroundColor: colors.background.bottomSheet,
+                        borderColor: required ? colors.error : colors.border.default,
+                        borderRadius: shape == 'circle' ? 999 : 8,
+                        borderWidth: required ? 2 : 1,
+                    },
+                    style]}>
+                <Pressable
+                    onPress={handlePress}
+                    disabled={disabled}
+                    className='w-full h-full items-center justify-center'>
+                    <Image
+                        className='w-full h-full'
+                        source={image != null
+                            ? { uri: image }
+                            : mode == 'avatar' ? require('../../assets/images/default-avatar.png') : require('../../assets/images/add-image.png')}
+                        style={{
+                            width: image == null ? mode == 'avatar' ? '100%' : '50%' : '100%',
+                            height: image == null ? mode == 'avatar' ? '100%' : '50%' : '100%',
+                        }}
+                        resizeMode={image == null ? 'contain' : 'cover'}
+                        tintColor={image == null
+                            ? colors.text.dark : undefined} />
+                    <Animated.View
+                        className=' absolute top-0 bottom-0 left-0 right-0 items-center justify-center'
+                        style={[
+                            {
+                                backgroundColor: hexToRGBA(colors.background.default, 0.8)
+                            },
+                            animation
+                        ]} >
+                        <PhotoIcon
+                            color={colors.text.default}
+                            size={40} />
+                        <ThemeText fontWeight='light' fontSize={13}>Choose new Avatar</ThemeText>
+                    </Animated.View>
 
-            </Pressable>
+                </Pressable>
+            </View>
+
+            {/* error */}
+            {required &&
+                <Animated.View
+                    style={errorAnim}
+                    className='w-full'>
+                    <ThemeText
+                        color={colors.error}
+                        fontSize={12}
+                        fontWeight='bold'>
+                        {image === null ? 'Please select image' : ''}
+                    </ThemeText>
+                </Animated.View>}
         </View>
     )
 }

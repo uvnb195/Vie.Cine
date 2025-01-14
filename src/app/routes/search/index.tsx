@@ -1,4 +1,4 @@
-import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import Header from '@/src/components/header'
 import CustomInput from '@/src/components/input/CustomInput'
@@ -61,8 +61,8 @@ const SearchScreen = () => {
                 backIconPress={() => router.dismiss()} />}>
             <View className='flex-1 px-4'>
                 <CustomInput
-                    handleValue={(value) => setInput(value)}
-                    initValue={input}
+                    onValueChange={(value) => setInput(value)}
+                    value={input}
                     placeHolder={'Search'} />
                 <View className='flex-1 mt-2'>
                     {/* content */}

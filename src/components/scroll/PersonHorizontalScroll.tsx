@@ -1,4 +1,4 @@
-import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch } from '@/src/redux/store'
 import { router } from 'expo-router'
@@ -38,7 +38,7 @@ const PersonHorizontal = ({
                 height: contentStyle?.height || CAROUSEL_ITEM_SIZE.height
             }} src={item.profile_path || ''}
             onPress={() => {
-                router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
+                router.push({ pathname: '/routes/(movie-details)/[id]', params: { id: item.id } })
             }} />)
     }
 

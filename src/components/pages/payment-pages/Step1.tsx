@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { useDispatch } from 'react-redux'
 import DropdownMenu from '../../input/DropdownMenu'
 import PageWrapper from '../PageWrapper'
-import { updateAddress } from '@/src/redux/paymentSlice'
+import { updateAddress } from '@/src/redux/adminSlice'
 
 interface CinemaLocationType {
     city: string | null,

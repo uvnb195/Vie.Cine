@@ -26,10 +26,12 @@ export const getDeviceLocation = async () => {
             const geoLocation = await reverseGeocodeAsync(result.data!!.coords).then((res) => {
                 return ({
                     city: res[0].city || res[0].region || "",
-                    district: res[0].district || res[0].subregion || ""
+                    district: res[0].district || res[0].subregion || "",
+                    latitude: result.data?.coords.latitude || 0,
+                    longitude: result.data?.coords.longitude || 0
                 })
             })
-            return { status: 'success', data: geoLocation }
+            return { status: 'success', data: { ...geoLocation } }
         }
         return { status: 'fail', msg: 'Location not found' }
     } catch (e: any) {

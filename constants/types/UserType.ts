@@ -13,4 +13,5 @@ export interface UserInfo {
     } | null;
     birthday: string | null;
     gender: 1 | 2 | null;
+    readonly role?: 'admin' | undefined;
 }

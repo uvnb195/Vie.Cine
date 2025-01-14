@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "@/src/redux/store"
 import MinimalCard from "../card/MinimalCard"
 import { dateConverter } from "@/hooks/convertDate"
-import { CAROUSEL_ITEM_SIZE } from "@/constants/Size"
+import { CAROUSEL_ITEM_SIZE } from "@/constants/Values"
 import { setLoading } from "@/src/redux/publicSlice"
 import { router } from "expo-router"
 import { ActivityIndicator, Dimensions, FlatList, Image, View, ViewToken } from "react-native"
@@ -56,7 +56,10 @@ const VerticalGridScroll = ({
                         paddingVertical: contentStyle?.paddingVertical || 8
                     }}
                     onPress={() => {
-                        router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
+                        router.push({
+                            pathname: '/routes/(movie-details)/[id]',
+                            params: { id: item.id }
+                        })
                     }} />
             </View >)
     }

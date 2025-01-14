@@ -308,7 +308,7 @@ const PersonScreen = () => {
                                         onPress={() => {
                                             dispatch(setLoading(true))
                                             router.replace({
-                                                pathname: '/routes/movie-details/[id]',
+                                                pathname: '/routes/(movie-details)/[id]',
                                                 params: { id: item.id }
                                             })
                                         }}

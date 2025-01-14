@@ -25,6 +25,10 @@ const GroupView = () => {
 
     useEffect(() => {
         dispatch(updateLongList(id as PublicURL))
+
+        return () => {
+            dispatch(updateLongList(null))
+        }
     }, [])
 
     useEffect(() => {

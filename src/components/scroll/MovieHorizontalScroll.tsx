@@ -3,7 +3,7 @@ import React from 'react'
 import { FlatList } from 'react-native-gesture-handler'
 import MinimalCard from '../card/MinimalCard'
 import SectionTitle from '../button/SectionTitle'
-import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import { router } from 'expo-router'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@/src/redux/store'
@@ -57,7 +57,7 @@ const MovieHorizontalScroll = ({
                 height: contentStyle?.height || CAROUSEL_ITEM_SIZE.height
             }} src={item.poster_path}
             onPress={() => {
-                router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
+                router.push({ pathname: '/routes/(movie-details)/[id]', params: { id: item.id } })
             }} />)
     }
 

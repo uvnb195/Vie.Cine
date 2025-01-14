@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
         "viecine"
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "automatic"
 }

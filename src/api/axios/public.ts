@@ -85,7 +85,7 @@ class PublicAxiosRepository {
         })
     }
 
-    getDistricts = (provinceCode: string) => {
+    getDistricts = (provinceCode: number) => {
         return this.axiosInstance({
             method: "GET",
             url: `/p/${provinceCode}`,
@@ -95,7 +95,7 @@ class PublicAxiosRepository {
         })
     }
 
-    getWards = (districtCode: string) => {
+    getWards = (districtCode: number) => {
         return this.axiosInstance({
             method: "GET",
             url: `/d/${districtCode}`,

@@ -1,3 +1,12 @@
+export enum MovieRunTime {
+    ONE_WEEK = 1,
+    TWO_WEEKS = 2,
+    THREE_WEEKS = 3,
+    ONE_MONTH = 4,
+    TWO_MONTHS = 5,
+    THREE_MONTHS = 6,
+}
+
 export interface MovieType {
     adult: boolean
     backdrop_path: string

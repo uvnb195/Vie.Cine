@@ -119,7 +119,7 @@ const Header = ({
 
                 <CustomInput
                     ref={searchRef}
-                    handleValue={setSearchValue}
+                    onValueChange={setSearchValue}
                     placeHolder={'Search'}
                     onSubmitEditing={onSubmitSearch} />
             </Animated.View>

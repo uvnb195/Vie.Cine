@@ -69,12 +69,16 @@ export const postSearch = createAsyncThunk(
 
 export const fetchAllProvince = createAsyncThunk(
     'public/fetchAllProvince',
-    async () => {
+    async (_, thunkApi) => {
         try {
-            const res = await PublicAxiosRepository.getProvinces().then(res => res.data)
+            const res = await PublicAxiosRepository.getProvinces().then(res => {
+                if (res.status === 500 || !res.data) return []
+                else return res.data
+            })
             return res
         } catch (error: any) {
-            return error.message
+            thunkApi.rejectWithValue([])
+            return []
         }
     }
 )
@@ -82,25 +86,32 @@ export const fetchAllProvince = createAsyncThunk(
 export const fetchDistricts = createAsyncThunk(
     'public/fetchDistricts',
     async (data: {
-        provinceCode: string
-    }) => {
+        provinceCode: number
+    }, thunkApi) => {
         try {
-            const res = await PublicAxiosRepository.getDistricts(data.provinceCode).then(res => res.data)
+            const res = await PublicAxiosRepository.getDistricts(data.provinceCode).then(res => {
+                if (res.status === 500 || !res.data) return { data: [] }
+                else
+                    return res.data
+            })
             return res
         } catch (error: any) {
-            return error.message
+            thunkApi.rejectWithValue([])
+            return []
         }
     })
 
 export const fetchWards = createAsyncThunk(
     'public/fetchWards',
     async (data: {
-        districtCode: string
-    }) => {
+        districtCode: number
+    }, thunkApi) => {
         try {
             const res = await PublicAxiosRepository.getWards(data.districtCode).then(res => res.data)
             return res
         } catch (error: any) {
-            return error.message
+            console.log(error.message)
+            thunkApi.rejectWithValue([])
+            return []
         }
     })

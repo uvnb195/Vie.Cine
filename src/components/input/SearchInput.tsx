@@ -65,10 +65,7 @@ const SearchInput = ({
             ]}>
             {/* icon */}
             <Animated.View
-                style={
-                    [
-                        animation
-                    ]}
+                style={animation}
                 className='items-center justify-center rounded-1 w-[50px] h-full'
             >
                 {input.length === 0
@@ -80,8 +77,10 @@ const SearchInput = ({
                     :
                     <TouchableOpacity
                         onPress={handleClearText}>
-                        <CustomButton Icon={
-                            <XMarkIcon color={colors.icon.highlight} size={24} />} />
+                        <CustomButton
+                            hasBorder={false}
+                            Icon={
+                                <XMarkIcon color={colors.icon.highlight} size={24} />} />
                     </TouchableOpacity>}
             </Animated.View>
 

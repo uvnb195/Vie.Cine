@@ -6,7 +6,15 @@ import { PublicURL } from "../api/axios/public"
 import { Address, ListResponse } from "@/constants/types/index"
 import { MovieType } from "@/constants/types/MovieType"
 
+export enum Status {
+    IDLE,
+    PENDING,
+    SUCCESS,
+    FAILED,
+}
+
 interface PublicStates {
+    status: Status,
     location: {
         city: string,
         district: string
@@ -31,9 +39,15 @@ interface PublicStates {
     provinces: Address<'Province'>[],
     districts: Address<'District'>[],
     wards: Address<'Ward'>[],
-    local: { province: string, district: string }
+    local: {
+        province: string | null,
+        district: string | null,
+        latitude: number,
+        longitude: number,
+    }
 }
 const initValue: PublicStates = {
+    status: Status.IDLE,
     location: {
         city: '',
         district: ''
@@ -55,13 +69,23 @@ const initValue: PublicStates = {
     provinces: [],
     districts: [],
     wards: [],
-    local: { province: '', district: '' }
+    local: {
+        province: '',
+        district: '',
+        latitude: 0,
+        longitude: 0
+    }
 }
 
 export const publicSlice = createSlice({
     name: 'public',
     initialState: initValue,
     reducers: {
+        updateStatus: (
+            state,
+            action: PayloadAction<Status>) => {
+            state.status = action.payload
+        },
         setLoading: (
             state,
             action: PayloadAction<boolean>) => {
@@ -78,6 +102,9 @@ export const publicSlice = createSlice({
         },
         resetPersonDetail: (state) => {
             state.personInfo = {}
+        },
+        resetMovieDetail: (state) => {
+            state.movieInfo = {}
         },
         updateLongList: (
             state,
@@ -106,12 +133,17 @@ export const publicSlice = createSlice({
         updateLocation: (
             state,
             action: PayloadAction<{
-                city: string,
-                district: string
+                province: string,
+                district: string,
+                latitude: number,
+                longitude: number
             }>) => {
             state.local = {
-                province: action.payload.city || "",
-                district: action.payload.district || ""
+                ...state.local,
+                province: action.payload.province || null,
+                district: action.payload.district || null,
+                latitude: action.payload.latitude,
+                longitude: action.payload.longitude,
             }
         },
     },
@@ -203,27 +235,49 @@ export const publicSlice = createSlice({
             .addCase(fetchAllProvince.fulfilled, (
                 state,
                 action) => {
+                state.fetching = false
                 state.provinces = action.payload
+            })
+            .addCase(fetchAllProvince.rejected, (
+                state,
+                _) => {
+                state.fetching = false
+            })
+            .addCase(fetchAllProvince.pending, (
+                state,
+                _) => {
+                state.fetching = true
+            }
+            )
+            .addCase(fetchDistricts.pending, (state, _) => {
+                state.fetching = true
             })
             .addCase(
                 fetchDistricts.fulfilled,
                 (state, action) => {
                     state.districts = action.payload
+                    state.fetching = false
                 })
+            .addCase(fetchWards.pending, (state, _) => {
+                state.fetching = true
+            })
             .addCase(
                 fetchWards.fulfilled,
                 (state, action) => {
                     state.wards = action.payload
-
+                    state.fetching = false
                 })
     }
 })
 
 export const selectPublic = (state: { public: PublicStates }) => state.public
 
-export const { setLoading,
+export const {
+    updateStatus,
+    setLoading,
     setPhoneRegion,
     resetPersonDetail,
+    resetMovieDetail,
     updateLongList,
     resetDistricts,
     resetWards,

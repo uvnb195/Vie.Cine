@@ -1,4 +1,4 @@
-import { CREDIT_CARD_SIZE, PADDING_VALUE } from '@/constants/Size'
+import { CREDIT_CARD_SIZE, PADDING_VALUE } from '@/constants/Values'
 import { useCustomTheme } from '@/src/contexts/theme'
 import React from 'react'
 import { Animated, Dimensions, View } from 'react-native'

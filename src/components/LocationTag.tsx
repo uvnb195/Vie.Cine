@@ -21,7 +21,7 @@ const LocationTag = ({ style }: Props) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (local.province.length > 0) {
+        if (local.province && local.province.length > 0) {
             setTimeout(() => {
                 Animated.timing(locationHeight, {
                     toValue: 20,
@@ -36,7 +36,12 @@ const LocationTag = ({ style }: Props) => {
         (async () => {
             const result = await getDeviceLocation()
             if (result.status == 'success') {
-                dispatch(updateLocation(result.data!!))
+                dispatch(updateLocation({
+                    province: result.data?.city || "",
+                    district: result.data?.district || "",
+                    latitude: result.data?.latitude || 0,
+                    longitude: result.data?.longitude || 0
+                }))
             }
         })()
     }, [])

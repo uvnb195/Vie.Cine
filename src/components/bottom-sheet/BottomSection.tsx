@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import CustomButton from '../button/CustomButton'
 import { useCustomTheme } from '@/src/contexts/theme'
+import Animated, { interpolateColor, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated'
 
 interface Props {
     currentIndex: number,
@@ -23,25 +24,24 @@ const BottomSection = ({
     const { colors } = themeValue
 
     const renderItems = () => {
-        return Array.from({ length: totalPage }, (_, i) => (
-            i == currentIndex ?
-                <View
+        return Array.from({ length: totalPage }, (_, i) => {
+            const animation = useAnimatedStyle(() => ({
+                opacity: i == currentIndex ? withTiming(1) : 0.3,
+                transform: [{ scale: i == currentIndex ? withSpring(1.5) : withSpring(1) }],
+
+                backgroundColor: colors.text.dark
+            }))
+            return (
+                <Animated.View
                     key={i}
-                    className=' w-5 h-2 mx-1 rounded-full'
-                    style={{
-                        backgroundColor: colors.text.dark
-                    }} />
-                : <View
-                    key={i}
-                    className='bg-red-500 w-2 h-2 mx-1 rounded-full'
-                    style={{
-                        backgroundColor: colors.text.light
-                    }} />
-        ))
+                    className=' w-2 h-2 mx-1 rounded-full'
+                    style={animation} />
+            )
+        })
     }
 
     return (
-        <View className='w-full flex-row items-center justify-between px-4'>
+        <View className='w-full flex-row items-center justify-between px-2 py-4'>
             {currentIndex != 0 && currentIndex != totalPage - 1
                 ? <CustomButton
                     title='Prev'
@@ -57,6 +57,7 @@ const BottomSection = ({
 
             {totalPage - 1 == currentIndex
                 ? <CustomButton
+                    disabled={disabled}
                     title='Finish'
                     onPress={handleNext} />
                 : <CustomButton

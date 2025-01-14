@@ -9,7 +9,7 @@ import { RootState } from '@/src/redux/store'
 import ServiceCard from '../../card/ServiceCard'
 import { LinearGradient } from 'expo-linear-gradient'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
-import { updateServices } from '@/src/redux/paymentSlice'
+import { updateServices } from '@/src/redux/adminSlice'
 
 const Step3 = () => {
     const themeValue = useCustomTheme()

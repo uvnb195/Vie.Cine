@@ -198,7 +198,7 @@ const Register = () => {
                                 style={{ rowGap: 16 }}>
                                 <View>
                                     <CustomInput
-                                        handleValue={handleEmailInput}
+                                        onValueChange={handleEmailInput}
                                         keyboardType={emailOrPhone.length > 0 && emailOrPhone[0] === '0' ? 'number-pad' : 'email-address'}
                                         placeHolder='Email / Phone Number'
                                         LeftIcon={
@@ -212,8 +212,8 @@ const Register = () => {
                                 </View>
                                 <View>
                                     <CustomInput
-                                        initValue={password}
-                                        handleValue={handlePasswordInput}
+                                        value={password}
+                                        onValueChange={handlePasswordInput}
                                         blockText={true}
                                         placeHolder='Password'
                                         LeftIcon={<KeyIcon color={colors.icon.highlight} />} />
@@ -221,8 +221,8 @@ const Register = () => {
                                 </View>
                                 <View>
                                     <CustomInput
-                                        initValue={confirmPassword}
-                                        handleValue={handleConfirmInput}
+                                        value={confirmPassword}
+                                        onValueChange={handleConfirmInput}
                                         blockText={true}
                                         placeHolder='Confirm Password'
                                         LeftIcon={

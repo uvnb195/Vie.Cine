@@ -14,7 +14,7 @@ export interface WrapperProps {
     children: ReactNode,
     style?: ViewStyle,
     BottomSheetComponent?: ReactNode,
-    loadingLayer?: boolean
+    loadingLayer?: boolean,
 }
 
 const MainWrapper = ({

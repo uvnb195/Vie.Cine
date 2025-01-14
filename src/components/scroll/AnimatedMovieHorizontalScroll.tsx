@@ -1,5 +1,4 @@
-import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
-import { MovieType } from '@/constants/types'
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import { dateConverter } from '@/hooks/convertDate'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
@@ -15,6 +14,7 @@ import { useDispatch } from 'react-redux'
 import SectionTitle from '../button/SectionTitle'
 import MinimalCard from '../card/MinimalCard'
 import { ScrollProps } from './MovieHorizontalScroll'
+import { MovieType } from '@/constants/types/index'
 
 interface AnimatedScrollProps extends ScrollProps<MovieType> {
     directionTo?: 'down' | 'left'
@@ -149,7 +149,7 @@ const ItemSlideDown = (
                 }}
                 onPress={() => {
                     dispatch(setLoading(true))
-                    router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
+                    router.push({ pathname: '/routes/(movie-details)/[id]', params: { id: item.id } })
                 }} />
         </Animated.View>
     )
@@ -202,7 +202,7 @@ export const ItemScale = (
                 }}
                 onPress={() => {
                     dispatch(setLoading(true))
-                    router.push({ pathname: '/routes/movie-details/[id]', params: { id: item.id } })
+                    router.push({ pathname: '/routes/(movie-details)/[id]', params: { id: item.id } })
                 }} />
         </Animated.View>
     )

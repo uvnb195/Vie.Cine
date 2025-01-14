@@ -6,12 +6,18 @@ import { Feather } from '@expo/vector-icons'
 
 interface Props {
     style?: ViewStyle,
-    title: string
+    title: string,
+    Icon?: React.ReactNode,
     selected?: boolean,
     onPress?: () => void
 }
 
-const Chip = ({ title, selected, style, onPress }: Props) => {
+const Chip = ({
+    title,
+    selected,
+    style,
+    onPress,
+    Icon }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     return (
@@ -21,9 +27,11 @@ const Chip = ({ title, selected, style, onPress }: Props) => {
             style={
                 {
                     borderColor: selected ? colors.border.default : colors.icon.disable,
+                    ...style,
+                    minWidth: 72,
                 }}
             title={title}
-            Icon={selected
+            Icon={Icon ? Icon : selected
                 ? <Feather
                     name='check-circle'
                     size={16}

@@ -72,7 +72,6 @@ const Login = () => {
             case 'email': {
                 const validation = await signInWithEmailAndPassword(auth, emailOrPhone, password)
                     .catch(err => {
-                        console.log(err.code)
                         switch (err.code) {
                             case 'auth/user-not-found': {
                                 showNoti('User not found')
@@ -179,8 +178,8 @@ const Login = () => {
                                 <View>
                                     <CustomInput
                                         useDebounceCallback={true}
-                                        initValue={emailOrPhone}
-                                        handleValue={handleEmailInput}
+                                        value={emailOrPhone}
+                                        onValueChange={handleEmailInput}
                                         keyboardType={emailOrPhone.length > 0 && emailOrPhone[0] === '0' ? 'number-pad' : 'email-address'}
                                         placeHolder='Email / Phone Number'
                                         LeftIcon={
@@ -195,8 +194,8 @@ const Login = () => {
                                 <View>
                                     <CustomInput
                                         useDebounceCallback={true}
-                                        initValue={password}
-                                        handleValue={handlePasswordInput}
+                                        value={password}
+                                        onValueChange={handlePasswordInput}
                                         blockText={true}
                                         placeHolder='Password'
                                         LeftIcon={<KeyIcon color={colors.icon.highlight} />} />
@@ -229,7 +228,7 @@ const Login = () => {
                                     margin: 0
                                 }}>Register</ThemeText>
                             or{" "}
-                            <Link href={"/"} onPress={() => console.log('pressed')}>
+                            <Link href={"/"}>
                                 <ThemeText
                                     color={colors.icon.highlight}
                                     fontWeight='bold'

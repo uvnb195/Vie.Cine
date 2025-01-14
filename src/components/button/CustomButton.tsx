@@ -29,7 +29,7 @@ const CustomButton = ({
         <TouchableOpacity
             disabled={disabled}
             onPress={onPress}
-            className='self-start items-center flex-row px-2 border'
+            className='self-start items-center flex-row border'
             style={[
                 {
                     borderRadius: 8,
@@ -38,32 +38,32 @@ const CustomButton = ({
                             ? colors.border.disable
                             : colors.border.default)
                         : ('transparent'),
-                    minWidth: title ? 80 : undefined,
                     height: 50,
                     backgroundColor: disabled ?
                         'transparent'
-                        : hexToRGBA(colors.background.default, 0.5),
+                        : (hasBorder ? colors.background.default : 'transparent'),
                     justifyContent: !title || !Icon ? 'center' : 'space-between'
                 },
-                style
+                style,
             ]}>
             {title &&
                 <ThemeText
                     otherProps={{
                         textDecorationLine: hasBorder ? 'none' : 'underline',
+                        paddingHorizontal: 8,
                     }}
                     numsOfLines={1}
                     color={
                         disabled
                             ? colors.text.disable
                             : (textColor ? textColor : colors.text.dark)}>{title}</ThemeText>}
-            {Icon && <View className='pl-2'
+            {Icon && <View
                 style={{
-                    paddingLeft: title ? 8 : 0
+                    paddingRight: 4,
                 }}>
                 {Icon}
             </View>}
-        </TouchableOpacity>
+        </TouchableOpacity >
     )
 }
 

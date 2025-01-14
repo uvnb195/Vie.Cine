@@ -1,29 +1,26 @@
-import { CAROUSEL_ITEM_SIZE, TAB_BAR_HEIGHT } from '@/constants/Size'
+import { CAROUSEL_ITEM_SIZE, TAB_BAR_HEIGHT } from '@/constants/Values'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import CustomButton from '@/src/components/button/CustomButton'
 import HomeHeader from '@/src/components/header/HomeHeader'
 import LocationTag from '@/src/components/LocationTag'
 import MainWrapper from '@/src/components/MainWrapper'
 import AnimatedHorizontalScroll from '@/src/components/scroll/AnimatedMovieHorizontalScroll'
-import MovieHorizontalScroll from '@/src/components/scroll/MovieHorizontalScroll'
 import TabContentWrapper from '@/src/components/TabContentWrapper'
 import ThemeText from '@/src/components/theme/ThemeText'
-import { useAuth } from '@/src/contexts/auth'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { setLoading } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
-import { router } from 'expo-router'
+import { Redirect, router } from 'expo-router'
 import React, { useEffect } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { ArrowLeftEndOnRectangleIcon } from 'react-native-heroicons/solid'
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withDelay, withTiming } from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 
 const Tab = () => {
-    const themeValue = useCustomTheme()
-    const { colors } = themeValue
+    const { colors, isAdminMode, setIsAdminMode } = useCustomTheme()
     const dispatch = useDispatch<AppDispatch>()
     const { loading, nowShowing, upComing } = useSelector((state: RootState) => state.public)
     const { userInfo } = useSelector((state: RootState) => state.private)
@@ -50,6 +47,13 @@ const Tab = () => {
         }
     }, [userInfo])
 
+    useEffect(() => {
+        // console.log(isAdminMode)
+        if (isAdminMode)
+            setTimeout(() => {
+                router.replace('/routes/admin-routes')
+            }, 0);
+    }, [isAdminMode])
     return (
         <MainWrapper
             style={{

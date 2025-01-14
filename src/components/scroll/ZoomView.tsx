@@ -1,11 +1,13 @@
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
 import React from 'react'
-import { Dimensions, DimensionValue, Pressable, Text, View, ViewStyle } from 'react-native'
+import { ActivityIndicator, Dimensions, DimensionValue, Pressable, Text, View, ViewStyle } from 'react-native'
 import { Gesture, GestureDetector, TouchableOpacity } from 'react-native-gesture-handler'
 import { CheckIcon, MagnifyingGlassIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/src/redux/store'
 
 interface Props {
     width?: DimensionValue,
@@ -30,6 +32,7 @@ const ZoomView = ({
 
     const { height: screenHeight, width: screenWidth }
         = Dimensions.get('window')
+    const { loading } = useSelector((state: RootState) => state.public)
 
     const translateY = useSharedValue(0)
     const translateX = useSharedValue(0)
@@ -45,7 +48,7 @@ const ZoomView = ({
             }
         })
 
-    //doubletap to reset
+    //double tap to reset
     const doubleTapGesture = Gesture.Tap()
         .numberOfTaps(2)
         .onEnd(() => {
@@ -119,77 +122,83 @@ const ZoomView = ({
         translateX.value = withSpring(0)
         if (toggle) onHide && onHide()
     }
-
     return (
         <Animated.View className='w-full h-full items-center'
             style={{
                 overflow: toggle ? 'visible' : "hidden",
-                maxHeight: screenHeight / 2
+                maxHeight: toggle ? screenHeight / 2 : screenHeight / 3
             }}>
             {/* icon */}
-            {!toggle ?
-                <Animated.View
-                    style={
-                        [{
-                            borderColor: 'white',
-                            // borderColor: colors.border.default,
-                            backgroundColor: colors.blurBackground,
-                        }
-                        ]}
-                    className='items-center justify-center border rounded-1 z-[100] absolute top-0 right-0 left-0 bottom-0'
-                >
-                    <TouchableOpacity
-                        className='items-center justify-center w-full h-full'
-                        onPress={() => handlePressIcon()} >
-                        {toggle ?
-                            <XMarkIcon
-                                color={colors.zoomView.text}
-                                size={40} />
-                            : <MagnifyingGlassPlusIcon
-                                color={colors.zoomView.text}
-                                size={40}
-                            />
-                        }
-                        <ThemeText
-                            color={colors.zoomView.text}>Click to show</ThemeText>
-                    </TouchableOpacity>
-                </Animated.View>
-                :
-                <Animated.View
-                    style={
-                        [{
-                            width: 40,
-                            height: 40,
-                            marginLeft: 5,
-                            marginTop: 5,
-                            borderColor: colors.border.default,
-                            backgroundColor: colors.blurBackground,
-                        },
-                            closeIconStyle
-                        ]}
-                    className='items-center justify-center rounded-full absolute z-[100]'
-                >
-                    <TouchableOpacity
-                        className='items-center justify-center'
-                        onPress={() => handlePressIcon()}
-                        style={{
-                            alignSelf: 'flex-start'
-                        }} >
-                        {toggle ?
-                            (accepted ? <CheckIcon
-                                color={colors.zoomView.text}
-                                size={24} />
-                                : <XMarkIcon
+            {loading
+                ? <View className='items-center justify-center border rounded-1 z-[110] absolute top-0 right-0 left-0 bottom-0'
+                    style={{ backgroundColor: colors.blurBackground }}>
+                    <ActivityIndicator color={colors.icon.highlight} size={40} />
+                </View>
+                : (!toggle ?
+                    <Animated.View
+                        style={
+                            [{
+                                borderColor: 'white',
+                                // borderColor: colors.border.default,
+                                backgroundColor: colors.blurBackground,
+                            }
+                            ]}
+                        className='items-center justify-center border rounded-1 z-[100] absolute top-0 right-0 left-0 bottom-0'
+                    >
+                        <TouchableOpacity
+                            className='items-center justify-center w-full h-full'
+                            onPress={() => handlePressIcon()} >
+                            {toggle ?
+                                <XMarkIcon
                                     color={colors.zoomView.text}
                                     size={40} />
-                            )
-                            : <MagnifyingGlassPlusIcon
-                                color={colors.zoomView.text}
-                                size={40}
-                            />
-                        }
-                    </TouchableOpacity>
-                </Animated.View>}
+                                : <MagnifyingGlassPlusIcon
+                                    color={colors.zoomView.text}
+                                    size={40}
+                                />
+                            }
+                            <ThemeText
+                                color={colors.zoomView.text}>Click to show</ThemeText>
+                        </TouchableOpacity>
+                    </Animated.View>
+                    :
+                    <Animated.View
+                        style={
+                            [{
+                                width: 40,
+                                height: 40,
+                                marginLeft: 5,
+                                marginTop: 5,
+                                borderColor: colors.border.default,
+                                backgroundColor: colors.blurBackground,
+                            },
+                                closeIconStyle
+                            ]}
+                        className='items-center justify-center rounded-full absolute z-[100]'
+                    >
+                        <TouchableOpacity
+                            className='items-center justify-center'
+                            onPress={() => handlePressIcon()}
+                            style={{
+                                alignSelf: 'flex-start'
+                            }} >
+                            {toggle ?
+                                (accepted ? <CheckIcon
+                                    color={colors.zoomView.text}
+                                    size={24} />
+                                    : <XMarkIcon
+                                        color={colors.zoomView.text}
+                                        size={40} />
+                                )
+                                : <MagnifyingGlassPlusIcon
+                                    color={colors.zoomView.text}
+                                    size={40}
+                                />
+                            }
+                        </TouchableOpacity>
+                    </Animated.View>)
+            }
+
 
             <Animated.View className='w-full h-full z-50'
                 style={[{

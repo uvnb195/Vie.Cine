@@ -1,4 +1,4 @@
-import { IMAGE_PICKER_SIZE } from '@/constants/Size'
+import { IMAGE_PICKER_SIZE } from '@/constants/Values'
 import { shadowImageStyle } from '@/constants/Styles'
 import { auth } from '@/src/api/firebase/config'
 import CustomButton from '@/src/components/button/CustomButton'

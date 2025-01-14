@@ -1,48 +1,61 @@
-import { View, Text, TextInput, Pressable, TextStyle, KeyboardAvoidingView } from 'react-native'
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { MagnifyingGlassIcon } from 'react-native-heroicons/outline'
-import { EyeIcon } from 'react-native-heroicons/solid'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { hexToRGBA } from '@/hooks/hexToRGBA'
+import { AppDispatch } from '@/src/redux/store'
 import debounce from 'lodash.debounce'
+import React, { forwardRef, useCallback, useEffect, useState } from 'react'
+import { KeyboardAvoidingView, NativeSyntheticEvent, TextInput, TextInputFocusEventData, TextStyle, View, ViewStyle } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { EyeIcon } from 'react-native-heroicons/solid'
+import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import { useDispatch } from 'react-redux'
 import ThemeText from '../theme/ThemeText'
-import Animated, { useAnimatedStyle, useDerivedValue, withSpring, withTiming } from 'react-native-reanimated'
 
 interface Props {
-    height?: number,
-    width?: number,
-    placeHolder: string,
+    style?: ViewStyle,
+    textCount?: number,
+    placeHolder?: string,
     borderColor?: string,
     placeHolderColor?: string,
     disabled?: boolean,
     textAlgin?: TextStyle['textAlign'],
     LeftIcon?: React.ReactNode,
     keyboardType?: 'default' | 'number-pad' | 'email-address' | 'numeric',
-    inputFormatter?: 'date' | 'only-numb' | 'default',
+    inputFormatter?: 'date' | 'time' | 'only-numb' | 'default',
     blockText?: boolean,
-    handleValue?: (value: string) => void,
-    initValue?: string,
+    onValueChange?: (value: string) => void,
+    value?: string,
     useDebounceCallback?: boolean,
-    onSubmitEditing?: () => void
+    onSubmitEditing?: () => void,
+    debounceValue?: number,
+    selectOnFocus?: boolean,
+    error?: boolean,
+    errorMsg?: string,
+    onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void,
+    onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void,
 }
 
 const CustomInput = forwardRef<TextInput, Props>(({
-    height = 50,
-    width,
+    style,
     borderColor,
     placeHolder,
     placeHolderColor,
     disabled = false,
     textAlgin = 'left',
+    textCount,
     LeftIcon,
     keyboardType = 'default',
     inputFormatter = 'default',
     blockText = false,
     onSubmitEditing,
-    initValue,
-    handleValue,
-    useDebounceCallback = true }: Props, ref) => {
+    value: initValue,
+    onValueChange,
+    useDebounceCallback = true,
+    debounceValue = 500,
+    selectOnFocus,
+    error,
+    errorMsg,
+    onFocus,
+    onBlur,
+}: Props, ref) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
@@ -50,14 +63,26 @@ const CustomInput = forwardRef<TextInput, Props>(({
     const [focusSection, setFocusSection] = useState<{ start: number, end: number } | undefined>(inputFormatter === 'default' ? undefined : { start: 0, end: 0 })
     const [showInput, setShowInput] = useState(blockText)
     const [iconSize, setIconSize] = useState(8)
+    const dispatch = useDispatch<AppDispatch>()
 
-    const opacity = useDerivedValue(() => {
-        return value.length > 0 ? 1 : 0
-    }, [value])
+    const translateY = useSharedValue(0)
+    const placeHolderTextAnim = useAnimatedStyle(() => ({
+        alignSelf: 'flex-start',
+        fontSize: interpolate(translateY.value, [-20, 0], [12, 16]),
+        transform: [{ translateY: withTiming(translateY.value, { duration: 200, easing: Easing.inOut(Easing.cubic) }) }],
+    }))
+    const inputAnim = useAnimatedStyle(() => ({
+        transform: [{
+            translateY: withTiming(interpolate(
+                translateY.value,
+                [-20, 0],
+                [5, 0]
+            ), { duration: 300 })
+        }],
+    }))
 
-    const placeholderAnim = useAnimatedStyle(() => ({
-        left: iconSize,
-        opacity: opacity.value
+    const errorAnim = useAnimatedStyle(() => ({
+        height: errorMsg ? withTiming(20) : withTiming(0),
     }))
 
     const handleSetShowInput = () => {
@@ -66,53 +91,61 @@ const CustomInput = forwardRef<TextInput, Props>(({
 
     const debouncedHandleValue = useCallback(
         debounce((value: string) =>
-            handleValue && handleValue(value), 300),
-        [handleValue]);
+            onValueChange && onValueChange(value), debounceValue),
+        [onValueChange]);
 
     const handleInput = (v: string) => {
-        if (inputFormatter === 'default') {
-            setValue(v)
-            return
-        }
-        if (inputFormatter === 'date') {
-            const oldV = value
-            if (v.length > 10) {
-                setValue(v.substring(0, 9) + v.substring(10))
-                return
-            }
-            const format = '__/__/____'
-            const newV = v + format.slice(value.length)
-            if (oldV.length !== 0 && oldV.length > newV.length) {
-                let deletedDate = oldV.substring(0, oldV.indexOf('_') === -1 ? 10 : oldV.indexOf('_'))
-                if (deletedDate[deletedDate.length - 1] === '/') {
-                    deletedDate = deletedDate.substring(0, deletedDate.length - 2)
-                } else {
-                    deletedDate = deletedDate.substring(0, deletedDate.length - 1)
+        if (textCount && v.length > textCount) return
+        switch (inputFormatter) {
+            case 'date': {
+                const oldV = value
+                if (v.length > 10) {
+                    setValue(v.substring(0, 9) + v.substring(10))
+                    return
                 }
-                setValue(deletedDate + format.slice(deletedDate.length))
-                setFocusSection({
-                    start: deletedDate.length,
-                    end: deletedDate.length + 1
-                })
-            } else {
-                if (newV.length > 10) return
-                setValue(newV)
-                setFocusSection({
-                    start: newV.indexOf('_') === -1 ? newV.length - 1 : newV.indexOf('_'),
-                    end: newV.indexOf('_') === -1 ? newV.length : newV.indexOf('_') + 1
-                })
+                const format = '__/__/____'
+                const newV = v + format.slice(value.length)
+                if (oldV.length !== 0 && oldV.length > newV.length) {
+                    let deletedDate = oldV.substring(0, oldV.indexOf('_') === -1 ? 10 : oldV.indexOf('_'))
+                    if (deletedDate[deletedDate.length - 1] === '/') {
+                        deletedDate = deletedDate.substring(0, deletedDate.length - 2)
+                    } else {
+                        deletedDate = deletedDate.substring(0, deletedDate.length - 1)
+                    }
+                    setValue(deletedDate + format.slice(deletedDate.length))
+                    setFocusSection({
+                        start: deletedDate.length,
+                        end: deletedDate.length + 1
+                    })
+                } else {
+                    if (newV.length > 10) return
+                    setValue(newV)
+                    setFocusSection({
+                        start: newV.indexOf('_') === -1 ? newV.length - 1 : newV.indexOf('_'),
+                        end: newV.indexOf('_') === -1 ? newV.length : newV.indexOf('_') + 1
+                    })
+                }
+
+                break;
+            }
+            default: {
+                setValue(v)
+                break;
             }
         }
     }
 
     useEffect(() => {
+        if (value.length > 0) {
+            translateY.value = -20
+            errorMsg = ""
+        } else translateY.value = 0
         if (!disabled)
             if (useDebounceCallback) {
                 debouncedHandleValue(value)
             } else {
-                handleValue && handleValue(value)
+                onValueChange && onValueChange(value)
             }
-
 
         return () => {
             debouncedHandleValue.cancel()
@@ -121,88 +154,122 @@ const CustomInput = forwardRef<TextInput, Props>(({
 
     useEffect(() => {
         if (initValue)
-            handleInput(initValue)
-    }, [initValue])
+            handleInput(initValue || "")
+    }, [initValue]);
 
     return (
-        <KeyboardAvoidingView behavior='padding' >
-            <View className='w-full flex-row items-center rounded-2 border'
-                style={{
-                    width: width,
-                    height: height,
-                    borderColor: borderColor || (disabled
-                        ? colors.border.disable
-                        : colors.border.default),
-                    backgroundColor: hexToRGBA(colors.background.default, 0.7)
-                }}>
-                {/* placeholder */}
-                <Animated.View
-                    className='absolute top-[-12px]'
-                    style={[placeholderAnim]}>
-                    <ThemeText
-                        fontSize={12}
-                        letterSpacing={1}
-                        otherProps={{
-                            backgroundColor: colors.background.default,
-                            paddingHorizontal: 2,
-                            borderRadius: 4,
-                        }}>{placeHolder}</ThemeText>
-                </Animated.View>
-                {/* icon */}
-                {LeftIcon &&
-                    <View
-                        onLayout={(e) => setIconSize(e.nativeEvent.layout.width)}
-                        style={{
-                            width: height,
-                            height: height,
-                        }}
-                        className='items-center justify-center'>
-                        {/* <MagnifyingGlassIcon color={colors.icon.highlight} size={24} /> */}
-                        {LeftIcon}
+        <KeyboardAvoidingView behavior='padding'>
+            <View>
+                <View className='border rounded-2 flex-row flex-wrap'
+                    style={
+                        [
+                            {
+                                height: 55,
+                                borderColor: borderColor || (disabled
+                                    ? colors.border.disable
+                                    : (error || (errorMsg && errorMsg?.length > 0) ? colors.error : colors.border.default)),
+                                backgroundColor: colors.background.default
+                            }, style]}>
+                    {/* icon */}
+                    {LeftIcon &&
+                        <View
+                            onLayout={(e) => setIconSize(e.nativeEvent.layout.width)}
+                            style={{
+                                width: 40,
+                                height: '100%',
+                            }}
+                            className='items-center justify-center'>
+                            {/* <MagnifyingGlassIcon color={colors.icon.highlight} size={24} /> */}
+                            {LeftIcon}
+                        </View>
+                    }
+
+                    {/* content */}
+                    <View className='flex-1 justify-center flex-row'>
+                        {/* placeholder */}
+                        {placeHolder ?
+                            <Animated.View
+                                className='pl-2 self-start absolute  top-0 bottom-0 left-0 right-0 justify-center'>
+                                <ThemeText
+                                    color={(error || (errorMsg && errorMsg?.length > 0)) && value.length == 0 ? colors.error : placeHolderColor || colors.text.default}
+                                    fontWeight={value.length > 0 ? 'light' : 'regular'}
+                                    otherProps={
+                                        placeHolderTextAnim}
+                                >
+                                    {placeHolder}
+                                </ThemeText>
+                            </Animated.View>
+                            : null}
+                        {/* input */}
+                        <Animated.View
+                            style={[inputAnim]}
+                            className='flex-1 justify-center'>
+                            <TextInput
+                                onFocus={(e) => {
+                                    // handleInput(value)
+                                    if (value.length > 0 && selectOnFocus) {
+                                        setFocusSection({
+                                            start: 0,
+                                            end: value.length
+                                        })
+                                    }
+                                    onFocus && onFocus(e)
+                                }}
+                                onBlur={(e) => {
+                                    onBlur && onBlur(e)
+                                }}
+                                selection={focusSection}
+                                ref={ref}
+                                editable={!disabled}
+                                value={value}
+                                onChangeText={(v) => {
+                                    if (inputFormatter !== 'date' && setFocusSection) {
+                                        setFocusSection(undefined)
+                                    }
+                                    handleInput(v)
+                                }}
+                                secureTextEntry={showInput}
+                                numberOfLines={1}
+                                selectionColor={colors.text.light}
+                                className='px-2 text-base'
+                                keyboardType={keyboardType}
+                                style={{
+                                    height: '100%',
+                                    color: colors.text.default,
+                                    textAlign: textAlgin
+                                }}
+                                onSubmitEditing={onSubmitEditing} />
+                        </Animated.View>
+
                     </View>
-                }
 
-                {/* input */}
-                <View className='h-full flex-auto'>
-                    <TextInput
-                        onFocus={() => {
-                            handleInput(value)
-                        }}
-                        selection={focusSection}
-                        ref={ref}
-                        editable={!disabled}
-                        value={value}
-                        onChangeText={handleInput}
-                        secureTextEntry={showInput}
-                        numberOfLines={1}
-                        selectionColor={colors.text.light}
-                        placeholder={placeHolder}
-                        placeholderTextColor={placeHolderColor || colors.text.light}
-                        className='px-2 text-base'
-                        keyboardType={keyboardType}
-                        style={{
-                            height: height,
-                            color: colors.text.default,
-                            textAlign: textAlgin
-                        }}
-                        onSubmitEditing={onSubmitEditing} />
+                    {/* showTextIcon */}
+                    {blockText
+                        && <TouchableOpacity
+                            className='items-center justify-center'
+                            style={{
+                                width: 40,
+                                height: '100%',
+                            }}
+                            onPress={handleSetShowInput}>
+                            <EyeIcon
+                                color={showInput ? colors.text.light : colors.text.default}
+                                size={showInput ? 16 : 20} />
+                        </TouchableOpacity>}
                 </View>
-
-                {/* showTextIcon */}
-                {blockText
-                    && <TouchableOpacity
-                        className=' items-center justify-center'
-                        style={{
-                            width: height,
-                            height: height,
-                        }}
-                        onPress={handleSetShowInput}>
-                        <EyeIcon
-                            color={showInput ? colors.text.light : colors.text.default}
-                            size={showInput ? 16 : 20} />
-                    </TouchableOpacity>}
+                {/* error */}
+                <Animated.View
+                    style={errorAnim}
+                    className='w-full'>
+                    <ThemeText
+                        color={colors.error}
+                        fontSize={12}
+                        fontWeight='bold'>
+                        {errorMsg}
+                    </ThemeText>
+                </Animated.View>
             </View>
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingView >
     )
 })
 

@@ -1,4 +1,4 @@
-import { TAB_BAR_HEIGHT } from '@/constants/Size'
+import { TAB_BAR_HEIGHT } from '@/constants/Values'
 import { UserInfo } from '@/constants/types/UserType'
 import { getDeviceLocales } from '@/hooks/permissions'
 import { auth } from '@/src/api/firebase/config'
@@ -58,6 +58,13 @@ const _layout = () => {
   useEffect(() => {
     console.log(auth.currentUser)
   }, [auth.currentUser])
+  useEffect(() => {
+    console.log(userInfo)
+  }, [userInfo])
+
+  return (
+    <Redirect href={'/routes/admin-routes/(tabs)'} />
+  )
 
   return (
     <View className='flex-1'>

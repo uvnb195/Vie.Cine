@@ -10,7 +10,7 @@ import Step2 from '../pages/payment-pages/Step2'
 import { Provider, useDispatch, useSelector } from 'react-redux'
 import { RootState, store } from '@/src/redux/store'
 import Step3 from '../pages/payment-pages/Step3'
-import { resetState } from '@/src/redux/paymentSlice'
+import { resetState } from '@/src/redux/adminSlice'
 import Step4 from '../pages/payment-pages/Step4'
 import Step5 from '../pages/payment-pages/Step5'
 

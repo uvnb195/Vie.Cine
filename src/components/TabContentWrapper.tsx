@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { TAB_BAR_HEIGHT } from '@/constants/Size'
+import { TAB_BAR_HEIGHT } from '@/constants/Values'
 
 interface Props {
     children?: React.ReactNode

@@ -1,23 +1,26 @@
-import { View, Text, ViewStyle, Image, ImageSourcePropType, ViewToken } from 'react-native'
+import { View, Text, ViewStyle, Image, ImageSourcePropType, ViewToken, TextStyle } from 'react-native'
 import React, { memo } from 'react'
-import { CAROUSEL_ITEM_SIZE } from '@/constants/Size'
+import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import ThemeText from '../theme/ThemeText'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { StarIcon } from 'react-native-heroicons/solid'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
-import { MovieType } from '@/constants/types'
 import { ExclamationTriangleIcon } from 'react-native-heroicons/outline'
 
 export interface CardProps {
     style?: ViewStyle,
-    src: string,
+    src: string | ImageSourcePropType,
     title?: string,
+    titleStyle?: TextStyle,
     subTitle?: string,
+    subTitleStyle?: TextStyle,
+    centerMessage?: string,
     onPress?: () => void
 }
 
-const MinimalCard = ({ style, src, title, subTitle, onPress }: CardProps) => {
+const MinimalCard = ({ style, src, title, subTitle, titleStyle,
+    subTitleStyle, centerMessage, onPress }: CardProps) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
 
@@ -25,7 +28,7 @@ const MinimalCard = ({ style, src, title, subTitle, onPress }: CardProps) => {
 
     return (
         <TouchableOpacity onPress={onPress} >
-            <View className='flex-col-reverse h-full'
+            <View className='flex-col-reverse h-full w-full'
                 style={[
                     {
                         minHeight: CAROUSEL_ITEM_SIZE.minimum,
@@ -39,7 +42,9 @@ const MinimalCard = ({ style, src, title, subTitle, onPress }: CardProps) => {
                         style={{
                             backgroundColor: hexToRGBA(colors.textHighLight.background, 0.5),
                         }}>
-                        <ThemeText color={colors.textHighLight.text} fontSize={12}>{subTitle}</ThemeText>
+                        <ThemeText
+                            color={colors.textHighLight.text} fontSize={12}
+                            otherProps={subTitleStyle}>{subTitle}</ThemeText>
                     </View>}
 
                 {/* title */}
@@ -49,19 +54,29 @@ const MinimalCard = ({ style, src, title, subTitle, onPress }: CardProps) => {
                             paddingVertical: 2,
                             paddingHorizontal: 4,
                             maxWidth: CAROUSEL_ITEM_SIZE.width,
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            ...titleStyle
                         }}
                         fontSize={12}
                         fontWeight={subTitle ? 'bold' : 'regular'}
                         numsOfLines={2}>{title + "\n"}</ThemeText>}
 
 
-                <View className='flex-1'>
+                <View className='flex-1 relative'>
+                    {/* center message */}
+                    <View className='absolute top-0 left-0 right-0 bottom-0 z-10 items-center justify-center bg-opacity-50' style={{
+                    }}>
+                        <ThemeText otherProps={{
+                            borderRadius: 100,
+                            padding: 4,
+                            backgroundColor: hexToRGBA(colors.background.default, 0.7),
+                        }}>{centerMessage}</ThemeText>
+                    </View>
                     <Image
                         onError={() => setShowDefault(true)}
                         loadingIndicatorSource={require('@/assets/images/icon.png')}
                         className='w-full h-full rounded-2'
-                        source={{ uri: src }}
+                        source={typeof src === 'string' ? { uri: src } : src}
                         resizeMode='cover' />
                     {showDefault &&
                         <View className='items-center justify-center absolute top-0 left-0 right-0 bottom-0 z-20 overflow-hidden rounded-2 border'

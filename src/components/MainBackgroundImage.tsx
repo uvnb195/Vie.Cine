@@ -8,9 +8,7 @@ interface Props {
 }
 
 const MainBackgroundImageView = ({ children }: Props) => {
-    const themeValue = useCustomTheme()
-    const { colors } = themeValue
-    const { currentTheme: theme } = themeValue
+    const { colors, currentTheme: theme } = useCustomTheme()
 
     const { height: windowHeight } = Dimensions.get('window')
 
@@ -18,8 +16,7 @@ const MainBackgroundImageView = ({ children }: Props) => {
         ? require(`../assets/images/background-image-light.png`)
         : require(`../assets/images/background-image-dark.png`)
     return (
-        <View className='flex-1'
-            style={[bgColor(colors.background.default)]}>
+        <View className='flex-1'>
             <ImageBackground
                 className='flex-col absolute top-0 left-0 z-0 bottom-0 right-0'
                 style={{

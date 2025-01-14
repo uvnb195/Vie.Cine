@@ -1,7 +1,7 @@
 import { View, Text, ImageSourcePropType, Image } from 'react-native'
 import React from 'react'
 import ThemeText from '../theme/ThemeText'
-import { PADDING_VALUE } from '@/constants/Size'
+import { PADDING_VALUE } from '@/constants/Values'
 import { useCustomTheme } from '@/src/contexts/theme'
 import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { LinearGradient } from 'expo-linear-gradient'
