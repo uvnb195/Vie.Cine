@@ -111,7 +111,6 @@ const AddRoom = () => {
   }
 
   const handleConfirm = () => {
-    dispatch(addRooms({}))
     router.push({ pathname: '/routes/admin-routes/form/(theatre)/(room)/(add)/PriceSetting' })
   }
 

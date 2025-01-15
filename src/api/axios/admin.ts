@@ -1,3 +1,4 @@
+import { ScheduleType } from "@/constants/types/ScheduleType";
 import axios from "axios";
 
 class AdminAxiosRepository {
@@ -46,8 +47,16 @@ class AdminAxiosRepository {
             },
         })
     }
-
-    async addRoom(
+    async getRoomDetail(token: string, theatreId: string, roomId: string) {
+        return this.axiosInstance({
+            method: 'GET',
+            url: `/room/${theatreId}/${roomId}`,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+    }
+    async upsertRoom(
         token: string,
         theatreId: string,
         room: FormData) {
@@ -113,7 +122,36 @@ class AdminAxiosRepository {
             url: '/schedule',
             headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            },
+        })
+    }
+    async getDBMovies(token: string) {
+
+    }
+    async getRoomSchedule(token: string, roomId: string) {
+        return this.axiosInstance({
+            method: 'GET',
+            url: `/room-schedule/${roomId}`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+    }
+    async checkExitsSchedule(token: string, roomId: string, timeStart: Date, duration: number, date: Date) {
+        const form = new FormData()
+        form.append('roomId', roomId)
+        form.append('timeStart', timeStart.toISOString())
+        form.append('duration', duration.toString())
+        form.append('date', date.toISOString())
+        return this.axiosInstance({
+            method: 'GET',
+            url: `/room/${roomId}/schedule-check`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+            data: form
         })
     }
     async addSchedule(token: string, schedule: FormData) {
@@ -125,6 +163,17 @@ class AdminAxiosRepository {
                 'Content-Type': 'multipart/form-data',
             },
             data: schedule
+        })
+    }
+
+    async addSchedules(token: string, roomId: string, schedules: string) {
+        return this.axiosInstance({
+            method: 'POST',
+            url: `/room/${roomId}/add-schedules`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            data: { schedules: schedules }
         })
     }
 }

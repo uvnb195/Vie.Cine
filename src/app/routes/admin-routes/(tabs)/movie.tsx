@@ -23,18 +23,21 @@ const movie = () => {
     const [selected, setSelected] = React.useState<number | null>(null)
 
     const renderItem = (
-        id: number,
+        id: string,
         title: string,
         imageUri: string,
-        // createAt: Date,
-        // endAt: Date,
     ) => {
         return (
-            <Pressable onPress={() => setSelected(id)}>
+            <Pressable onPress={() => {
+
+                // setSelected(id)
+            }}>
                 <View className='flex-row-reverse items-center justify-between px-4 border-b-2 w-full'
-                    style={{
-                        backgroundColor: selected === id ? hexToRGBA(colors.background.bottomSheet, 0.7) : colors.background.default
-                    }}>
+                // style={{
+                //     backgroundColor: selected === id ? hexToRGBA(colors.background.bottomSheet, 0.7) : colors.background.default
+                // }}
+
+                >
                     <View className='w-[100px] h-[55px] rounded-2 overflow-hidden'>
                         <Image
                             style={{
@@ -88,8 +91,8 @@ const movie = () => {
                 <CustomButton
                     onPress={() => {
                         router.push({
-                            pathname: '/routes/admin-routes/form/(movie)',
-                            params: { id: 'add' }
+                            pathname: '/routes/admin-routes/form/(movie)/(add)',
+                            params: { id: 'movie' }
                         })
                     }}
                     style={{

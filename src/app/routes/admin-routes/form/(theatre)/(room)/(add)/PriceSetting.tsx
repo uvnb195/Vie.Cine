@@ -15,9 +15,10 @@ import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { convertSeatTypeToString } from '@/hooks/convertSeatTypeToString'
 import { setLoading, Status } from '@/src/redux/publicSlice'
 import { router } from 'expo-router'
-import { addRoom } from '@/src/redux/adminAsyncActions'
+import { upsertRoom } from '@/src/redux/adminAsyncActions'
 import { auth } from '@/src/api/firebase/config'
 import { RoomType } from '@/constants/types/RoomType'
+import PageWrapper from '@/src/components/pages/PageWrapper'
 
 const PriceSetting = () => {
     const { colors } = useCustomTheme()
@@ -52,7 +53,7 @@ const PriceSetting = () => {
         formData.append('totalSeats', editRoom.totalSeats.toString())
 
         auth.currentUser?.getIdToken().then(token => {
-            dispatch(addRoom({
+            dispatch(upsertRoom({
                 token: token,
                 theatreId: editRoom.theatreId,
                 room: formData
@@ -77,105 +78,112 @@ const PriceSetting = () => {
                 }
             })
         }
+    }, [status])
 
+    useEffect(() => {
         return () => {
             dispatch(curRoom({} as RoomType))
         }
-    }, [status])
+    }, [])
 
     return (
-        <View className='flex-1 items-center p-2'>
-            <View className='w-full flex-row'>
-                <View className='w-3/4 pr-2'>
-                    <CustomInput value={name} onValueChange={(v) => setName(v)} placeHolder='Room Name' />
-                </View>
-                <View className='w-1/4'>
-                    <DropdownMenu
-                        disableSearch
-                        placeHolder='Type'
-                        data={[
-                            { key: '2D', value: '2D' },
-                            { key: '3D', value: '3D' },
-                            { key: 'IMAX', value: 'IMAX' }]}
-                        onSelected={(v) => setRoomType(v)} />
-                </View>
-            </View>
-            <ThemeText otherProps={{
-                textAlign: 'left',
-                width: '100%',
-                paddingVertical: 8,
-            }} fontWeight='bold' fontSize={28} letterSpacing={2}>Price</ThemeText>
-            {seatTypes.includes(SeatType.STANDARD)
-                && <View className='w-full py-2'>
-                    <CustomInput
-                        keyboardType='numeric'
-                        LeftIcon={
-                            prices.filter(item => item.type === SeatType.STANDARD).length > 0 && Number(prices.filter(item => item.type === SeatType.STANDARD)[0].price) > 0 ?
-                                <Feather name="check-circle" size={20} color={colors.text.dark} />
-                                : currentFocus === SeatType.STANDARD ?
-                                    <FontAwesome6 name="dot-circle" size={20} color={colors.text.dark} /> : <FontAwesome5 name="circle" size={20} color={colors.text.default} />}
-                        value={prices.filter(item => item.type === SeatType.STANDARD).length > 0 ? formatCurrency(Number(prices.filter(item => item.type === SeatType.STANDARD)[0].price)) : ''}
-                        onValueChange={(text) => {
-                            const value = text.replaceAll(' ', '')
-                            if (Number(value) && !isNaN(parseInt(value)) && parseInt(value) > 0) {
-                                setPrices([...prices.filter(item => item.type !== SeatType.STANDARD), { type: SeatType.STANDARD, price: parseInt(value) }])
-                            }
-                            else setPrices([...prices.filter(item => item.type !== SeatType.STANDARD), { type: SeatType.STANDARD, price: 0 }])
-                        }}
-                        style={{
-                            backgroundColor: hexToRGBA(colors.background.bottomSheet, 0.5),
-                        }}
-                        borderColor={currentFocus === SeatType.STANDARD ? colors.border.default : 'transparent'}
-                        onFocus={() => {
-                            setCurrentFocus(SeatType.STANDARD)
-                        }} placeHolder='STANDARD - (VNĐ)'
-                        onBlur={() => {
-                            setCurrentFocus(null)
-                        }} />
-
-                </View>}
-
-            {seatTypes.includes(SeatType.VIP)
-                && <View className='w-full py-2'>
-                    <CustomInput
-                        keyboardType='numeric'
-                        LeftIcon={
-                            prices.filter(item => item.type === SeatType.VIP).length > 0 && Number(prices.filter(item => item.type === SeatType.VIP)[0].price) > 0 ?
-                                <Feather name="check-circle" size={20} color={colors.text.dark} />
-                                : currentFocus === SeatType.VIP ?
-                                    <FontAwesome6 name="dot-circle" size={20} color={colors.text.dark} /> : <FontAwesome5 name="circle" size={20} color={colors.text.default} />}
-                        value={prices.filter(item => item.type === SeatType.VIP).length > 0 ? formatCurrency(Number(prices.filter(item => item.type === SeatType.VIP)[0].price)) : ''}
-                        onValueChange={(text) => {
-                            const value = text.replaceAll(' ', '')
-                            if (Number(value) && !isNaN(parseInt(value)) && parseInt(value) > 0) {
-                                setPrices([...prices.filter(item => item.type !== SeatType.VIP), { type: SeatType.VIP, price: parseInt(value) }])
-                            }
-                            else setPrices([...prices.filter(item => item.type !== SeatType.VIP), { type: SeatType.VIP, price: 0 }])
-                        }}
-                        borderColor={currentFocus === SeatType.VIP ? colors.border.default : 'transparent'}
-                        style={{
-                            backgroundColor: hexToRGBA(colors.background.bottomSheet, 0.5),
-                        }}
-                        onFocus={() => {
-                            setCurrentFocus(SeatType.VIP)
-                        }} placeHolder='VIP - (VNĐ)'
-                        onBlur={() => {
-                            setCurrentFocus(null)
-                        }} />
-                </View>}
-
-            <KeyboardAvoidingView behavior='padding' className=' absolute bottom-0 right-0 left-0 px-4 my-4'>
-                <View className='w-full justify-end items-end flex-row'>
-                    <View>
-                        <CustomButton
-                            disabled={prices.filter(item => item.price === 0).length > 0
-                                || name.length === 0
-                                || roomType === null} title='Continue'
-                            onPress={handleConfirm} />
+        <PageWrapper
+            title='Room details'
+            subTitle='Fill information'>
+            <View className='flex-1 items-center p-2 pt-4'>
+                <View className='w-full flex-row'>
+                    <View className='w-3/4 pr-2'>
+                        <CustomInput value={name} onValueChange={(v) => setName(v)} placeHolder='Room Name' />
+                    </View>
+                    <View className='w-1/4'>
+                        <DropdownMenu
+                            disableSearch
+                            placeHolder='Type'
+                            data={[
+                                { key: '2D', value: '2D' },
+                                { key: '3D', value: '3D' },
+                                { key: 'IMAX', value: 'IMAX' }]}
+                            onSelected={(v) => setRoomType(v)} />
                     </View>
                 </View>
-            </KeyboardAvoidingView>
-        </View>
+                <ThemeText otherProps={{
+                    textAlign: 'left',
+                    width: '100%',
+                    paddingHorizontal: 16,
+                    paddingTop: 16,
+                }} fontWeight='bold' fontSize={20} letterSpacing={2}>Price</ThemeText>
+                {seatTypes.includes(SeatType.STANDARD)
+                    && <View className='w-full py-2'>
+                        <CustomInput
+                            keyboardType='numeric'
+                            LeftIcon={
+                                prices.filter(item => item.type === SeatType.STANDARD).length > 0 && Number(prices.filter(item => item.type === SeatType.STANDARD)[0].price) > 0 ?
+                                    <Feather name="check-circle" size={20} color={colors.text.dark} />
+                                    : currentFocus === SeatType.STANDARD ?
+                                        <FontAwesome6 name="dot-circle" size={20} color={colors.text.dark} /> : <FontAwesome5 name="circle" size={20} color={colors.text.default} />}
+                            value={prices.filter(item => item.type === SeatType.STANDARD).length > 0 ? formatCurrency(Number(prices.filter(item => item.type === SeatType.STANDARD)[0].price)) : ''}
+                            onValueChange={(text) => {
+                                const value = text.replaceAll(' ', '')
+                                if (Number(value) && !isNaN(parseInt(value)) && parseInt(value) > 0) {
+                                    setPrices([...prices.filter(item => item.type !== SeatType.STANDARD), { type: SeatType.STANDARD, price: parseInt(value) }])
+                                }
+                                else setPrices([...prices.filter(item => item.type !== SeatType.STANDARD), { type: SeatType.STANDARD, price: 0 }])
+                            }}
+                            style={{
+                                backgroundColor: hexToRGBA(colors.background.highlight, 0.5),
+                            }}
+                            borderColor={currentFocus === SeatType.STANDARD ? colors.border.default : 'transparent'}
+                            onFocus={() => {
+                                setCurrentFocus(SeatType.STANDARD)
+                            }} placeHolder='STANDARD - (VNĐ)'
+                            onBlur={() => {
+                                setCurrentFocus(null)
+                            }} />
+
+                    </View>}
+
+                {seatTypes.includes(SeatType.VIP)
+                    && <View className='w-full py-2'>
+                        <CustomInput
+                            keyboardType='numeric'
+                            LeftIcon={
+                                prices.filter(item => item.type === SeatType.VIP).length > 0 && Number(prices.filter(item => item.type === SeatType.VIP)[0].price) > 0 ?
+                                    <Feather name="check-circle" size={20} color={colors.text.dark} />
+                                    : currentFocus === SeatType.VIP ?
+                                        <FontAwesome6 name="dot-circle" size={20} color={colors.text.dark} /> : <FontAwesome5 name="circle" size={20} color={colors.text.default} />}
+                            value={prices.filter(item => item.type === SeatType.VIP).length > 0 ? formatCurrency(Number(prices.filter(item => item.type === SeatType.VIP)[0].price)) : ''}
+                            onValueChange={(text) => {
+                                const value = text.replaceAll(' ', '')
+                                if (Number(value) && !isNaN(parseInt(value)) && parseInt(value) > 0) {
+                                    setPrices([...prices.filter(item => item.type !== SeatType.VIP), { type: SeatType.VIP, price: parseInt(value) }])
+                                }
+                                else setPrices([...prices.filter(item => item.type !== SeatType.VIP), { type: SeatType.VIP, price: 0 }])
+                            }}
+                            borderColor={currentFocus === SeatType.VIP ? colors.border.default : 'transparent'}
+                            style={{
+                                backgroundColor: hexToRGBA(colors.background.highlight, 0.5),
+                            }}
+                            onFocus={() => {
+                                setCurrentFocus(SeatType.VIP)
+                            }} placeHolder='VIP - (VNĐ)'
+                            onBlur={() => {
+                                setCurrentFocus(null)
+                            }} />
+                    </View>}
+
+                <KeyboardAvoidingView behavior='padding' className=' absolute bottom-0 right-0 left-0 px-4 my-4'>
+                    <View className='w-full justify-end items-end flex-row'>
+                        <View>
+                            <CustomButton
+                                disabled={prices.filter(item => item.price === 0).length > 0
+                                    || name.length === 0
+                                    || roomType === null} title='Continue'
+                                onPress={handleConfirm} />
+                        </View>
+                    </View>
+                </KeyboardAvoidingView>
+            </View>
+        </PageWrapper>
     )
 }
 

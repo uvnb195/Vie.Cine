@@ -1,5 +1,6 @@
 import { MovieType } from '@/constants/types/MovieType'
 import { RoomType } from '@/constants/types/RoomType'
+import { StatusType } from '@/constants/types/StatusType'
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import { addressToString } from '@/hooks/convertAddress'
 import { dateConverter } from '@/hooks/convertDate'
@@ -11,7 +12,7 @@ import PageWrapper from '@/src/components/pages/PageWrapper'
 import ThemeText from '@/src/components/theme/ThemeText'
 import { useAdminMovie } from '@/src/contexts/movie'
 import { useCustomTheme } from '@/src/contexts/theme'
-import { getMovies, getRooms } from '@/src/redux/adminAsyncActions'
+import { getMovies, getRoomDetail, getRooms } from '@/src/redux/adminAsyncActions'
 import { fetchList } from '@/src/redux/publicAsyncActions'
 import { updateLongList } from '@/src/redux/publicSlice'
 import { AppDispatch, RootState } from '@/src/redux/store'
@@ -34,26 +35,35 @@ const index = () => {
         })
     }, [])
 
-    useEffect(() => {
-        console.log('rooms::::', rooms)
-    }, [rooms])
-
     const renderItem = (item: RoomType, index: number) => {
         if (item._id === 'add') {
             return renderAddCard()
         }
         return (
-            <View className="items-center justify-center" style={{
+            <View className="items-center justify-center z-50" style={{
                 width: `${100 / 3}%`,
             }}>
                 <MinimalCard
+                    onPress={() => {
+                        auth.currentUser?.getIdToken().then(token => {
+                            dispatch(getRoomDetail({
+                                token: token,
+                                theatreId: rooms.theatreId,
+                                roomId: item._id
+                            }))
+                        })
+                        router.push({
+                            pathname: '/routes/admin-routes/form/(theatre)/(room)/detail/[id]',
+                            params: { id: item._id }
+                        })
+                    }}
                     title={`${item.roomType}  - ${item.roomName}`}
                     subTitle={`${item.status}`}
                     titleStyle={{
                         textAlign: 'center'
                     }}
-                    centerMessage={item.totalSeats.toString()}
-                    src={require('@/assets/images/room-background.jpg')}
+                    centerMessage={item.totalSeats.toString() || ""}
+                    src={item.status === StatusType.REMOVED ? require('@/assets/images/room-background-disable.jpg') : require('@/assets/images/room-background.jpg')}
                     style={{
                         width: '100%',
                         height: CAROUSEL_ITEM_SIZE.height,

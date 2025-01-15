@@ -29,6 +29,7 @@ interface Props {
     selectOnFocus?: boolean,
     error?: boolean,
     errorMsg?: string,
+    lineThrough?: boolean,
     onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void,
     onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void,
 }
@@ -53,6 +54,7 @@ const CustomInput = forwardRef<TextInput, Props>(({
     selectOnFocus,
     error,
     errorMsg,
+    lineThrough,
     onFocus,
     onBlur,
 }: Props, ref) => {
@@ -236,7 +238,8 @@ const CustomInput = forwardRef<TextInput, Props>(({
                                 style={{
                                     height: '100%',
                                     color: colors.text.default,
-                                    textAlign: textAlgin
+                                    textAlign: textAlgin,
+                                    textDecorationLine: lineThrough ? 'line-through' : 'none',
                                 }}
                                 onSubmitEditing={onSubmitEditing} />
                         </Animated.View>

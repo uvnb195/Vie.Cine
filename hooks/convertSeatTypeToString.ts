@@ -16,3 +16,20 @@ export const convertSeatTypeToString = (seatType: SeatType) => {
             return ''
     }
 }
+
+export const convertStringToSeatType = (seatType: string) => {
+    switch (seatType.toUpperCase()) {
+        case 'VIP':
+            return SeatType.VIP
+        case 'SWEET-BOX':
+            return SeatType.SWEET_BOX
+        case 'STANDARD':
+            return SeatType.STANDARD
+        case 'EMPTY':
+            return SeatType.EMPTY
+        case 'UNAVAILABLE':
+            return SeatType.UNAVAILABLE
+        default:
+            return SeatType.EMPTY
+    }
+}

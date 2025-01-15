@@ -1,3 +1,5 @@
+import { StatusType } from "./StatusType"
+
 export enum MovieRunTime {
     ONE_WEEK = 1,
     TWO_WEEKS = 2,
@@ -5,6 +7,16 @@ export enum MovieRunTime {
     ONE_MONTH = 4,
     TWO_MONTHS = 5,
     THREE_MONTHS = 6,
+}
+
+export interface MovieProps {
+    _id: string,
+    movieId: string,
+    movieName: string,
+    movieImageUri: string,
+    startTime: Date,
+    endAt: Date,
+    status: StatusType
 }
 
 export interface MovieType {

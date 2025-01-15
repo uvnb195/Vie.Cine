@@ -130,10 +130,13 @@ const PersonScreen = () => {
     useEffect(() => {
         dispatch(setLoading(true))
         dispatch(fetchPerson({ id: id + "" }))
+    }, [id])
+
+    useEffect(() => {
         return () => {
             clearTimeout(timeoutRef.current as NodeJS.Timeout)
         }
-    }, [id])
+    }, [])
 
 
     return (

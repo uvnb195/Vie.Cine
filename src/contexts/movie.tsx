@@ -1,18 +1,9 @@
-import { MovieRunTime, MovieType } from "@/constants/types/MovieType";
+import { MovieProps, MovieRunTime, MovieType } from "@/constants/types/MovieType";
 import { createContext, ReactNode, useContext, useState } from "react";
 
-export interface AdminMovieType {
-    _id: string,
-    movieId: number,
-    movieName: string,
-    movieImageUri: string,
-    startTime: Date,
-    endAt: Date
-}
-
 interface AdminMovie {
-    data: AdminMovieType | null,
-    handleData: (data: AdminMovieType | null) => void
+    data: MovieProps | null,
+    handleData: (data: MovieProps | null) => void
 }
 
 const AdminMovieContext = createContext<AdminMovie | null>(null)
@@ -26,7 +17,7 @@ export const useAdminMovie = () => {
 }
 
 const AdminMovieProvider = ({ children }: { children: ReactNode }) => {
-    const [data, setData] = useState<AdminMovieType | null>(null)
+    const [data, setData] = useState<MovieProps | null>(null)
 
     return (
         <AdminMovieContext.Provider value={{

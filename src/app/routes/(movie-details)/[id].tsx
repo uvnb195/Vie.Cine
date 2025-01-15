@@ -143,9 +143,6 @@ const DetailScreen = () => {
     useEffect(() => {
         dispatch(setLoading(true))
         dispatch(fetchMovie({ id: movieId + "" }))
-        return () => {
-            clearTimeout(timeoutRef.current as NodeJS.Timeout)
-        }
     }, [movieId])
 
     useEffect(() => {
@@ -156,6 +153,7 @@ const DetailScreen = () => {
         return () => {
             dispatch(resetMovieDetail())
             dispatch(resetSchedules())
+            clearTimeout(timeoutRef.current as NodeJS.Timeout)
         }
     }, [])
 

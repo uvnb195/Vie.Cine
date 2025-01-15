@@ -2,7 +2,7 @@ import { hexToRGBA } from '@/hooks/hexToRGBA'
 import { useCustomTheme } from '@/src/contexts/theme'
 import React from 'react'
 import { ActivityIndicator, Dimensions, DimensionValue, Pressable, Text, View, ViewStyle } from 'react-native'
-import { Gesture, GestureDetector, TouchableOpacity } from 'react-native-gesture-handler'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { CheckIcon, MagnifyingGlassIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle, useDerivedValue, useSharedValue, withSpring, withTiming } from 'react-native-reanimated'
 import ThemeText from '../theme/ThemeText'
@@ -145,7 +145,7 @@ const ZoomView = ({
                             ]}
                         className='items-center justify-center border rounded-1 z-[100] absolute top-0 right-0 left-0 bottom-0'
                     >
-                        <TouchableOpacity
+                        <Pressable
                             className='items-center justify-center w-full h-full'
                             onPress={() => handlePressIcon()} >
                             {toggle ?
@@ -159,7 +159,7 @@ const ZoomView = ({
                             }
                             <ThemeText
                                 color={colors.zoomView.text}>Click to show</ThemeText>
-                        </TouchableOpacity>
+                        </Pressable>
                     </Animated.View>
                     :
                     <Animated.View
@@ -176,26 +176,32 @@ const ZoomView = ({
                             ]}
                         className='items-center justify-center rounded-full absolute z-[100]'
                     >
-                        <TouchableOpacity
-                            className='items-center justify-center'
-                            onPress={() => handlePressIcon()}
-                            style={{
-                                alignSelf: 'flex-start'
-                            }} >
-                            {toggle ?
-                                (accepted ? <CheckIcon
-                                    color={colors.zoomView.text}
-                                    size={24} />
-                                    : <XMarkIcon
+                        <View
+                            className='w-full h-full'>
+                            <Pressable
+                                onPress={() => handlePressIcon()}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+
+                                {toggle ?
+                                    (accepted ? <CheckIcon
                                         color={colors.zoomView.text}
-                                        size={40} />
-                                )
-                                : <MagnifyingGlassPlusIcon
-                                    color={colors.zoomView.text}
-                                    size={40}
-                                />
-                            }
-                        </TouchableOpacity>
+                                        size={24} />
+                                        : <XMarkIcon
+                                            color={colors.zoomView.text}
+                                            size={40} />
+                                    )
+                                    : <MagnifyingGlassPlusIcon
+                                        color={colors.zoomView.text}
+                                        size={40}
+                                    />
+                                }
+                            </Pressable>
+                        </View>
                     </Animated.View>)
             }
 

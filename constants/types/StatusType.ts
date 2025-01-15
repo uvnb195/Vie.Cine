@@ -1,5 +1,5 @@
 export enum StatusType {
-    AVAILABLE = 'available',
-    SUSPEND = 'suspend',
-    REMOVED = 'removed'
+    AVAILABLE = 'AVAILABLE',
+    SUSPEND = 'SUSPEND',
+    REMOVED = 'REMOVED'
 }

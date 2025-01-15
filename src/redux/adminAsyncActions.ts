@@ -1,5 +1,8 @@
 import { createAsyncThunk, isRejectedWithValue } from "@reduxjs/toolkit"
 import AdminAxiosRepository from '@/src/api/axios/admin'
+import { ScheduleType } from "@/constants/types/ScheduleType"
+import schedule from "../app/routes/admin-routes/(tabs)/analysis"
+import movie from "../app/routes/admin-routes/(tabs)/movie"
 
 export const getTheatres = createAsyncThunk(
     'admin/getTheatres',
@@ -17,7 +20,6 @@ export const getTheatreDetail = createAsyncThunk(
 export const addTheatre = createAsyncThunk(
     'admin/addTheatre',
     async (data: { token: string, data: FormData }) => {
-        console.log(data.token)
         try {
             const response = await AdminAxiosRepository.addTheatre(data.token, data.data)
 
@@ -35,12 +37,19 @@ export const getRooms = createAsyncThunk(
         return response.data
     }
 )
+export const getRoomDetail = createAsyncThunk(
+    'admin/getRoomDetail',
+    async (data: { token: string, theatreId: string, roomId: string }) => {
+        const response = await AdminAxiosRepository.getRoomDetail(data.token, data.theatreId, data.roomId)
+        return response.data
+    }
+)
 
-export const addRoom = createAsyncThunk(
+export const upsertRoom = createAsyncThunk(
     'admin/addRoom',
     async (data: { token: string, theatreId: string, room: FormData }) => {
         try {
-            const response = await AdminAxiosRepository.addRoom(data.token, data.theatreId, data.room)
+            const response = await AdminAxiosRepository.upsertRoom(data.token, data.theatreId, data.room)
             return response.data
         } catch (err) {
             return isRejectedWithValue(err)
@@ -105,6 +114,50 @@ export const getSchedules = createAsyncThunk(
     async (token: string) => {
         try {
             const response = await AdminAxiosRepository.getSchedules(token)
+            return response.data
+        } catch (err) {
+            return isRejectedWithValue(err)
+        }
+    }
+)
+
+export const getRoomSchedule = createAsyncThunk(
+    'admin/getRoomSchedule',
+    async (data: { token: string, roomId: string }) => {
+        try {
+            const response = await AdminAxiosRepository.getRoomSchedule(data.token, data.roomId)
+            console.log('response get rom schedule', response)
+            return response.data
+        } catch (err) {
+            return isRejectedWithValue(err)
+        }
+    }
+)
+
+export const checkExitsSchedule = createAsyncThunk(
+    'admin/checkExitsSchedule',
+    async (data: { token: string, roomId: string, timeStart: Date, duration: number, date: Date }) => {
+        console.log('call check')
+        try {
+            const response = await AdminAxiosRepository.checkExitsSchedule(data.token, data.roomId, data.timeStart, data.duration, data.date)
+            return response.data
+        } catch (err) {
+            return isRejectedWithValue(err)
+        }
+    }
+)
+
+export const addSchedules = createAsyncThunk(
+    'admin/addSchedules',
+    async (data: { token: string, roomId: string, schedules: ScheduleType[] }) => {
+        console.log('call add schedules', data.roomId, data.schedules)
+        try {
+            const response = await AdminAxiosRepository.addSchedules(data.token, data.roomId, JSON.stringify(data.schedules.map(item => ({
+                theatreId: item.theatreId,
+                roomId: item.roomId,
+                movieId: item.movieId,
+                timeStart: item.timeStart
+            }))))
             return response.data
         } catch (err) {
             return isRejectedWithValue(err)

@@ -145,16 +145,18 @@ const ProfileSettingScreen = () => {
                 checkVerify()
             }, 10000)
         }
-
-        return () => {
-            clearInterval(intervalRef.current as NodeJS.Timeout)
-            clearInterval(intervalNextVerify.current as NodeJS.Timeout)
-        }
     }, [verifyLoading])
     useEffect(() => {
         dispatch(setLoading(true))
         dispatch(fetchAllProvince())
         dispatch(setLoading(false))
+
+
+
+        return () => {
+            clearInterval(intervalRef.current as NodeJS.Timeout)
+            clearInterval(intervalNextVerify.current as NodeJS.Timeout)
+        }
     }, [])
 
     useEffect(() => {

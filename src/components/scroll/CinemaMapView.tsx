@@ -15,11 +15,12 @@ import { renderSeatColor } from '@/hooks/renderSeatColor'
 interface Props {
     data: SeatProps[][],
     style?: ViewStyle,
+    disabled?: boolean,
     selected?: { x: number, y: number, data: SeatProps }[],
     onSelected?: (selected: { x: number, y: number, data: SeatProps }) => void
 }
 
-const CinemaMapView = ({ data, style, selected, onSelected }: Props) => {
+const CinemaMapView = ({ data, style, disabled, selected, onSelected }: Props) => {
     const themeValue = useCustomTheme()
     const { colors } = themeValue
     const { width: screenWidth } = Dimensions.get('window')
@@ -34,7 +35,7 @@ const CinemaMapView = ({ data, style, selected, onSelected }: Props) => {
             <View
                 className='w-full flex-row-reverse px-2'
                 key={rowIndex}>
-                {item.map((value, colIndex) =>
+                {item && item.length > 0 && item.map((value, colIndex) =>
                     <SeatButton
                         style={{
                             borderColor: value.seatType === SeatType.EMPTY ? 'transparent' : selected?.map(item => item.data).includes(value) ? colors.icon.highlight : colors.background.default,
@@ -43,8 +44,8 @@ const CinemaMapView = ({ data, style, selected, onSelected }: Props) => {
                         onPress={() => {
                             onSelected && onSelected({ x: rowIndex, y: colIndex, data: value })
                         }}
-                        data={value
-                        } key={colIndex}
+                        data={disabled && value.seatType !== SeatType.EMPTY ? { seatType: SeatType.UNAVAILABLE, seatCode: value.seatCode } : value}
+                        key={colIndex}
                         itemSize={itemSize} />
                 )}
             </View>
@@ -52,9 +53,12 @@ const CinemaMapView = ({ data, style, selected, onSelected }: Props) => {
     }
 
     useEffect(() => {
-        setMap2d(data)
-        if (data[0] && data[0].length > 0) {
-            setItemSize(screenWidth / (data[0].length) - PADDING_VALUE.md)
+        console.log('data == >', data)
+        if (data) {
+            setMap2d(data)
+            if (data[0] && data[0].length > 0) {
+                setItemSize(screenWidth / (data[0].length) - PADDING_VALUE.md)
+            }
         }
     }, [data])
 
@@ -90,7 +94,7 @@ const CinemaMapView = ({ data, style, selected, onSelected }: Props) => {
                     style={{ borderColor: colors.background.default }}>
                     <View className='self-start px-1 rounded-[2px]'
                         style={{
-                            backgroundColor: renderSeatColor(SeatType.STANDARD, colors),
+                            backgroundColor: disabled ? renderSeatColor(SeatType.UNAVAILABLE, colors) : renderSeatColor(SeatType.STANDARD, colors),
                         }}>
                         <ThemeText
                             fontSize={8}
@@ -102,24 +106,12 @@ const CinemaMapView = ({ data, style, selected, onSelected }: Props) => {
                     style={{ borderColor: colors.background.default }}>
                     <View className='self-start px-1 rounded-[2px]'
                         style={{
-                            backgroundColor: renderSeatColor(SeatType.VIP, colors),
+                            backgroundColor: disabled ? renderSeatColor(SeatType.UNAVAILABLE, colors) : renderSeatColor(SeatType.VIP, colors),
                         }}>
                         <ThemeText
                             fontSize={8}
                             letterSpacing={1}
                             fontWeight='light'>VIP</ThemeText>
-                    </View>
-                </View>
-                <View className='self-center border p-[2px] rounded-1 ml-2'
-                    style={{ borderColor: colors.background.default }}>
-                    <View className='self-start px-1 rounded-[2px]'
-                        style={{
-                            backgroundColor: renderSeatColor(SeatType.SWEET_BOX, colors),
-                        }}>
-                        <ThemeText
-                            fontSize={8}
-                            letterSpacing={1}
-                            fontWeight='light'>SWEET-BOX</ThemeText>
                     </View>
                 </View>
             </View>

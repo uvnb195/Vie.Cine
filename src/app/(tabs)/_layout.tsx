@@ -62,9 +62,9 @@ const _layout = () => {
     console.log(userInfo)
   }, [userInfo])
 
-  return (
-    <Redirect href={'/routes/admin-routes/(tabs)'} />
-  )
+  // return (
+  //   <Redirect href={'/routes/admin-routes/(tabs)'} />
+  // )
 
   return (
     <View className='flex-1'>

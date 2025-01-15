@@ -6,6 +6,7 @@ import ThemeText from '../theme/ThemeText'
 
 interface Props {
     children: ReactNode,
+    fontSize?: number,
     marginX?: number,
     marginY?: number,
     color?: string,
@@ -14,6 +15,7 @@ interface Props {
 
 const TextHighLight = ({
     children,
+    fontSize,
     marginX,
     marginY,
     color,
@@ -28,7 +30,7 @@ const TextHighLight = ({
                 marginHorizontal: marginX,
                 marginVertical: marginY
             }]}>
-            <ThemeText fontSize={12}
+            <ThemeText fontSize={fontSize || 12}
                 color={color || colors.textHighLight.text}
                 fontWeight='bold'>
                 {children}

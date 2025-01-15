@@ -1,4 +1,4 @@
-import { View, Text, ViewStyle, Image, ImageSourcePropType, ViewToken, TextStyle } from 'react-native'
+import { View, Text, ViewStyle, Image, ImageSourcePropType, ViewToken, TextStyle, Pressable } from 'react-native'
 import React, { memo } from 'react'
 import { CAROUSEL_ITEM_SIZE } from '@/constants/Values'
 import ThemeText from '../theme/ThemeText'
@@ -27,7 +27,7 @@ const MinimalCard = ({ style, src, title, subTitle, titleStyle,
     const [showDefault, setShowDefault] = React.useState(false)
 
     return (
-        <TouchableOpacity onPress={onPress} >
+        <Pressable onPress={onPress} >
             <View className='flex-col-reverse h-full w-full'
                 style={[
                     {
@@ -91,7 +91,7 @@ const MinimalCard = ({ style, src, title, subTitle, titleStyle,
                         </View>}
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 

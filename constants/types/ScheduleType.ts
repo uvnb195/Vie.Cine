@@ -1,14 +1,10 @@
+import { StatusType } from "./StatusType";
+
 export interface ScheduleType {
-    _id: string,
+    _id?: string,
     theatreId: string,
+    roomId: string,
     movieId: string,
-    runDate: Date,
-    runTimes: {
-        _id: string,
-        time: Date,
-        price: number,
-        unavailableSeats: string[]
-    }[],
-    price: number,
-    serviceIds: string | null,
+    timeStart: Date,
+    status: StatusType,
 }

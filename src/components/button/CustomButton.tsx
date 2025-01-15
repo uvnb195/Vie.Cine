@@ -29,7 +29,7 @@ const CustomButton = ({
         <TouchableOpacity
             disabled={disabled}
             onPress={onPress}
-            className='self-start items-center flex-row border'
+            className='self-start items-center justify-center flex-row border'
             style={[
                 {
                     borderRadius: 8,
@@ -51,16 +51,14 @@ const CustomButton = ({
                     otherProps={{
                         textDecorationLine: hasBorder ? 'none' : 'underline',
                         paddingHorizontal: 8,
+                        paddingRight: 4,
                     }}
                     numsOfLines={1}
                     color={
                         disabled
                             ? colors.text.disable
                             : (textColor ? textColor : colors.text.dark)}>{title}</ThemeText>}
-            {Icon && <View
-                style={{
-                    paddingRight: 4,
-                }}>
+            {Icon && <View>
                 {Icon}
             </View>}
         </TouchableOpacity >
